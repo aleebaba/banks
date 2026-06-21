@@ -41,16 +41,19 @@ const TOKENS_CSS = 'assets/css/tokens.css';
 
 function extractClassesFromHTML(html) {
   // Two sources: (1) class="..." attributes in HTML, (2) .classname { in <style> blocks
+  // Strip <style>...</style> AND <script>...</script> before scanning for .classname patterns,
+  // so JS DOM methods (.addEventListener, .innerHTML, .querySelector, etc.) don't pollute the class list.
   const used = new Set();
   const reAttr = /class="([^"]+)"/g;
   let m;
   while ((m = reAttr.exec(html)) !== null) {
     m[1].split(/\s+/).forEach(c => { if (c) used.add(c); });
   }
-  // Strip <style>...</style> blocks then extract .classname patterns
-  const noStyle = html.replace(/<style[^>]*>[\s\S]*?<\/style>/g, '');
+  const noStyleOrScript = html
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/g, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
   const reDef = /\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g;
-  while ((m = reDef.exec(noStyle)) !== null) {
+  while ((m = reDef.exec(noStyleOrScript)) !== null) {
     used.add(m[1]);
   }
   return used;
@@ -58,9 +61,15 @@ function extractClassesFromHTML(html) {
 
 function extractDefinedClassesFromCSS(cssText) {
   const defined = new Set();
+  // Strip /* ... */ comments AND url("...") string contents — otherwise
+  // URL fragments like "http://www.w3.org/2000/svg" leak .w3 and .org
+  // as false-positive class names.
+  const cleaned = cssText
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/url\([^)]*\)/g, '');
   const re = /\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g;
   let m;
-  while ((m = re.exec(cssText)) !== null) {
+  while ((m = re.exec(cleaned)) !== null) {
     defined.add(m[1]);
   }
   return defined;
@@ -97,6 +106,14 @@ log(`📋 ${TOKENS_CSS}: ${definedInTokens.size} classes\n`);
 const classToPages = new Map(); // class -> Set<page>
 const pageToClasses = new Map(); // page -> Set<class>
 
+// Noise filter: skip obvious non-class tokens (file extensions, URL-ish patterns).
+// These leak through the .classname regex from href/src/data attributes and JS access.
+const NOISE = new Set([
+  'html', 'css', 'js', 'json', 'png', 'jpg', 'jpeg', 'svg', 'gif', 'webp', 'ico',
+  'pdf', 'zip', 'txt', 'md', 'xml', 'yml', 'yaml',
+  'w3', // w3.org href
+]);
+
 for (const page of PAGES) {
   const pagePath = path.join(PROJECT_DIR, page);
   if (!fs.existsSync(pagePath)) {
@@ -107,6 +124,7 @@ for (const page of PAGES) {
   const classes = extractClassesFromHTML(html);
   pageToClasses.set(page, classes);
   for (const cls of classes) {
+    if (NOISE.has(cls)) continue;
     if (!classToPages.has(cls)) classToPages.set(cls, new Set());
     classToPages.get(cls).add(page);
   }
