@@ -1,0 +1,31 @@
+{
+  "name": "atlas-banks",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Atlas — 银行多维度数据分析平台 (frontend prototype)",
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.10"
+  },
+  "scripts": {
+    "audit": "node tools/class-audit.js",
+    "verify": "python tools/verify_links.py",
+    "audit:json": "node tools/class-audit.js --json",
+    "serve": "python -m http.server 8000",
+    "dev": "npm run serve"
+  },
+  "keywords": [
+    "alm",
+    "banking",
+    "data-platform",
+    "prototype"
+  ],
+  "license": "UNLICENSED",
+  "author": "Atlas Team",
+  "browserslist": [
+    "last 2 chrome versions",
+    "last 2 firefox versions",
+    "last 2 safari versions",
+    "last 2 edge versions"
+  ]
+}

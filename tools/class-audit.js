@@ -1,15 +1,15 @@
-// atlas-tools/class-audit.js
+// tools/class-audit.js
 // Audit CSS class reuse across Atlas HTML mockup pages.
 //
 // Usage:
-//   node atlas-tools/class-audit.js
-//   node atlas-tools/class-audit.js --json > audit.json
+//   npm run audit          # text output
+//   npm run audit:json     # JSON output
 //
 // Output (text mode):
-//   A. SHARED       — used in >=2 pages AND in atlas-components.css (the gold set)
-//   B. PROMOTABLE   — used in >=2 pages but NOT in atlas-components.css (gap to fill)
+//   A. SHARED       — used in >=2 pages AND in components.css (the gold set)
+//   B. PROMOTABLE   — used in >=2 pages but NOT in components.css (gap to fill)
 //   C. PAGE-LOCAL   — used in only 1 page (keep as-is OR consider promoting)
-//   D. DEAD         — defined in atlas-components.css but unused by any page
+//   D. DEAD         — defined in components.css but unused by any page
 //   E. PER-PAGE GAP — for each page, classes USED but not in components.css
 //   F. SUMMARY      — totals
 //
@@ -21,21 +21,21 @@ const path = require('path');
 
 const PROJECT_DIR = path.resolve(__dirname, '..');
 const PAGES = [
-  'mobile-bank-detail.html',
-  'mobile-banks.html',
-  'mobile-home.html',
-  'mobile-my.html',
-  'mobile-subscription.html',
-  'mobile-regulators.html',
-  'mobile-regulator-detail.html',
-  'mobile-reports.html',
-  'mobile-report-detail.html',
-  'mobile-compare.html',
-  'index.html',
-  'about.html',
+  'mobile/home.html',
+  'mobile/banks/list.html',
+  'mobile/banks/detail.html',
+  'mobile/regulators/list.html',
+  'mobile/regulators/detail.html',
+  'mobile/reports/list.html',
+  'mobile/reports/detail.html',
+  'mobile/compare.html',
+  'mobile/my.html',
+  'mobile/subscription.html',
+  'desktop/index.html',
+  'desktop/about.html',
 ];
-const COMPONENTS_CSS = 'atlas-components.css';
-const TOKENS_CSS = 'atlas-tokens.css';
+const COMPONENTS_CSS = 'assets/css/components.css';
+const TOKENS_CSS = 'assets/css/tokens.css';
 
 // ---------- extractors ----------
 
@@ -162,14 +162,14 @@ const line = (s = '') => log(s);
 const hr = () => line('─'.repeat(72));
 const pct = (num, denom) => denom === 0 ? '0%' : Math.round(num / denom * 100) + '%';
 
-line('A. SHARED (used in >=2 pages AND in atlas-components.css)');
+line(`A. SHARED (used in >=2 pages AND in ${COMPONENTS_CSS})`);
 hr();
 log(`   ${shared.length} classes — the gold set, do not change\n`);
 for (const { cls, count, pages } of shared) {
   log(`   ${count}x  .${cls.padEnd(28)} ${pages.join(', ')}`);
 }
 
-line('\nB. PROMOTABLE (used in >=2 pages but NOT in atlas-components.css)');
+line(`\nB. PROMOTABLE (used in >=2 pages but NOT in ${COMPONENTS_CSS})`);
 hr();
 log(`   ${promotable.length} classes — candidates to ADD to components.css\n`);
 for (const { cls, count, pages } of promotable.slice(0, 50)) {
@@ -191,12 +191,12 @@ for (const [page, classes] of [...byPage.entries()].sort()) {
   log('');
 }
 
-line('D. DEAD IN atlas-components.css (defined but UNUSED by any page)');
+line(`D. DEAD IN ${COMPONENTS_CSS} (defined but UNUSED by any page)`);
 hr();
 log(`   ${dead.length} classes — candidates to DELETE (bloat)\n`);
 for (const { cls } of dead) log(`   .${cls}`);
 
-line('\nE. PER-PAGE GAP (classes used by page but NOT in atlas-components.css)');
+line(`\nE. PER-PAGE GAP (classes used by page but NOT in ${COMPONENTS_CSS})`);
 hr();
 for (const page of PAGES) {
   const classes = pageToClasses.get(page);
