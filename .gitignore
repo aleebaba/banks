@@ -1,0 +1,40 @@
+# Vendored runtimes (not project code)
+Python/
+node_modules/
+
+# Playwright debug artifacts
+.playwright-mcp/
+
+# Editor sidecars
+*.artifact.json
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+
+# Build outputs (future-proof)
+dist/
+build/
+out/
+
+# Env / secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Local screenshots (design reference, not source)
+screenshots/
+!screenshots/.gitkeep

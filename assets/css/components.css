@@ -1,0 +1,458 @@
+/* ============================================================
+   atlas-components.css — Atlas mobile component library
+   Bloomberg / Trading Terminal density. Sharp edges, mono numerics,
+   1px borders, A-share red-up / green-down.
+
+   Depends on atlas-tokens.css. Do not redefine :root tokens.
+   ============================================================ */
+
+/* ============================================================
+   1.  card  · data card with header + body
+   ============================================================ */
+.data-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 16px 18px;
+  margin-bottom: 12px;
+}
+.data-card .h {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; gap: 8px;
+}
+.data-card .h h3 {
+  font-family: var(--font-display);
+  font-size: 14px; font-weight: 600;
+  letter-spacing: -0.008em; line-height: 1.2;
+  flex: 1; min-width: 0;
+  color: var(--fg);
+}
+.data-card .h .sub {
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.ctrl-row { display: flex; align-items: center; gap: 8px; }
+
+/* ============================================================
+   2.  kv  · 2-column key/value grid (NIM-style)
+   Each cell: k (uppercase mono label) + v (bold value) + d (delta)
+   ============================================================ */
+.kv {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 12px;
+}
+.kv .k {
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.kv .v {
+  font-family: var(--font-display);
+  font-size: 17px; font-weight: 600;
+  letter-spacing: -0.012em;
+  margin-top: 3px;
+  color: var(--fg);
+}
+.kv .v .u {
+  font-size: 11px; color: var(--muted);
+  font-weight: 500; margin-left: 2px;
+  font-family: var(--font-mono);
+}
+.kv .d {
+  font-family: var(--font-mono);
+  font-size: 10px; margin-top: 2px; font-weight: 500;
+}
+.kv .d.up      { color: var(--up); }
+.kv .d.down    { color: var(--down); }
+.kv .d.neutral { color: var(--muted); }
+
+/* ============================================================
+   3.  strip  · compact horizontal metric strip
+   Use for: top-of-card headline numbers (规模 55.77万亿 / +3.2%)
+   ============================================================ */
+.strip {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 14px;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.strip .lbl {
+  font: 9px/1 var(--font-mono);
+  color: var(--muted); letter-spacing: 0.06em;
+}
+.strip .val {
+  font: 13px/1.2 var(--font-mono);
+  font-weight: 600; color: var(--fg); letter-spacing: -0.005em;
+}
+.strip .delta {
+  font: 9.5px/1 var(--font-mono);
+  font-weight: 600; align-self: end;
+}
+.strip .delta.up   { color: var(--up); }
+.strip .delta.down { color: var(--down); }
+
+/* ============================================================
+   4.  yoy  · inline colored delta tag (used in headlines)
+   ============================================================ */
+.yoy {
+  font-family: var(--font-mono);
+  font-size: 12px; font-weight: 600;
+  padding: 3px 8px; border-radius: var(--radius-sm);
+}
+.yoy.up   { color: var(--up);   background: var(--up-soft); }
+.yoy.down { color: var(--down); background: var(--down-soft); }
+
+/* ============================================================
+   5.  delta-tag  · variant for inside cards
+   ============================================================ */
+.delta-tag {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 9.5px; font-weight: 600;
+  padding: 2px 5px; border-radius: 3px;
+  white-space: nowrap;
+}
+.delta-tag.good { color: var(--up);   background: var(--up-soft); }
+.delta-tag.bad  { color: var(--down); background: var(--down-soft); }
+.delta-tag.flat { color: var(--muted); background: var(--surface-2); }
+
+/* ============================================================
+   6.  toggle-row  · chart/table view switcher
+   ============================================================ */
+.toggle-row { display: flex; gap: 6px; }
+.tg-btn {
+  font-family: var(--font-mono);
+  font-size: 10px; padding: 4px 9px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.15s ease;
+  display: inline-flex; align-items: center; gap: 4px;
+  cursor: pointer;
+}
+.tg-btn.active {
+  background: var(--fg);
+  color: var(--accent-fg);
+  border-color: var(--fg);
+}
+.tg-btn svg { width: 11px; height: 11px; }
+
+/* ============================================================
+   7.  period-bar  · double-period comparison row above a chart
+   Two pills with a color dot + date label.
+   ============================================================ */
+.period-bar { display: flex; gap: 6px; margin-bottom: 12px; }
+.period-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px; letter-spacing: 0.04em;
+  color: var(--fg); padding: 3px 7px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.period-tag .pdot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+}
+
+/* ============================================================
+   8.  period-tabs  · 1Y/3Y/5Y/MAX segmented control
+   ============================================================ */
+.period-tabs {
+  display: inline-flex;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+.pt-btn {
+  padding: 4px 9px; border: 0; background: transparent;
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.pt-btn:hover { color: var(--fg); }
+.pt-btn.active {
+  background: var(--surface);
+  color: var(--accent);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+}
+
+/* ============================================================
+   9.  seg-ctrl  · chart range segmented control (1Y/3Y/5Y/MAX)
+   Slightly larger than .period-tabs; for chart toolbars.
+   ============================================================ */
+.seg-ctrl {
+  display: inline-flex; gap: 0; padding: 2px;
+  background: var(--surface-2);
+  border-radius: 6px;
+}
+.seg-ctrl .seg {
+  font-family: var(--font-mono);
+  font-size: 10px; padding: 3px 9px;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.seg-ctrl .seg.active {
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 0 0 1px var(--border);
+}
+
+/* ============================================================
+   10. dl-mini  · 28×28 icon download button (right corner of card)
+   ============================================================ */
+.dl-mini {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.dl-mini:hover {
+  background: var(--fg);
+  color: var(--accent-fg);
+  border-color: var(--fg);
+}
+.dl-mini:active { transform: scale(0.92); }
+.dl-mini svg { width: 12px; height: 12px; }
+
+/* ============================================================
+   10b. view-toggle  · single-icon chart/table view switcher
+   Same shape as dl-mini (28×28, sharp 6px). Icon shows TARGET
+   state (HIG convention) — click to switch TO that view.
+   ============================================================ */
+.view-toggle {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.view-toggle:hover {
+  background: var(--fg);
+  color: var(--accent-fg);
+  border-color: var(--fg);
+}
+.view-toggle:active { transform: scale(0.92); }
+.view-toggle svg { width: 13px; height: 13px; stroke-width: 1.5; }
+
+/* ============================================================
+   11. ic-btn  · 32×32 round icon button (top bar)
+   ============================================================ */
+.ic-btn {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  display: grid; place-items: center;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.ic-btn:hover { color: var(--fg); background: var(--surface-warm); }
+.ic-btn svg { width: 14px; height: 14px; }
+
+/* ============================================================
+   12. evo-section  · evolution sub-block below a chart
+   Top: 1px dashed border; head: title + period tabs; body: SVG; bottom: legend
+   ============================================================ */
+.evo-section {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px dashed var(--border);
+}
+.evo-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 8px; gap: 8px;
+}
+.evo-title {
+  font-family: var(--font-mono);
+  font-size: 9.5px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ============================================================
+   13. legend  · 4-color swatch row below charts
+   ============================================================ */
+.legend {
+  display: flex; flex-wrap: wrap;
+  gap: 4px 10px;
+  margin-top: 8px; padding-top: 8px;
+}
+.lg-item {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--font-mono);
+  font-size: 9px; letter-spacing: 0.02em;
+  color: var(--muted);
+}
+.lg-swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px; flex-shrink: 0;
+}
+
+/* ============================================================
+   14. tbl  · compact data table
+   Right-aligned mono numerics; first column = body font label.
+   ============================================================ */
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th, .tbl td {
+  padding: 6px 4px; text-align: right;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  border-bottom: 1px solid var(--border);
+}
+.tbl th:first-child, .tbl td:first-child {
+  text-align: left;
+  font-family: var(--font-body);
+  color: var(--fg);
+  font-weight: 500;
+  line-height: 1.25;
+}
+.tbl th {
+  color: var(--muted);
+  font-weight: 500;
+  font-size: 9.5px;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+}
+.tbl td.num-strong   { font-weight: 600; color: var(--fg); }
+.tbl td.delta-good   { color: var(--up);   font-weight: 600; }
+.tbl td.delta-bad    { color: var(--down); font-weight: 600; }
+.tbl td.delta-neutral { color: var(--muted); }
+.tbl tr:last-child td {
+  border-bottom: none; font-weight: 600;
+  background: var(--surface-2);
+}
+.tbl tr.total td { font-weight: 600; }
+.tbl tr.total td:first-child { font-family: var(--font-body); }
+
+/* Stacked percentage cell + pp delta cell */
+.tbl td.pct-cell {
+  line-height: 1.35; font-size: 10.5px; white-space: nowrap;
+}
+.tbl td.pct-cell .pct-prior {
+  display: block; font-size: 9px;
+  color: var(--muted); font-weight: 400; margin-top: 1px;
+}
+.tbl td.pp-cell {
+  font-size: 10.5px; color: var(--fg);
+  font-weight: 600; white-space: nowrap;
+}
+.tbl td.pp-cell.up   { color: var(--up); }
+.tbl td.pp-cell.down { color: var(--down); }
+.tbl td.pp-cell.flat { color: var(--muted); font-weight: 500; }
+
+/* 6-column balance-sheet table (资负 / 流动性 tables) */
+.tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px 2px; }
+.tbl-6 { width: auto; min-width: 460px; }
+.tbl-6 col.c-name  { width: 110px; }
+.tbl-6 col.c-v25   { width: 78px; }
+.tbl-6 col.c-v24   { width: 78px; }
+.tbl-6 col.c-delta { width: 70px; }
+.tbl-6 col.c-pct   { width: 64px; }
+.tbl-6 col.c-pp    { width: 60px; }
+.tbl-6 th, .tbl-6 td { padding: 6px 4px; font-size: 10.5px; }
+.tbl-6 tr:last-child td:first-child,
+.tbl-6 tr.total td:first-child { background: var(--surface-2); }
+
+/* ============================================================
+   15. tabs  · bottom navigation (4 tabs)
+   ============================================================ */
+.tabs {
+  display: flex; padding: 6px 8px 22px;
+  background: rgba(255,255,255,0.86);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 3px; color: var(--muted);
+  font-size: 10px; font-weight: 500;
+  letter-spacing: -0.005em;
+}
+.tab.active { color: var(--accent); }
+.tab svg { width: 22px; height: 22px; stroke-width: 1.6; }
+
+/* ============================================================
+   16. tab-panel  · page-level tab content (single panel at a time)
+   ============================================================ */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ============================================================
+   17. AI card  · interpretive summary card
+   Use sparingly; carries a verdict badge + bullet findings.
+   ============================================================ */
+.ai-card {
+  background: linear-gradient(135deg, var(--surface) 0%, var(--surface-warm) 100%);
+  border-color: var(--border-strong);
+}
+.ai-card .h h3 {
+  display: flex; align-items: center; gap: 6px;
+  background: linear-gradient(90deg, var(--fg) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.ai-verdict {
+  font-family: var(--font-mono);
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--up);
+  background: var(--up-soft);
+  border: 1px solid var(--up);
+  padding: 2px 7px; border-radius: 3px;
+  flex-shrink: 0;
+}
+.ai-verdict.v-good {
+  color: var(--down);
+  background: var(--down-soft);
+  border-color: var(--down);
+}
+
+/* ============================================================
+   18. chart  · SVG bar / line charts
+   ============================================================ */
+.chart {
+  width: 100%; height: 130px; display: block;
+}
+.bar-svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.chart-axis {
+  display: flex; justify-content: space-between; margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 9px; color: var(--muted);
+  letter-spacing: 0.05em;
+}
+.chart-legend {
+  display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+.legend-line { display: inline-block; width: 14px; height: 2px; margin-right: 5px; vertical-align: middle; }

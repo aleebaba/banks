@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>银图 Atlas · 订阅方案</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --surface-warm: #1a2740;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --muted: #8492a6;
+      --soft: #475569;
+      --border: #263246;
+      --border-soft: #1c2638;
+      --border-strong: #344056;
+      --accent: #38bdf8;
+      --accent-soft: #0c2a3d;
+      --accent-fg: #03111a;
+      --success: #22c55e;
+      --success-soft: #082d1a;
+      --danger: #ef4444;
+      --danger-soft: #3a0d0d;
+      --warning: #f59e0b;
+      --warning-soft: #2d1f08;
+      --meta: #38bdf8;
+      --up: #ef4444;
+      --up-soft: #2a0a0a;
+      --down: #22c55e;
+      --down-soft: #082d1a;
+      --radius-sm: 4px;
+      --radius-md: 4px;
+      --radius-lg: 4px;
+      --radius-pill: 9999px;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', ui-monospace, Menlo, 'SF Mono', monospace;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --surface-warm: #f0f3f7;
+      --fg: #0f172a;
+      --fg-2: #475569;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --border-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #e0f2fe;
+      --accent-fg: #ffffff;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --warning: #d97706;
+      --warning-soft: #fef3c7;
+      --meta: #0284c7;
+      --up: #dc2626;
+      --up-soft: #fee2e2;
+      --down: #16a34a;
+      --down-soft: #dcfce7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); min-height: 100vh; display: grid; place-items: center; }
+    body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: var(--fg); }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-family: var(--font-mono); }
+    a { color: inherit; text-decoration: none; }
+
+    .device {
+      width: 393px; height: 852px; background: #0a0d14; border-radius: 50px;
+      padding: 12px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1.5px #1a1f2c;
+    }
+    .device::before {
+      content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 32px; background: #0a0d14; border-radius: 20px; z-index: 10;
+    }
+    .device::after {
+      content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; background: rgba(255,255,255,0.55); border-radius: 5px; z-index: 10;
+    }
+    .screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+
+    .status {
+      height: 54px; padding: 16px 28px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+      letter-spacing: -0.01em; color: var(--fg);
+    }
+    .status-right { display: flex; align-items: center; gap: 6px; }
+    .icon { width: 16px; height: 16px; display: inline-block; }
+    .icon-signal { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='11' width='2.5' height='4' rx='0.5' fill='black'/><rect x='6' y='8' width='2.5' height='7' rx='0.5' fill='black'/><rect x='10' y='5' width='2.5' height='10' rx='0.5' fill='black'/><rect x='14' y='2' width='2.5' height='13' rx='0.5' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-wifi { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 11.5l1.5 1.5a2 2 0 0 1-3 0zM3 7a7 7 0 0 1 10 0l-1.4 1.4a5 5 0 0 0-7.2 0zM1 5a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-battery { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'><rect x='0.5' y='0.5' width='20' height='15' rx='3' stroke='black' stroke-width='1' fill='none'/><rect x='22' y='5' width='2' height='6' rx='1' fill='black'/><rect x='2' y='2' width='17' height='12' rx='2' fill='black'/></svg>") no-repeat center / contain; }
+
+    .top {
+      padding: 4px 20px 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .back {
+      width: 32px; height: 32px; border-radius: 4px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg);
+    }
+    .back svg { width: 14px; height: 14px; }
+    .top-title {
+      font-family: var(--font-display); font-size: 14px; font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .top-right { width: 32px; }
+
+    .app { flex: 1; overflow-y: auto; padding: 0 0 60px; }
+    .app::-webkit-scrollbar { display: none; }
+
+    /* ===== Hero ===== */
+    .hero { padding: 8px 20px 22px; }
+    .hero .eyebrow {
+      font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+      letter-spacing: 0.12em; text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 5px;
+      margin-bottom: 10px;
+    }
+    .hero .eyebrow::before {
+      content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--accent);
+    }
+    .hero h1 {
+      font-family: var(--font-display); font-size: 26px; font-weight: 600;
+      letter-spacing: -0.022em; line-height: 1.15; margin-bottom: 8px;
+    }
+    .hero .lede {
+      font-size: 12.5px; color: var(--muted); line-height: 1.55;
+      letter-spacing: -0.003em;
+    }
+    .hero .lede .acc { color: var(--accent); font-weight: 600; }
+
+    /* ===== Segmented switcher ===== */
+    .switcher {
+      display: flex; padding: 3px; background: var(--surface);
+      border: 1px solid var(--border); border-radius: 4px; margin: 0 20px 16px;
+    }
+    .switcher .opt {
+      flex: 1; padding: 8px 10px; text-align: center;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.04em; color: var(--muted);
+      border-radius: 3px; cursor: pointer; transition: all 0.15s ease;
+    }
+    .switcher .opt.active { background: var(--surface-2); color: var(--fg); }
+    .switcher .opt .save {
+      display: inline-block; margin-left: 4px;
+      font-size: 8px; color: var(--accent); font-weight: 700;
+    }
+
+    /* ===== Pricing cards ===== */
+    .pricing { padding: 0 20px 20px; display: flex; flex-direction: column; gap: 12px; }
+    .tier {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 16px 18px 18px; position: relative;
+    }
+    .tier.featured {
+      background: linear-gradient(180deg, var(--surface-warm) 0%, var(--surface) 50%);
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 12px 40px rgba(56,189,248,0.10);
+    }
+    .tier.featured::before {
+      content: '最受欢迎'; position: absolute; top: -8px; left: 16px;
+      font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+      letter-spacing: 0.08em; padding: 3px 7px;
+      background: var(--accent); color: var(--accent-fg);
+      border-radius: 3px;
+    }
+    .tier .head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .tier .name {
+      font-family: var(--font-display); font-size: 18px; font-weight: 600;
+      letter-spacing: -0.015em; line-height: 1.2; margin-bottom: 4px;
+    }
+    .tier .name .en {
+      font-size: 11px; color: var(--muted); font-weight: 500; margin-left: 4px;
+      font-family: var(--font-mono); letter-spacing: 0;
+    }
+    .tier .tagline {
+      font-size: 11.5px; color: var(--muted); line-height: 1.45;
+      letter-spacing: -0.003em;
+    }
+    .tier .price-row { display: flex; align-items: baseline; gap: 4px; margin: 12px 0 4px; }
+    .tier .price {
+      font-family: var(--font-mono); font-size: 30px; font-weight: 600;
+      letter-spacing: -0.025em; line-height: 1; color: var(--fg);
+    }
+    .tier .price .yuan { font-size: 16px; color: var(--muted); margin-right: 2px; font-weight: 500; }
+    .tier .price.free { font-size: 24px; color: var(--muted); }
+    .tier .price-unit {
+      font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .tier .strikethrough {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      text-decoration: line-through; letter-spacing: 0.04em; margin-top: 4px;
+    }
+    .tier .feat-list {
+      display: flex; flex-direction: column; gap: 7px;
+      padding: 12px 0 14px; margin-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+    .tier .feat {
+      display: flex; align-items: flex-start; gap: 7px;
+      font-size: 12px; line-height: 1.5; color: var(--fg-2);
+    }
+    .tier .feat svg {
+      width: 12px; height: 12px; flex-shrink: 0; margin-top: 3px;
+    }
+    .tier .feat.yes { color: var(--fg); }
+    .tier .feat.yes svg { color: var(--down); }
+    .tier .feat.no { color: var(--muted); }
+    .tier .feat.no svg { color: var(--muted); opacity: 0.5; }
+    .tier .feat b { color: var(--fg); font-weight: 600; }
+    .tier .feat .num { color: var(--fg); }
+    .tier .cta {
+      width: 100%; padding: 11px 14px; border-radius: 4px;
+      font-family: var(--font-mono); font-size: 12px; font-weight: 700;
+      letter-spacing: 0.04em; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .tier .cta.primary { background: var(--accent); color: var(--accent-fg); border: 1px solid var(--accent); }
+    .tier .cta.ghost { background: transparent; color: var(--fg); border: 1px solid var(--border-strong); }
+    .tier .cta svg { width: 12px; height: 12px; }
+    .tier .current {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: var(--font-mono); font-size: 10px; color: var(--down);
+      letter-spacing: 0.04em;
+    }
+    .tier .current svg { width: 10px; height: 10px; }
+
+    /* ===== Volume discount table ===== */
+    .volume {
+      margin: 0 20px 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 14px 16px 16px;
+    }
+    .volume .h {
+      display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;
+    }
+    .volume .h .ttl {
+      font-family: var(--font-display); font-size: 13px; font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .volume .h .lbl {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .volume .sub {
+      font-size: 11px; color: var(--muted); line-height: 1.5;
+      letter-spacing: -0.003em; margin-bottom: 12px;
+    }
+    .vol-table { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); border-radius: 3px; overflow: hidden; }
+    .vol-row {
+      display: grid; grid-template-columns: 1fr 1fr 1.2fr;
+      background: var(--surface); padding: 8px 10px;
+      font-family: var(--font-mono); font-size: 11px;
+    }
+    .vol-row.head {
+      background: var(--surface-2); color: var(--muted);
+      font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase;
+      font-weight: 600;
+    }
+    .vol-row .seats { color: var(--fg); font-weight: 600; }
+    .vol-row .disc { color: var(--accent); font-weight: 600; }
+    .vol-row .price { color: var(--fg); font-weight: 600; text-align: right; }
+    .vol-row .price .raw { color: var(--muted); text-decoration: line-through; font-weight: 500; font-size: 10px; margin-right: 4px; }
+    .vol-row .price .save { color: var(--down); font-size: 9.5px; margin-left: 3px; }
+    .vol-row.custom { background: var(--surface-warm); }
+    .vol-row.custom .disc { color: var(--warning); }
+
+    .volume .quote {
+      margin-top: 10px; padding: 9px 12px;
+      background: var(--accent-soft); border: 1px dashed var(--accent);
+      border-radius: 4px;
+      font-family: var(--font-mono); font-size: 10.5px; color: var(--accent);
+      letter-spacing: 0.04em;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .volume .quote svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ===== Report micro-payment ===== */
+    .reports {
+      margin: 0 20px 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 14px 16px 16px;
+    }
+    .reports .h {
+      display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px;
+    }
+    .reports .h .ttl {
+      font-family: var(--font-display); font-size: 13px; font-weight: 600;
+    }
+    .reports .h .lbl {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .reports .sub {
+      font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 12px;
+    }
+    .rpt-samples { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); border-radius: 3px; overflow: hidden; }
+    .rpt-sample {
+      display: flex; align-items: center; gap: 11px;
+      background: var(--surface); padding: 10px 12px;
+    }
+    .rpt-sample .ic {
+      width: 30px; height: 30px; border-radius: 4px;
+      background: var(--accent-soft); border: 1px solid var(--border-strong);
+      display: grid; place-items: center; color: var(--accent); flex-shrink: 0;
+    }
+    .rpt-sample .ic svg { width: 14px; height: 14px; }
+    .rpt-sample .body { flex: 1; min-width: 0; }
+    .rpt-sample .ttl {
+      font-size: 12px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em; line-height: 1.3; margin-bottom: 2px;
+    }
+    .rpt-sample .meta {
+      font-family: var(--font-mono); font-size: 9.5px; color: var(--muted);
+      letter-spacing: 0.04em; display: flex; align-items: center; gap: 5px;
+    }
+    .rpt-sample .meta .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--muted); }
+    .rpt-sample .price {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+      color: var(--fg); flex-shrink: 0;
+    }
+    .rpt-sample .price .yuan { font-size: 10px; color: var(--muted); margin-right: 1px; font-weight: 500; }
+    .rpt-sample .price .old { font-size: 10px; color: var(--muted); text-decoration: line-through; font-weight: 500; margin-right: 4px; }
+
+    /* ===== Compare table ===== */
+    .compare { margin: 0 20px 20px; }
+    .compare .h {
+      display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;
+    }
+    .compare .h .ttl {
+      font-family: var(--font-display); font-size: 14px; font-weight: 600;
+    }
+    .compare .h .lbl {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .cmp-table {
+      display: flex; flex-direction: column; gap: 1px;
+      background: var(--border-soft); border-radius: 3px; overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .cmp-row {
+      display: grid; grid-template-columns: 1.1fr 0.6fr 0.6fr 0.6fr;
+      background: var(--surface); padding: 9px 10px;
+      font-family: var(--font-mono); font-size: 10.5px;
+    }
+    .cmp-row.head {
+      background: var(--surface-2); color: var(--muted);
+      font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase;
+      font-weight: 600;
+    }
+    .cmp-row.head .col.mid { color: var(--accent); }
+    .cmp-row .col { display: flex; align-items: center; }
+    .cmp-row .col.feat { color: var(--fg-2); font-size: 10.5px; }
+    .cmp-row .col.feat .acc { color: var(--accent); font-weight: 600; }
+    .cmp-row .col.mid { justify-content: center; }
+    .cmp-row .col svg { width: 12px; height: 12px; }
+    .cmp-row .col svg.yes { color: var(--down); }
+    .cmp-row .col svg.no { color: var(--muted); opacity: 0.4; }
+    .cmp-row .col svg.lim { color: var(--warning); }
+    .cmp-row.section {
+      background: var(--surface-warm); color: var(--muted);
+      font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase;
+      font-weight: 700; padding: 6px 10px;
+    }
+
+    /* ===== FAQ ===== */
+    .faq { margin: 0 20px 30px; }
+    .faq .h {
+      display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;
+    }
+    .faq .h .ttl { font-family: var(--font-display); font-size: 14px; font-weight: 600; }
+    .faq-item {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 11px 14px; margin-bottom: 6px;
+    }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 12px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em;
+    }
+    .faq-q svg { width: 12px; height: 12px; color: var(--muted); }
+    .faq-a {
+      font-size: 11px; color: var(--muted); line-height: 1.55;
+      letter-spacing: -0.003em; margin-top: 6px;
+    }
+    .faq-a .hl { color: var(--accent); }
+
+    /* ===== Footnote ===== */
+    .footnote {
+      margin: 0 20px 24px; padding: 12px 14px;
+      background: transparent; border-top: 1px dashed var(--border);
+      font-family: var(--font-mono); font-size: 9.5px; color: var(--muted);
+      letter-spacing: 0.04em; line-height: 1.55;
+    }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status">
+        <div>9:41</div>
+        <div class="status-right">
+          <span class="icon icon-signal"></span>
+          <span class="icon icon-wifi"></span>
+          <span class="icon icon-battery"></span>
+        </div>
+      </div>
+
+      <div class="top">
+        <a class="back" href="my.html" aria-label="返回">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 6-6 6 6 6"></path></svg>
+        </a>
+        <div class="top-title">订阅方案</div>
+        <div class="top-right">
+        </div>
+      </div>
+
+      <div class="app">
+
+        <!-- Hero -->
+        <div class="hero">
+          <div class="eyebrow">PRICING</div>
+          <h1 style="text-align: center;">为研究员、自媒体、<br>机构定制的三档订阅</h1>
+          <p class="lede">从 <span class="acc">免费版</span> 起步，按数据深度升档。年付省 16%，<span class="acc">机构版 5 席起 · 阶梯折扣</span>。单篇深度报告可单独购买。</p>
+        </div>
+
+        <!-- Billing switcher -->
+        <div class="switcher">
+          <div class="opt active">年付 <span class="save">省 16%</span></div>
+          <div class="opt">月付</div>
+        </div>
+
+        <!-- 3 tier cards -->
+        <div class="pricing">
+
+          <!-- 免费版 -->
+          <div class="tier">
+            <div class="head">
+              <div>
+                <div class="name">免费版 <span class="en">FREE</span></div>
+                <div class="tagline">体验产品 · 自媒体引流 · 7 天延迟数据</div>
+              </div>
+            </div>
+            <div class="price-row">
+              <span class="price free">¥0</span>
+              <span class="price-unit">/ 永久</span>
+            </div>
+            <div class="feat-list">
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>1 家银行全维度数据</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>5 篇免费报告 / 月</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span><b>7 天</b> 延迟数据</span></div>
+              <div class="feat no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg><span>无实时市场数据</span></div>
+              <div class="feat no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg><span>无 API · 无跨行对标</span></div>
+            </div>
+            <div class="cta ghost">当前方案</div>
+          </div>
+
+          <!-- 专业版 (featured) -->
+          <div class="tier featured">
+            <div class="head">
+              <div>
+                <div class="name">专业版 <span class="en">PRO</span></div>
+                <div class="tagline">个人研究员 · 付费自媒体 · 1,240+ 全球银行</div>
+              </div>
+              <div class="current">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg>
+                续费中
+              </div>
+            </div>
+            <div class="price-row">
+              <span class="price"><span class="yuan">¥</span>1,999</span>
+              <span class="price-unit">/ 年 · 折合 ¥167 / 月</span>
+            </div>
+            <div class="strikethrough">月付 ¥199 / 月 · 年付立省 ¥389</div>
+            <div class="feat-list">
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>全部 <b>1,240+</b> 银行 · <b>38+</b> 维度</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>全部 <b>86 篇</b> 报告免费阅读</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span><b>实时</b> 数据 · 财报 T+0 推送</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>跨行对标 workbench · 5 家 G-SIBs</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span><b>30 份</b> CSV 数据下载 / 月</span></div>
+              <div class="feat no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg><span>无 API · 无团队席位</span></div>
+            </div>
+            <a class="cta primary" href="#">续费 · 剩 23 天
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+            </a>
+          </div>
+
+          <!-- 机构版 -->
+          <div class="tier">
+            <div class="head">
+              <div>
+                <div class="name">机构版 <span class="en">TEAM</span></div>
+                <div class="tagline">银行 / 券商研究部 · 5 席起 · 阶梯折扣</div>
+              </div>
+            </div>
+            <div class="price-row">
+              <span class="price"><span class="yuan">¥</span>3,999</span>
+              <span class="price-unit">/ 席位 / 年 · 5 席起</span>
+            </div>
+            <div class="strikethrough">单买 5 席 = ¥19,995 · 10 席 9.5 折起</div>
+            <div class="feat-list">
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>专业版 <b>全部</b> 权益</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span><b>API</b> 接入 · 10k 调用 / 月</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>团队席位 · 席位管理后台</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span><b>200 份</b> CSV / 月 · 优先客服</span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>研报二次分发权 <span style="color:var(--muted)">(可选)</span></span></div>
+              <div class="feat yes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg><span>定制数据导出 · 跨境 / 衍生品</span></div>
+            </div>
+            <a class="cta ghost" href="#">询价 / 申请试用
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"></path></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Volume discount -->
+        <div class="volume">
+          <div class="h">
+            <div class="ttl">机构版 · 阶梯折扣</div>
+            <div class="lbl">VOLUME</div>
+          </div>
+          <div class="sub">席位越多越划算。席位按年计算，可一次买多年（5 席 × 3 年 = 15 席计）。</div>
+          <div class="vol-table">
+            <div class="vol-row head">
+              <div>席位</div><div>折扣</div><div class="price" style="text-align:right">单席年价</div>
+            </div>
+            <div class="vol-row">
+              <div class="seats">5 - 9 席</div>
+              <div class="disc">原价</div>
+              <div class="price">¥3,999</div>
+            </div>
+            <div class="vol-row">
+              <div class="seats">10 - 19 席</div>
+              <div class="disc">9.5 折</div>
+              <div class="price"><span class="raw">¥3,999</span>¥3,799<span class="save">省 ¥2k</span></div>
+            </div>
+            <div class="vol-row">
+              <div class="seats">20 - 29 席</div>
+              <div class="disc">9.0 折</div>
+              <div class="price"><span class="raw">¥3,999</span>¥3,599<span class="save">省 ¥8k</span></div>
+            </div>
+            <div class="vol-row">
+              <div class="seats">30 - 49 席</div>
+              <div class="disc">8.5 折</div>
+              <div class="price"><span class="raw">¥3,999</span>¥3,399<span class="save">省 ¥18k</span></div>
+            </div>
+            <div class="vol-row custom">
+              <div class="seats">50+ 席</div>
+              <div class="disc">议价</div>
+              <div class="price">面议 · 含 SLA</div>
+            </div>
+          </div>
+          <div class="quote">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"></path></svg>
+            30 席方案示例：30 × ¥3,399 = <b>¥101,970 / 年</b> · 比原价省 ¥18,000
+          </div>
+        </div>
+
+        <!-- Report micro-payment -->
+        <div class="reports">
+          <div class="h">
+            <div class="ttl">单篇报告 · 按需购买</div>
+            <div class="lbl">MICRO-PAY</div>
+          </div>
+          <div class="sub">深度专题 / 季度归因 / 监管解读等可单独解锁。专业版 / 机构版用户全部免费。</div>
+          <div class="rpt-samples">
+            <a class="rpt-sample" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"></path></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">2025Q1 商业银行 NIM 归因专题</div>
+                <div class="meta">NIM · 归因 <span class="dot"></span> 38 页 <span class="dot"></span> 5 月 8 日</div>
+              </div>
+              <div class="price"><span class="yuan">¥</span>58</div>
+            </a>
+            <a class="rpt-sample" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"></path></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">G-SIBs 跨境业务敞口季度观察</div>
+                <div class="meta">跨境 <span class="dot"></span> 24 页 <span class="dot"></span> 4 月 22 日</div>
+              </div>
+              <div class="price"><span class="old">¥98</span><span class="yuan">¥</span>68</div>
+            </a>
+            <a class="rpt-sample" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"></path></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">TLAC / MREL 监管口径深度对比</div>
+                <div class="meta">资本 <span class="dot"></span> 52 页 <span class="dot"></span> 4 月 10 日</div>
+              </div>
+              <div class="price"><span class="yuan">¥</span>198</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Compare table -->
+        <div class="compare">
+          <div class="h">
+            <div class="ttl">三档权益对比</div>
+            <div class="lbl">COMPARE</div>
+          </div>
+          <div class="cmp-table">
+            <div class="cmp-row head">
+              <div class="col feat">权益</div>
+              <div class="col mid">免费</div>
+              <div class="col mid">专业</div>
+              <div class="col mid">机构</div>
+            </div>
+
+            <div class="cmp-row section">
+              <div class="col feat" style="grid-column: 1 / -1">数据</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">银行覆盖</div>
+              <div class="col mid">1 家</div>
+              <div class="col mid">1,240+</div>
+              <div class="col mid">1,240+</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">数据维度</div>
+              <div class="col mid">38+</div>
+              <div class="col mid">38+</div>
+              <div class="col mid">38+</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">实时数据</div>
+              <div class="col mid"><svg class="no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+              <div class="col mid"><svg class="yes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
+              <div class="col mid"><svg class="yes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
+            </div>
+
+            <div class="cmp-row section">
+              <div class="col feat" style="grid-column: 1 / -1">报告</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">免费报告</div>
+              <div class="col mid">5 / 月</div>
+              <div class="col mid">86 篇全</div>
+              <div class="col mid">86 篇全</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">单篇购买</div>
+              <div class="col mid"><svg class="yes" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
+              <div class="col mid"><svg class="lim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg></div>
+              <div class="col mid"><svg class="lim" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"></path></svg></div>
+            </div>
+
+            <div class="cmp-row section">
+              <div class="col feat" style="grid-column: 1 / -1">工具</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">跨行对标</div>
+              <div class="col mid"><svg class="no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+              <div class="col mid">5 家</div>
+              <div class="col mid">不限</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">CSV 下载</div>
+              <div class="col mid">0</div>
+              <div class="col mid">30 / 月</div>
+              <div class="col mid">200 / 月</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">API 调用</div>
+              <div class="col mid"><svg class="no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+              <div class="col mid"><svg class="no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+              <div class="col mid">10k / 月</div>
+            </div>
+            <div class="cmp-row">
+              <div class="col feat">团队席位</div>
+              <div class="col mid"><svg class="no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+              <div class="col mid"><svg class="no" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"></path></svg></div>
+              <div class="col mid">5 席起</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="faq">
+          <div class="h">
+            <div class="ttl">常见问题</div>
+            <div class="lbl" style="font-family: var(--font-mono); font-size: 9px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase;">FAQ</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">可以从免费版直接升级到机构版吗？
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </div>
+            <div class="faq-a">可以。机构版按席位计费，5 席起售；当前若有专业版未到期余额，将按比例折抵机构版费用，<span class="hl">联系客户经理</span> 处理。</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">席位未用完会顺延吗？
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </div>
+            <div class="faq-a">不会顺延。CSV 下载 / API 调用额度按月重置，未用完的部分不累计到下月。席位本身是<span class="hl">按年计费</span>，未分配的席位可随时重新分配给其他同事。</div>
+          </div>
+          <div class="faq-item">
+            <div class="faq-q">机构版的"研报二次分发权"是什么？
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg>
+            </div>
+            <div class="faq-a">默认仅供机构内部分发（≤ 50 人）。如需对外发布、嵌入客户研报系统或生成衍生品，<span class="hl">单独议价</span>，30 席及以上版本默认包含基础对外授权。</div>
+          </div>
+        </div>
+
+        <!-- Footnote -->
+        <div class="footnote">
+          所有价格含 6% 增值税 · 机构版签订正式合同 · 7 天无理由退款<br>
+          客服：enterprise@atlas.finance · 工作日 09:00-18:00
+        </div>
+
+      </div>
+    </div>
+  </div>
+  <script>
+    // Theme toggle (Dark ↔ Light)
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      var btn = document.getElementById('theme-trigger');
+      var svg = btn ? btn.querySelector('svg') : null;
+      function moonPath() {
+        return '<path d="M12.5 9.5A5 5 0 0 1 6.5 3.5a5 5 0 1 0 6 6z" fill="currentColor"/>';
+      }
+      function sunPath() {
+        return '<circle cx="8" cy="8" r="2.8"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>';
+      }
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        if (svg) svg.innerHTML = (theme === 'light') ? sunPath() : moonPath();
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      if (btn) btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        var next = cur === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        apply(next);
+      });
+    })();
+  </script>
+
+
+</body></html>

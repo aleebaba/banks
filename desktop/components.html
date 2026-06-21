@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlas 移动端 · 部件目录</title>
+  <link rel="stylesheet" href="../assets/css/tokens.css" />
+  <link rel="stylesheet" href="../assets/css/components.css" />
+  <style>
+    body { padding: 24px 16px 60px; font-size: 13px; }
+    .catalog { max-width: 720px; margin: 0 auto; }
+    .catalog > h1 {
+      font-family: var(--font-display); font-size: 22px;
+      font-weight: 600; letter-spacing: -0.012em;
+      margin-bottom: 4px;
+    }
+    .catalog > .lede {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--muted); letter-spacing: 0.04em; margin-bottom: 28px;
+    }
+    section { margin-bottom: 28px; }
+    section > h2 {
+      font-family: var(--font-mono); font-size: 10.5px; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent); padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    section > h2 .idx { color: var(--muted); margin-right: 6px; }
+    section > .note {
+      font-family: var(--font-mono); font-size: 10px;
+      color: var(--muted); letter-spacing: 0.02em;
+      margin-bottom: 10px; line-height: 1.6;
+    }
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .swatch-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+    }
+    .sw {
+      padding: 10px 12px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+    }
+    .sw .name {
+      font-family: var(--font-mono); font-size: 9.5px;
+      color: var(--muted); letter-spacing: 0.04em; margin-bottom: 4px;
+    }
+    .sw .val {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--fg); font-weight: 600;
+    }
+    .chip {
+      display: inline-block; height: 24px; width: 100%;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+  <div class="catalog">
+
+    <h1>Atlas 移动端 · 部件目录</h1>
+    <p class="lede">atlas-tokens.css + atlas-components.css · 18 个部件 · A-share 红涨绿跌</p>
+
+    <!-- ============================================================
+         01. tokens  颜色 / 字体 / 间距
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">01</span>Tokens · 颜色</h2>
+      <p class="note">直接使用 var(--xxx)，不要在组件里写 #hex。</p>
+      <div class="swatch-grid">
+        <div class="sw"><div class="name">--bg</div><div class="chip" style="background:var(--bg)"></div><div class="val">#070b12</div></div>
+        <div class="sw"><div class="name">--surface</div><div class="chip" style="background:var(--surface)"></div><div class="val">#101826</div></div>
+        <div class="sw"><div class="name">--surface-2</div><div class="chip" style="background:var(--surface-2)"></div><div class="val">#162238</div></div>
+        <div class="sw"><div class="name">--surface-warm</div><div class="chip" style="background:var(--surface-warm)"></div><div class="val">#1a2740</div></div>
+        <div class="sw"><div class="name">--border</div><div class="chip" style="background:var(--border)"></div><div class="val">#263246</div></div>
+        <div class="sw"><div class="name">--accent (cyan)</div><div class="chip" style="background:var(--accent)"></div><div class="val">#38bdf8</div></div>
+        <div class="sw"><div class="name">--up (RED · A-share)</div><div class="chip" style="background:var(--up)"></div><div class="val">#ef4444</div></div>
+        <div class="sw"><div class="name">--down (GREEN · A-share)</div><div class="chip" style="background:var(--down)"></div><div class="val">#22c55e</div></div>
+        <div class="sw"><div class="name">--success (系统状态)</div><div class="chip" style="background:var(--success)"></div><div class="val">#22c55e</div></div>
+        <div class="sw"><div class="name">--danger (系统状态)</div><div class="chip" style="background:var(--danger)"></div><div class="val">#ef4444</div></div>
+        <div class="sw"><div class="name">--warning</div><div class="chip" style="background:var(--warning)"></div><div class="val">#f59e0b</div></div>
+      </div>
+
+      <h2 style="margin-top:24px"><span class="idx">·</span>分类色（4 类占比图专用）</h2>
+      <p class="note">--cat-1/2/3/4 仅用于结构/占比柱状图。--cat-prior 用于"去年同期"对比序列。</p>
+      <div class="swatch-grid">
+        <div class="sw"><div class="name">--cat-1 (贷款 / 客户存款)</div><div class="chip" style="background:var(--cat-1)"></div></div>
+        <div class="sw"><div class="name">--cat-2 (债券投资 / 同业负债)</div><div class="chip" style="background:var(--cat-2)"></div></div>
+        <div class="sw"><div class="name">--cat-3 (同业资产 / 发行债券)</div><div class="chip" style="background:var(--cat-3)"></div></div>
+        <div class="sw"><div class="name">--cat-4 (现金 / 向央行)</div><div class="chip" style="background:var(--cat-4)"></div></div>
+        <div class="sw"><div class="name">--cat-prior (去年同期)</div><div class="chip" style="background:var(--cat-prior)"></div></div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         02. data-card  卡片容器
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">02</span>data-card · 卡片</h2>
+      <p class="note">padding 16/18px，圆角 4px，border 1px 灰边。卡片内含 .h 头（h3 + ctrl-row）。</p>
+      <div class="data-card">
+        <div class="h">
+          <h3>生息资产结构</h3>
+          <div class="ctrl-row">
+            <div class="toggle-row">
+              <span class="tg-btn active">柱状图</span>
+              <span class="tg-btn">表格</span>
+            </div>
+            <button class="dl-mini" aria-label="下载">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/></svg>
+            </button>
+          </div>
+        </div>
+        <div style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.04em;">body content...</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         03. kv  2 列 NIM-style 指标网格
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">03</span>kv · 2 列指标网格（NIM 风格）</h2>
+      <p class="note">每格 k (uppercase mono 标签) / v (粗体数值) / d (delta 红涨绿跌)。用于多指标头部（资负顶部 NIM/CAR/NPL/PCR）。</p>
+      <div class="kv">
+        <div>
+          <div class="k">NIM</div>
+          <div class="v">1.29<span class="u">%</span></div>
+          <div class="d down">−48bp · YoY</div>
+        </div>
+        <div>
+          <div class="k">CAR</div>
+          <div class="v">18.76<span class="u">%</span></div>
+          <div class="d down">−63bp · YoY</div>
+        </div>
+        <div>
+          <div class="k">NPL</div>
+          <div class="v">1.31<span class="u">%</span></div>
+          <div class="d down">−2bp · QoQ</div>
+        </div>
+        <div>
+          <div class="k">PCR</div>
+          <div class="v">214.38<span class="u">%</span></div>
+          <div class="d down">−1.3pp · QoQ</div>
+        </div>
+      </div>
+      <p class="note" style="margin-top:8px">约定：<b>方向性数字的符号 → 红涨绿跌（A-share）</b>。正号用 .d.up（红），负号用 .d.down（绿）。<br>业务好坏语义另算 → 系统状态/AI verdict 用 .ai-verdict / --success / --danger（国际惯例：好绿坏红）。<br>所以 NIM −48bp 在这里显示为绿色（A-share：下行 = 绿）；同时它在 NPL/CAR 的整体业务叙述里仍是"恶化"，由上下文传达，不由数字本身的红绿判断。</p>
+      <div class="kv" style="margin-top:12px">
+        <div>
+          <div class="k">生息资产</div>
+          <div class="v">55.77<span class="u">万亿</span></div>
+          <div class="d up">+9.5% · YoY</div>
+        </div>
+        <div>
+          <div class="k">净利润</div>
+          <div class="v">3,725<span class="u">亿</span></div>
+          <div class="d up">+1.4% · YoY</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         04. strip + yoy  总规模头条
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">04</span>strip + yoy · 总规模头条</h2>
+      <p class="note">顶部头条数字行（资产规模、营收等）。strip 是 2 列布局，yoy 是彩色 delta tag。</p>
+      <div class="strip">
+        <div>
+          <div class="lbl">资产规模 · 2025-12-31</div>
+          <div class="val">55.77 万亿元</div>
+        </div>
+        <div class="yoy up">+3.2%</div>
+      </div>
+      <div class="strip" style="margin-top:8px">
+        <div>
+          <div class="lbl">营业收入</div>
+          <div class="val">8,124 亿元</div>
+        </div>
+        <div class="yoy down">−1.2%</div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         05. delta-tag  紧凑状态色块
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">05</span>delta-tag · 紧凑状态色块</h2>
+      <p class="note">表格内或指标旁的紧凑 delta 显示。good=up(red)/bad=down(green)/flat=muted。</p>
+      <div class="row">
+        <span class="delta-tag good">+1,234</span>
+        <span class="delta-tag bad">−567</span>
+        <span class="delta-tag flat">0</span>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         06. toggle-row + tg-btn  视图切换
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">06</span>toggle-row · 视图切换</h2>
+      <p class="note">柱状图 / 表格切换。激活态 fg 反色（亮底深字）。</p>
+      <div class="row">
+        <div class="toggle-row">
+          <span class="tg-btn active">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="9" width="2.5" height="2"/><rect x="5.5" y="6" width="2.5" height="5"/><rect x="9" y="2" width="2.5" height="9"/></svg>
+            柱状图
+          </span>
+          <span class="tg-btn">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="8" height="1.5"/><rect x="2" y="6" width="8" height="1.5"/><rect x="2" y="9" width="5" height="1.5"/></svg>
+            表格
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         07. period-bar + period-tag  双期对比条
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">07</span>period-bar · 双期对比条</h2>
+      <p class="note">图表上方的对比期次标签。--cat-1=当期（亮），--cat-prior=去年同期（灰）。</p>
+      <div class="period-bar">
+        <span class="period-tag"><span class="pdot" style="background:var(--cat-1)"></span>2025-12-31</span>
+        <span class="period-tag"><span class="pdot" style="background:var(--cat-prior)"></span>2024-12-31</span>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         08. period-tabs + pt-btn  进化区间切换
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">08</span>period-tabs · 进化区间切换</h2>
+      <p class="note">结构变动区块的 1Y/3Y/5Y/MAX 切换。5Y 默认。激活态 cyan 字 + 卡片底。</p>
+      <div class="row">
+        <div class="period-tabs">
+          <button class="pt-btn">1Y</button>
+          <button class="pt-btn">3Y</button>
+          <button class="pt-btn active">5Y</button>
+          <button class="pt-btn">MAX</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         09. seg-ctrl  图表工具栏区间切换
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">09</span>seg-ctrl · 图表工具栏</h2>
+      <p class="note">用于 NIM / LCR 等图表上方的 1Y/3Y/5Y/MAX。比 period-tabs 略大。</p>
+      <div class="row">
+        <div class="seg-ctrl">
+          <span class="seg">1Y</span>
+          <span class="seg active">3Y</span>
+          <span class="seg">5Y</span>
+          <span class="seg">MAX</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         10. dl-mini + ic-btn  下载 / 圆形按钮
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">10</span>icon buttons · 下载 / 圆形按钮</h2>
+      <p class="note">dl-mini = 28×28 卡片内下载；ic-btn = 32×32 顶部工具栏按钮。</p>
+      <div class="row">
+        <button class="dl-mini" aria-label="下载">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/></svg>
+        </button>
+        <button class="ic-btn" aria-label="分享">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5"/></svg>
+        </button>
+        <button class="ic-btn" aria-label="导出">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10v3a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3M8 2v8m0 0 3-3m-3 3L5 7"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         10b. view-toggle  视图切换（图标显示目标状态）
+         ============================================================ -->
+    <section>
+      <div class="cmp">
+        <div class="cmp-h">view-toggle · 28×28 单图标视图切换</div>
+        <div class="cmp-body" style="display:flex;gap:8px;align-items:center;">
+          <button class="view-toggle" aria-label="切换到表格" title="切换到表格">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="10" height="2"/><rect x="2" y="6.5" width="10" height="2"/><rect x="2" y="10" width="7" height="2"/>
+            </svg>
+          </button>
+          <button class="view-toggle" aria-label="切换到柱状图" title="切换到柱状图">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2.5" y="9" width="2" height="3"/><rect x="6" y="6" width="2" height="6"/><rect x="9.5" y="3" width="2" height="9"/>
+            </svg>
+          </button>
+          <span style="font-family:var(--font-mono);font-size:10px;color:var(--muted);letter-spacing:0.04em;">
+            当前柱状图（显示表格 icon） ↔ 当前表格（显示柱状图 icon）
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         11. legend  图例
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">11</span>legend · 图例</h2>
+      <p class="note">图表下方的色块 + 文字图例。色块 10×10，文字 mono 9px。</p>
+      <div class="legend">
+        <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-1)"></span>贷款 55.6%</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-2)"></span>债券投资 31.6%</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-3)"></span>同业资产 3.4%</span>
+        <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-4)"></span>现金及央行 9.5%</span>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         12. evo-section  结构变动区块
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">12</span>evo-section · 结构变动</h2>
+      <p class="note">顶部 1px 虚线分隔。head = 标题 + period-tabs。body = 100% 堆叠柱状图（SVG）。bottom = legend。</p>
+      <div class="evo-section">
+        <div class="evo-head">
+          <span class="evo-title">结构变动</span>
+          <div class="period-tabs">
+            <button class="pt-btn">1Y</button>
+            <button class="pt-btn">3Y</button>
+            <button class="pt-btn active">5Y</button>
+            <button class="pt-btn">MAX</button>
+          </div>
+        </div>
+        <svg class="bar-svg" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+          <!-- grid -->
+          <line x1="32" y1="4"   x2="354" y2="4"   stroke="var(--border)" stroke-dasharray="2 2"/>
+          <line x1="32" y1="38"  x2="354" y2="38"  stroke="var(--border)" stroke-dasharray="2 2"/>
+          <line x1="32" y1="72"  x2="354" y2="72"  stroke="var(--border)" stroke-dasharray="2 2"/>
+          <line x1="32" y1="106" x2="354" y2="106" stroke="var(--border)" stroke-dasharray="2 2"/>
+          <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+          <text x="28" y="7"   text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">100%</text>
+          <text x="28" y="41"  text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">75%</text>
+          <text x="28" y="75"  text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">50%</text>
+          <text x="28" y="109" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">25%</text>
+          <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+          <!-- 10 stacked bars demo (5Y) -->
+          <!-- bar 1: 60/22/12/6 -->
+          <rect x="42"  y="6.4"  width="20" height="20.4" fill="var(--cat-1)"/>
+          <rect x="42"  y="26.8" width="20" height="74.8" fill="var(--cat-2)"/>
+          <rect x="42"  y="101.6" width="20" height="40.8" fill="var(--cat-3)"/>
+          <rect x="42"  y="142.4" width="20" height="20.4" fill="var(--cat-4)"/>
+          <text x="52" y="158" text-anchor="middle" font-family="var(--font-mono)" font-size="8" fill="var(--muted)">21H1</text>
+          <!-- bar 5: 56/30/8/6 -->
+          <rect x="208" y="22.4" width="20" height="117.6" fill="var(--cat-1)"/>
+          <rect x="208" y="140"  width="20" height="0"    fill="var(--cat-2)"/>
+          <rect x="208" y="140"  width="20" height="0"    fill="var(--cat-3)"/>
+          <rect x="208" y="140"  width="20" height="0"    fill="var(--cat-4)"/>
+          <text x="218" y="158" text-anchor="middle" font-family="var(--font-mono)" font-size="8" fill="var(--muted)">23H1</text>
+          <!-- bar 10: 55.6/31.6/3.4/9.5 -->
+          <rect x="324" y="23.36" width="20" height="116.64" fill="var(--cat-1)"/>
+          <rect x="324" y="140"   width="20" height="0"      fill="var(--cat-2)"/>
+          <rect x="324" y="140"   width="20" height="0"      fill="var(--cat-3)"/>
+          <rect x="324" y="140"   width="20" height="0"      fill="var(--cat-4)"/>
+          <text x="334" y="158" text-anchor="middle" font-family="var(--font-mono)" font-size="8" fill="var(--muted)">25H2</text>
+        </svg>
+        <div class="legend">
+          <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-1)"></span>贷款</span>
+          <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-2)"></span>债券投资</span>
+          <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-3)"></span>同业资产</span>
+          <span class="lg-item"><span class="lg-swatch" style="background:var(--cat-4)"></span>现金及央行</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         13. tbl  表格
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">13</span>tbl · 表格</h2>
+      <p class="note">右对齐 mono 数字；首列 body 字体。.delta-good = 红、.delta-bad = 绿、.pp-cell.up/down 用方向色。</p>
+      <div class="tbl-scroll">
+        <table class="tbl tbl-6">
+          <colgroup>
+            <col class="c-name"><col class="c-v25"><col class="c-v24"><col class="c-delta"><col class="c-pct"><col class="c-pp">
+          </colgroup>
+          <thead>
+            <tr><th>资产项</th><th>2025-12-31</th><th>2024-12-31</th><th>变动</th><th>占比 25/24</th><th>占比变动</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>贷款</td><td>29,712,359</td><td>27,613,781</td><td class="delta-good">+2,098,578</td><td class="pct-cell">55.6%<span class="pct-prior">56.6%</span></td><td class="pp-cell">−1.0pp</td></tr>
+            <tr><td>债券投资</td><td>16,907,415</td><td>14,153,576</td><td class="delta-good">+2,753,839</td><td class="pct-cell">31.6%<span class="pct-prior">29.0%</span></td><td class="pp-cell up">+2.6pp</td></tr>
+            <tr><td>同业资产</td><td>1,794,756</td><td>2,430,093</td><td class="delta-bad">−635,337</td><td class="pct-cell">3.4%<span class="pct-prior">5.0%</span></td><td class="pp-cell">−1.6pp</td></tr>
+            <tr><td>现金及央行</td><td>5,063,243</td><td>4,624,296</td><td class="delta-good">+438,947</td><td class="pct-cell">9.5%<span class="pct-prior">9.5%</span></td><td class="pp-cell flat">0.0</td></tr>
+            <tr class="total"><td>生息资产合计</td><td>53,477,773</td><td>48,821,746</td><td>+4,656,027</td><td class="pct-cell">100%<span class="pct-prior">100%</span></td><td class="pp-cell">0.0</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         14. tabs  底部导航
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">14</span>tabs · 底部导航</h2>
+      <p class="note">4 tab：首页 / 银行 / 报告 / 我的。激活 tab 用 --accent cyan。</p>
+      <div style="border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden">
+        <div class="tabs" style="position:static">
+          <span class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 11 4l8 7v7a1 1 0 0 1-1 1h-4v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>
+            首页
+          </span>
+          <span class="tab active">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="16" height="10"/><path d="M3 9 11 3l8 6"/><path d="M9 19v-5h4v5"/></svg>
+            银行
+          </span>
+          <span class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="14" height="18"/><line x1="7" y1="8" x2="15" y2="8"/><line x1="7" y1="12" x2="15" y2="12"/><line x1="7" y1="16" x2="12" y2="16"/></svg>
+            报告
+          </span>
+          <span class="tab">
+            <svg viewBox="0 0 22 22" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="8" r="4"/><path d="M3 20a8 8 0 0 1 16 0"/></svg>
+            我的
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         15. tab-panel  页面级 tab
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">15</span>tab-panel · 页面级 tab</h2>
+      <p class="note">页面顶部横向 tab（资负 / 重定价 / 流动性 ...），单 panel 可见。</p>
+      <div style="display:flex;gap:14px;border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:12px">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px">资负</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">重定价</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">流动性</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">资产质量</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">资本</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--muted)">净息差</span>
+      </div>
+      <p class="note">激活态：cyan 字 + 底部 2px cyan 下划线。</p>
+    </section>
+
+    <!-- ============================================================
+         16. AI verdict  解释卡
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">16</span>ai-card · 解释卡</h2>
+      <p class="note">顶部用渐变 + 渐变文字。verdict 标签是好坏判断（业务好坏 → 国际惯例：好=绿、坏=红）。</p>
+      <div class="data-card ai-card">
+        <div class="h">
+          <h3>
+            <svg class="ai-spark" viewBox="0 0 14 14" fill="currentColor"><path d="M7 1 1.5 8h3L4 13l5.5-7h-3z"/></svg>
+            AI 解读
+          </h3>
+          <span class="ai-verdict">结构趋稳</span>
+        </div>
+        <div style="font-size:12px;color:var(--fg-2);line-height:1.55">
+          贷款占比由 56.6% 微降至 55.6%；债券投资占比升至 31.6%，反映 <span class="ai-verdict v-good">主动扩表</span> 节奏。
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         17. 不要做（反例）
+         ============================================================ -->
+    <section>
+      <h2><span class="idx">17</span>反例 · 不要做</h2>
+      <p class="note">CC 常见错误。出现以下任何一项都视为失败。</p>
+      <ul style="font-family:var(--font-mono);font-size:11px;color:var(--fg-2);line-height:1.8;list-style:square;padding-left:18px">
+        <li>❌ border-radius ≥ 8px 的圆角卡片</li>
+        <li>❌ 紫 / 绿 / 橙 等非 cyan 强调色</li>
+        <li>❌ NIM −48bp 这类业务"坏"变化用绿色</li>
+        <li>❌ donut + 引导线 + 标签胶囊</li>
+        <li>❌ 红/橙/黄/绿的历史结构条</li>
+        <li>❌ 数字用等线体（未用 mono + tabular-nums）</li>
+        <li>❌ 头部显示 601398.SH / ticker / 交易所代码</li>
+        <li>❌ 玻璃拟态 / 大阴影 / Tailwind 圆角组件</li>
+        <li>❌ 数据维度"6 项封顶"等封闭枚举</li>
+        <li>❌ emoji 图标（✨🚀🎯）</li>
+      </ul>
+    </section>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>银图 Atlas · 监管机构</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --fg: #f8fafc;
+      --muted: #8492a6;
+      --border: #263246;
+      --border-strong: #344056;
+      --accent: #38bdf8;
+      --accent-fg: #03111a;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --up: #ef4444;
+      --down: #22c55e;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, 'SF Mono', monospace;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-fg: #ffffff;
+      --success: #16a34a;
+      --warning: #d97706;
+      --up: #dc2626;
+      --down: #16a34a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); min-height: 100vh; display: grid; place-items: center; }
+    body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-family: var(--font-mono); }
+    a { color: inherit; text-decoration: none; }
+
+    .device {
+      width: 393px; height: 852px; background: #0a0d14; border-radius: 50px;
+      padding: 12px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1.5px #1a1f2c;
+    }
+    .device::before {
+      content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 32px; background: #0a0d14; border-radius: 20px; z-index: 10;
+    }
+    .device::after {
+      content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; background: rgba(255,255,255,0.55); border-radius: 5px; z-index: 10;
+    }
+    .screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+
+    .status {
+      height: 54px; padding: 16px 28px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+      letter-spacing: -0.01em; color: var(--fg);
+    }
+    .status-right { display: flex; align-items: center; gap: 6px; }
+    .icon { width: 16px; height: 16px; display: inline-block; }
+    .icon-signal { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='11' width='2.5' height='4' rx='0.5' fill='black'/><rect x='6' y='8' width='2.5' height='7' rx='0.5' fill='black'/><rect x='10' y='5' width='2.5' height='10' rx='0.5' fill='black'/><rect x='14' y='2' width='2.5' height='13' rx='0.5' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-wifi { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 11.5l1.5 1.5a2 2 0 0 1-3 0zM3 7a7 7 0 0 1 10 0l-1.4 1.4a5 5 0 0 0-7.2 0zM1 5a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-battery { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'><rect x='0.5' y='0.5' width='20' height='15' rx='3' stroke='black' stroke-width='1' fill='none'/><rect x='22' y='5' width='2' height='6' rx='1' fill='black'/><rect x='2' y='2' width='17' height='12' rx='2' fill='black'/></svg>") no-repeat center / contain; }
+
+    .app { flex: 1; overflow-y: auto; padding: 4px 0 110px; }
+    .app::-webkit-scrollbar { display: none; }
+
+    .bar {
+      padding: 4px 20px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .bar h1 {
+      font-family: var(--font-display); font-size: 28px;
+      font-weight: 600; letter-spacing: -0.022em;
+    }
+    .bar .sub {
+      font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+      letter-spacing: 0.05em; margin-top: 2px;
+    }
+    .ic-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg);
+    }
+    .ic-btn svg { width: 16px; height: 16px; }
+
+    .search {
+      margin: 0 20px 14px;
+      height: 38px; background: var(--surface-2);
+      border: 1px solid var(--border); border-radius: 10px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 12px; color: var(--muted);
+    }
+    .search svg { width: 14px; height: 14px; }
+    .search input {
+      border: 0; background: transparent; outline: 0; flex: 1;
+      font: inherit; color: var(--fg); font-size: 14px;
+    }
+    .search input::placeholder { color: var(--muted); }
+
+    .chips {
+      display: flex; gap: 6px; padding: 0 20px 14px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip {
+      flex-shrink: 0; padding: 6px 11px; border-radius: 999px;
+      background: var(--surface); border: 1px solid var(--border);
+      font-size: 12px; font-weight: 500; letter-spacing: -0.005em;
+      color: var(--muted);
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .chip.active { background: var(--fg); color: var(--accent-fg); border-color: var(--fg); }
+    .chip .ct { font-family: var(--font-mono); font-size: 10px; opacity: 0.6; }
+
+    .list { padding: 0 20px; display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+    .row {
+      background: var(--surface); padding: 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .rg {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; flex-shrink: 0;
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.02em; color: var(--fg); text-align: center; line-height: 1.1;
+    }
+    .mid { flex: 1; min-width: 0; }
+    .nm { font-size: 14px; font-weight: 600; letter-spacing: -0.008em; }
+    .nm-en { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.04em; margin-top: 3px; }
+    .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.04em; margin-top: 4px; display: flex; gap: 6px; align-items: center; }
+    .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border-strong); }
+    .meta .pill { padding: 1px 4px; border: 1px solid var(--border-strong); border-radius: 3px; font-size: 9px; }
+    .right { text-align: right; flex-shrink: 0; }
+    .v1 { font-size: 13px; font-weight: 600; letter-spacing: -0.005em; }
+    .v2 { font-size: 10px; margin-top: 2px; color: var(--muted); font-weight: 500; }
+    .fresh { color: var(--success); }
+    .fresh::before { content: '● '; }
+
+    .tabs {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 78px; background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; padding: 6px 8px 22px;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px; color: var(--muted);
+      font-size: 10px; font-weight: 500; letter-spacing: -0.005em;
+    }
+    .tab.active { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; stroke-width: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status">
+        <div>9:41</div>
+        <div class="status-right">
+          <span class="icon icon-signal"></span>
+          <span class="icon icon-wifi"></span>
+          <span class="icon icon-battery"></span>
+        </div>
+      </div>
+
+      <div class="app">
+        <div class="bar">
+          <div>
+            <h1>监管机构</h1>
+            <div class="sub"><span class="num">11</span> 家 · 覆盖 <span class="num">5</span> 大司法辖区 + <span class="num">3</span> 国际组织</div>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <a class="ic-btn" href="#" aria-label="筛选">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+                <path d="M2 3h12M4 8h8M6 13h4"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="search">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="7" cy="7" r="4.5"/>
+            <path d="m14 14-3.5-3.5"/>
+          </svg>
+          <input type="text" placeholder="监管机构 / 司法辖区" />
+        </div>
+
+        <div class="chips">
+          <a class="chip active" href="#">全部 <span class="ct num">11</span></a>
+          <a class="chip" href="#">中央银行 <span class="ct num">5</span></a>
+          <a class="chip" href="#">审慎监管 <span class="ct num">3</span></a>
+          <a class="chip" href="#">国际组织 <span class="ct num">3</span></a>
+          <a class="chip" href="#">中国 <span class="ct num">2</span></a>
+          <a class="chip" href="#">欧美 <span class="ct num">3</span></a>
+          <a class="chip" href="#">亚太 <span class="ct num">3</span></a>
+        </div>
+
+        <div class="list">
+
+          <a class="row" href="detail.html">
+            <div class="rg">NFRA</div>
+            <div class="mid">
+              <div class="nm">国家金融监督管理总局</div>
+              <div class="nm-en">National Financial Regulatory Administration</div>
+              <div class="meta"><span class="pill">审慎</span><span>CN</span><span class="dot"></span><span class="num">412 上市行</span></div>
+            </div>
+            <div class="right">
+              <div class="v1 num">28</div>
+              <div class="v2">本周发布</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">HKMA</div>
+            <div class="mid">
+              <div class="nm">香港金融管理局</div>
+              <div class="nm-en">Hong Kong Monetary Authority</div>
+              <div class="meta"><span class="pill">央行</span><span>HK</span><span class="dot"></span><span class="num">180 持牌行</span></div>
+            </div>
+            <div class="right">
+              <div class="v1 num">12</div>
+              <div class="v2">本周发布</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">FED</div>
+            <div class="mid">
+              <div class="nm">美联储</div>
+              <div class="nm-en">Federal Reserve System</div>
+              <div class="meta"><span class="pill">央行</span><span>US</span><span class="dot"></span><span class="num">4,500 成员行</span></div>
+            </div>
+            <div class="right">
+              <div class="v1 num">36</div>
+              <div class="v2">本周发布</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">ECB</div>
+            <div class="mid">
+              <div class="nm">欧洲中央银行</div>
+              <div class="nm-en">European Central Bank</div>
+              <div class="meta"><span class="pill">央行</span><span>EU</span><span class="dot"></span><span class="num">114 重大行</span></div>
+            </div>
+            <div class="right">
+              <div class="v1 num">9</div>
+              <div class="v2">本周发布</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">BCBS</div>
+            <div class="mid">
+              <div class="nm">巴塞尔银行监管委员会</div>
+              <div class="nm-en">Basel Committee on Banking Supervision</div>
+              <div class="meta"><span class="pill">国际</span><span>—</span><span class="dot"></span><span>巴塞尔 III/IV 框架</div>
+            </div>
+            <div class="right">
+              <div class="v1 fresh num">新</div>
+              <div class="v2">2 天前</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">BOE</div>
+            <div class="mid">
+              <div class="nm">英格兰银行</div>
+              <div class="nm-en">Bank of England · PRA</div>
+              <div class="meta"><span class="pill">央行+审慎</span><span>UK</span><span class="dot"></span><span class="num">157 行</span></div>
+            </div>
+            <div class="right">
+              <div class="v1 num">14</div>
+              <div class="v2">本周发布</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">MAS</div>
+            <div class="mid">
+              <div class="nm">新加坡金融管理局</div>
+              <div class="nm-en">Monetary Authority of Singapore</div>
+              <div class="meta"><span class="pill">央行</span><span>SG</span><span class="dot"></span><span class="num">128 持牌行</span></div>
+            </div>
+            <div class="right">
+              <div class="v1 num">7</div>
+              <div class="v2">本周发布</div>
+            </div>
+          </a>
+
+          <a class="row" href="#">
+            <div class="rg">FSB</div>
+            <div class="mid">
+              <div class="nm">金融稳定理事会</div>
+              <div class="nm-en">Financial Stability Board</div>
+              <div class="meta"><span class="pill">国际</span><span>—</span><span class="dot"></span><span>系统性风险监测</div>
+            </div>
+            <div class="right">
+              <div class="v1 fresh num">新</div>
+              <div class="v2">5 天前</div>
+            </div>
+          </a>
+
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <a class="tab" href="../home.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>首页</span>
+        </a>
+        <a class="tab active" href="../banks/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+          </svg>
+          <span>银行</span>
+        </a>
+        <a class="tab" href="../reports/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>报告</span>
+        </a>
+        <a class="tab" href="../my.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+          </svg>
+          <span>我的</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    // Theme toggle (Dark ↔ Light)
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      var btn = document.getElementById('theme-trigger');
+      var svg = btn ? btn.querySelector('svg') : null;
+      function moonPath() {
+        return '<path d="M12.5 9.5A5 5 0 0 1 6.5 3.5a5 5 0 1 0 6 6z" fill="currentColor"/>';
+      }
+      function sunPath() {
+        return '<circle cx="8" cy="8" r="2.8"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>';
+      }
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        if (svg) svg.innerHTML = (theme === 'light') ? sunPath() : moonPath();
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      if (btn) btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        var next = cur === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        apply(next);
+      });
+    })();
+  </script>
+</body>
+</html>

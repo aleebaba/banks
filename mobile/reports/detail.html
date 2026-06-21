@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>银图 Atlas · 报告详情</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --fg: #f8fafc;
+      --muted: #8492a6;
+      --soft: #475569;
+      --border: #263246;
+      --border-strong: #344056;
+      --accent: #38bdf8;
+      --accent-soft: #0c2a3d;
+      --accent-fg: #03111a;
+      --success: #22c55e;
+      --success-soft: #082d1a;
+      --warning: #f59e0b;
+      --up: #ef4444;
+      --down: #22c55e;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, 'SF Mono', monospace;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --fg: #0f172a;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #e0f2fe;
+      --accent-fg: #ffffff;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --warning: #d97706;
+      --up: #dc2626;
+      --down: #16a34a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); min-height: 100vh; display: grid; place-items: center; }
+    body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-family: var(--font-mono); }
+    a { color: inherit; text-decoration: none; }
+
+    .device { width: 393px; height: 852px; background: #0a0d14; border-radius: 50px; padding: 12px; position: relative; box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1.5px #1a1f2c; }
+    .device::before { content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%); width: 110px; height: 32px; background: #0a0d14; border-radius: 20px; z-index: 10; }
+    .device::after { content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; background: rgba(255,255,255,0.55); border-radius: 5px; z-index: 10; }
+    .screen { width: 100%; height: 100%; background: var(--bg); border-radius: 38px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+
+    .status { height: 54px; padding: 16px 28px 0; display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg); }
+    .status-right { display: flex; align-items: center; gap: 6px; }
+    .icon { width: 16px; height: 16px; display: inline-block; }
+    .icon-signal { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='11' width='2.5' height='4' rx='0.5' fill='black'/><rect x='6' y='8' width='2.5' height='7' rx='0.5' fill='black'/><rect x='10' y='5' width='2.5' height='10' rx='0.5' fill='black'/><rect x='14' y='2' width='2.5' height='13' rx='0.5' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-wifi { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 11.5l1.5 1.5a2 2 0 0 1-3 0zM3 7a7 7 0 0 1 10 0l-1.4 1.4a5 5 0 0 0-7.2 0zM1 5a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-battery { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'><rect x='0.5' y='0.5' width='20' height='15' rx='3' stroke='black' stroke-width='1' fill='none'/><rect x='22' y='5' width='2' height='6' rx='1' fill='black'/><rect x='2' y='2' width='17' height='12' rx='2' fill='black'/></svg>") no-repeat center / contain; }
+
+    .app { flex: 1; overflow-y: auto; padding: 0 0 110px; }
+    .app::-webkit-scrollbar { display: none; }
+
+    .top { padding: 4px 20px 8px; display: flex; align-items: center; justify-content: space-between; }
+    .back, .ic-btn { width: 32px; height: 32px; border-radius: 50%; background: var(--surface-2); border: 1px solid var(--border); display: grid; place-items: center; color: var(--fg); }
+    .back svg, .ic-btn svg { width: 14px; height: 14px; }
+    .top-actions { display: flex; gap: 8px; }
+
+    /* Hero */
+    .hero {
+      margin: 0 20px 18px; padding: 22px 20px 24px;
+      background: var(--fg); color: var(--accent-fg);
+      border-radius: 16px; position: relative; overflow: hidden;
+    }
+    .hero::before { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; border-radius: 50%; background: radial-gradient(circle, oklch(58% 0.18 255 / 0.32) 0%, transparent 65%); }
+    .hero .crumbs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .hero .crumb { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; padding: 3px 7px; border-radius: 3px; background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); text-transform: uppercase; }
+    .hero .ttl { font-family: var(--font-display); font-size: 24px; line-height: 1.18; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 10px; }
+    .hero .sub { font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.65); margin-bottom: 18px; max-width: 320px; }
+    .hero .by { display: flex; align-items: center; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+    .hero .av { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, oklch(58% 0.18 255), oklch(72% 0.14 200)); }
+    .hero .nm { font-size: 13px; font-weight: 500; }
+    .hero .ds { font-family: var(--font-mono); font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; margin-top: 2px; }
+
+    .body { padding: 0 20px; }
+    .sec-h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+    .sec-h h2 { font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+    .sec-h .meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.05em; }
+
+    .tldr {
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 16px; margin-bottom: 20px;
+    }
+    .tldr .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+    .tldr p { font-size: 13px; line-height: 1.6; color: var(--fg); }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
+    .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+    .kpi .k { font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .kpi .v { font-size: 20px; font-weight: 600; letter-spacing: -0.018em; }
+    .kpi .d { font-size: 10px; margin-top: 2px; color: var(--muted); }
+    .up { color: var(--success); }
+    .down { color: var(--fg); }
+    .up::before { content: '↑ '; }
+
+    /* Chart card */
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 16px; margin-bottom: 20px; }
+    .chart-card .h { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+    .chart-card .h h3 { font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: -0.008em; }
+    .chart-card .h .seg { font-family: var(--font-mono); font-size: 10px; padding: 3px 7px; border-radius: 4px; color: var(--muted); letter-spacing: 0.04em; background: var(--surface-2); }
+    .chart { width: 100%; height: 100px; display: block; }
+    .chart-axis { display: flex; justify-content: space-between; margin-top: 8px; font-family: var(--font-mono); font-size: 9px; color: var(--muted); letter-spacing: 0.05em; }
+    .legend { display: flex; gap: 12px; margin-top: 8px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.04em; }
+    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+
+    /* Methodology block */
+    .method { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px 16px; margin-bottom: 20px; }
+    .method h3 { font-family: var(--font-display); font-size: 14px; font-weight: 600; letter-spacing: -0.008em; margin-bottom: 10px; }
+    .method ul { list-style: none; padding: 0; margin: 0; }
+    .method li { font-size: 12px; line-height: 1.5; color: var(--muted); padding: 6px 0 6px 18px; position: relative; }
+    .method li::before { content: ''; position: absolute; left: 0; top: 13px; width: 6px; height: 1px; background: var(--border-strong); }
+
+    /* Paywall (fades in) */
+    .paywall {
+      margin: 0 0 24px; padding: 20px 18px 22px;
+      background: var(--fg); color: var(--accent-fg);
+      border-radius: 14px; position: relative; overflow: hidden;
+    }
+    .paywall::before { content: ''; position: absolute; right: -30px; top: -30px; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle, oklch(58% 0.18 255 / 0.35) 0%, transparent 65%); }
+    .paywall .lock-icon { width: 28px; height: 28px; border-radius: 8px; background: rgba(255,255,255,0.1); display: grid; place-items: center; margin-bottom: 10px; }
+    .paywall .lock-icon svg { width: 14px; height: 14px; }
+    .paywall h4 { font-family: var(--font-display); font-size: 17px; font-weight: 600; letter-spacing: -0.014em; margin-bottom: 6px; }
+    .paywall p { font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.65); margin-bottom: 14px; }
+    .paywall .price-row { display: flex; align-items: center; justify-content: space-between; }
+    .paywall .prc { font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.015em; }
+    .paywall .prc .per { font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 500; }
+    .paywall .unlock { padding: 9px 18px; border-radius: 999px; background: var(--accent); color: var(--accent-fg); font-size: 13px; font-weight: 500; letter-spacing: -0.005em; }
+
+    /* Related */
+    .rel { display: flex; flex-direction: column; gap: 1px; background: var(--border); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 24px; }
+    .rel-row { background: var(--surface); padding: 12px 14px; display: flex; gap: 12px; align-items: center; }
+    .rel-ic { width: 30px; height: 30px; border-radius: 8px; background: var(--surface-2); border: 1px solid var(--border); display: grid; place-items: center; font-family: var(--font-mono); font-size: 8px; font-weight: 600; letter-spacing: 0.04em; flex-shrink: 0; }
+    .rel-mid { flex: 1; min-width: 0; }
+    .rel-ttl { font-size: 12px; font-weight: 500; letter-spacing: -0.005em; line-height: 1.35; }
+    .rel-meta { font-family: var(--font-mono); font-size: 10px; color: var(--muted); letter-spacing: 0.04em; margin-top: 3px; }
+
+    .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 78px; background: rgba(255,255,255,0.86); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; padding: 6px 8px 22px; }
+    .tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; color: var(--muted); font-size: 10px; font-weight: 500; letter-spacing: -0.005em; }
+    .tab.active { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; stroke-width: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status">
+        <div>9:41</div>
+        <div class="status-right">
+          <span class="icon icon-signal"></span>
+          <span class="icon icon-wifi"></span>
+          <span class="icon icon-battery"></span>
+        </div>
+      </div>
+
+      <div class="app">
+
+        <div class="top">
+          <a class="back" href="list.html" aria-label="返回">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 3-5 4 5 4"/></svg>
+          </a>
+          <div class="top-actions">
+            <a class="ic-btn" href="#" aria-label="收藏"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 1.5l2.06 4.18 4.61.67-3.34 3.25.79 4.59L8 12l-4.12 2.17.79-4.59L1.33 6.35l4.61-.67z"/></svg></a>
+            <a class="ic-btn" href="#" aria-label="分享"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5"/></svg></a>
+          </div>
+        </div>
+
+        <header class="hero">
+          <div class="crumbs">
+            <span class="crumb">专题 · 净息差</span>
+            <span class="crumb">1Q26</span>
+          </div>
+          <h1 class="ttl">美联储降息周期下<br/>G-SIBs 净息差博弈</h1>
+          <p class="sub">追踪 30 家全球系统重要性银行 2024–2025 降息预期下的 NIM 路径，附资产端重定价窗口与负债成本粘性测算。</p>
+          <div class="by">
+            <span class="av"></span>
+            <div>
+              <div class="nm">Atlas 研究 · 银行业组</div>
+              <div class="ds num">2026-06-12 · 12 min · 含 6 张数据图</div>
+            </div>
+          </div>
+        </header>
+
+        <div class="body">
+
+          <!-- TL;DR -->
+          <div class="tldr">
+            <div class="label">TL;DR</div>
+            <p>在美联储 2024 起的 4 次降息（累计 100 bp）下，美欧 G-SIBs 通过资产端重定价（+30–60 bp）成功对冲负债端成本下降（−20–30 bp），1Q26 行业 NIM 反而扩张 12 bp。但中国 6 家 D-SIBs 呈现相反路径：NIM 同比下降 9 bp，主因 LPR 累计下调 35 bp 远超存款挂牌利率调整幅度。</p>
+          </div>
+
+          <!-- Key data points -->
+          <div class="sec-h">
+            <h2>关键数据</h2>
+            <span class="meta">SAMPLE · 1Q26</span>
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="k">美欧 G-SIBs NIM</div>
+              <div class="v num">2.94<span style="font-size:11px;color:var(--muted);font-weight:500;margin-left:2px;">%</span></div>
+              <div class="d up num">+12 bp YTD</div>
+            </div>
+            <div class="kpi">
+              <div class="k">中国 D-SIBs NIM</div>
+              <div class="v num">1.43<span style="font-size:11px;color:var(--muted);font-weight:500;margin-left:2px;">%</span></div>
+              <div class="d down num" style="color:var(--muted);">−9 bp YTD</div>
+            </div>
+            <div class="kpi">
+              <div class="k">30 G-SIBs 区间</div>
+              <div class="v num">1.6–3.4%</div>
+              <div class="d">最大与最小</div>
+            </div>
+            <div class="kpi">
+              <div class="k">重定价窗口</div>
+              <div class="v num">3–6M</div>
+              <div class="d">最快资产端</div>
+            </div>
+          </div>
+
+          <!-- Embedded chart -->
+          <div class="chart-card">
+            <div class="h">
+              <h3>5Y 走势 · 美欧 G-SIBs vs 中国 D-SIBs</h3>
+              <span class="seg">5Y</span>
+            </div>
+            <svg class="chart" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+              <line x1="0" y1="20" x2="320" y2="20" stroke="oklch(92% 0.005 250)" stroke-width="0.5" stroke-dasharray="2 3"/>
+              <line x1="0" y1="55" x2="320" y2="55" stroke="oklch(92% 0.005 250)" stroke-width="0.5" stroke-dasharray="2 3"/>
+              <line x1="0" y1="85" x2="320" y2="85" stroke="oklch(92% 0.005 250)" stroke-width="0.5" stroke-dasharray="2 3"/>
+              <!-- US/EU GSIBs -->
+              <path d="M0 60 L40 55 L80 52 L120 50 L160 45 L200 40 L240 35 L280 28 L320 22" stroke="oklch(18% 0.012 250)" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+              <!-- China DSIBs -->
+              <path d="M0 35 L40 38 L80 42 L120 48 L160 55 L200 62 L240 70 L280 78 L320 82" stroke="oklch(72% 0.008 240)" stroke-width="1.8" fill="none" stroke-dasharray="3 3" stroke-linecap="round"/>
+              <!-- end points -->
+              <circle cx="320" cy="22" r="2.5" fill="oklch(18% 0.012 250)"/>
+              <circle cx="320" cy="82" r="2.5" fill="oklch(72% 0.008 240)"/>
+            </svg>
+            <div class="chart-axis"><span>1Q21</span><span>1Q22</span><span>1Q23</span><span>1Q24</span><span>1Q25</span><span>1Q26</span></div>
+            <div class="legend">
+              <span><span class="legend-dot" style="background:oklch(18% 0.012 250)"></span>美欧 G-SIBs (30 家均值)</span>
+              <span><span class="legend-dot" style="background:oklch(72% 0.008 240)"></span>中国 D-SIBs (6 家均值)</span>
+            </div>
+          </div>
+
+          <!-- Methodology -->
+          <div class="method">
+            <h3>研究方法</h3>
+            <ul>
+              <li>样本：30 家 G-SIBs（按 FSB 2025 名单）+ 6 家中国 D-SIBs · 季度合并报表</li>
+              <li>数据源：1Q26 季报 + NFRA / Fed / ECB / BoE 公开披露 · Atlas 内部口径调整</li>
+              <li>息差归因：拆为 资产收益 / 负债成本 / 生息资产规模 / 杠杆四象限</li>
+              <li>重定价窗口：基于 3M / 6M / 1Y 利率 shock 后的 NII 变化</li>
+            </ul>
+          </div>
+
+          <!-- Paywall (gates the rest) -->
+          <div class="paywall">
+            <div class="lock-icon">
+              <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="6" width="8" height="6" rx="1"/><path d="M5 6V4.5a2 2 0 0 1 4 0V6"/></svg>
+            </div>
+            <h4>解锁完整报告</h4>
+            <p>含完整 4 章节 · 6 张数据图 · 跨行对比表 · 30 家银行 NIM 拆解 Excel 附件。</p>
+            <div class="price-row">
+              <div>
+                <div class="prc">¥168 <span class="per">/ 单篇</span></div>
+              </div>
+              <a class="unlock" href="#">立即解锁</a>
+            </div>
+          </div>
+
+          <!-- Related -->
+          <div class="sec-h">
+            <h2>相关报告</h2>
+            <a class="meta" href="#">更多 →</a>
+          </div>
+          <div class="rel">
+            <a class="rel-row" href="#">
+              <div class="rel-ic">NPL</div>
+              <div class="rel-mid">
+                <div class="rel-ttl">房地产对公贷款 NPL 拐点研究</div>
+                <div class="rel-meta">2026-06-05 · 资产质量 · ¥98</div>
+              </div>
+            </a>
+            <a class="rel-row" href="#">
+              <div class="rel-ic">CAR</div>
+              <div class="rel-mid">
+                <div class="rel-ttl">中国 D-SIBs 资本充足率与分红能力测算</div>
+                <div class="rel-meta">2026-06-09 · 资本 · 免费</div>
+              </div>
+            </a>
+            <a class="rel-row" href="#">
+              <div class="rel-ic">IRRBB</div>
+              <div class="rel-mid">
+                <div class="rel-ttl">香港金管局 IRRBB 实施解读</div>
+                <div class="rel-meta">2026-05-28 · 监管动态 · 免费</div>
+              </div>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <a class="tab" href="../home.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg><span>首页</span></a>
+        <a class="tab" href="../banks/list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/></svg><span>银行</span></a>
+        <a class="tab active" href="list.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"/></svg><span>报告</span></a>
+        <a class="tab" href="../my.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg><span>我的</span></a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    // Theme toggle (Dark ↔ Light)
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      var btn = document.getElementById('theme-trigger');
+      var svg = btn ? btn.querySelector('svg') : null;
+      function moonPath() {
+        return '<path d="M12.5 9.5A5 5 0 0 1 6.5 3.5a5 5 0 1 0 6 6z" fill="currentColor"/>';
+      }
+      function sunPath() {
+        return '<circle cx="8" cy="8" r="2.8"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>';
+      }
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        if (svg) svg.innerHTML = (theme === 'light') ? sunPath() : moonPath();
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      if (btn) btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        var next = cur === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        apply(next);
+      });
+    })();
+  </script>
+</body>
+</html>

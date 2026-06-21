@@ -1,0 +1,3354 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>银图 Atlas · 中国工商银行 ICBC</title>
+  <style>
+    :root {
+      /* Trading Terminal — Bloomberg/FactSet style. A-share red-up / green-down override on --up/--down. */
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --surface-warm: #1a2740;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --muted: #8492a6;
+      --soft: #475569;
+      --border: #263246;
+      --border-soft: #1c2638;
+      --border-strong: #344056;
+      --accent: #38bdf8;
+      --accent-soft: #0c2a3d;
+      --accent-fg: #03111a;
+      --success: #22c55e;
+      --success-soft: #082d1a;
+      --danger: #ef4444;
+      --danger-soft: #3a0d0d;
+      --warning: #f59e0b;
+      --warning-soft: #2d1f08;
+      --meta: #38bdf8;
+      /* A-share convention: red = up/gain, green = down/loss */
+      --up: #ef4444;
+      --up-soft: #2a0a0a;
+      --down: #22c55e;
+      --down-soft: #082d1a;
+      --radius-sm: 4px;
+      --radius-md: 4px;
+      --radius-lg: 4px;
+      --radius-pill: 9999px;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', ui-monospace, Menlo, 'SF Mono', monospace;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --surface-warm: #f0f3f7;
+      --fg: #0f172a;
+      --fg-2: #475569;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --border-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #e0f2fe;
+      --accent-fg: #ffffff;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --warning: #d97706;
+      --warning-soft: #fef3c7;
+      --meta: #0284c7;
+      --up: #dc2626;
+      --up-soft: #fee2e2;
+      --down: #16a34a;
+      --down-soft: #dcfce7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); min-height: 100vh; display: grid; place-items: center; }
+    body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: var(--fg); }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-family: var(--font-mono); }
+    a { color: inherit; text-decoration: none; }
+
+    .device {
+      width: 393px; height: 852px; background: #0a0d14; border-radius: 50px;
+      padding: 12px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1.5px #1a1f2c;
+    }
+    .device::before {
+      content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 32px; background: #0a0d14; border-radius: 20px; z-index: 10;
+    }
+    .device::after {
+      content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; background: rgba(255,255,255,0.55); border-radius: 5px; z-index: 10;
+    }
+    .screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+
+    .status {
+      height: 54px; padding: 16px 28px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+      letter-spacing: -0.01em; color: var(--fg);
+    }
+    .status-right { display: flex; align-items: center; gap: 6px; }
+    .icon { width: 16px; height: 16px; display: inline-block; }
+    .icon-signal { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='11' width='2.5' height='4' rx='0.5' fill='black'/><rect x='6' y='8' width='2.5' height='7' rx='0.5' fill='black'/><rect x='10' y='5' width='2.5' height='10' rx='0.5' fill='black'/><rect x='14' y='2' width='2.5' height='13' rx='0.5' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-wifi { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 11.5l1.5 1.5a2 2 0 0 1-3 0zM3 7a7 7 0 0 1 10 0l-1.4 1.4a5 5 0 0 0-7.2 0zM1 5a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-battery { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'><rect x='0.5' y='0.5' width='20' height='15' rx='3' stroke='black' stroke-width='1' fill='none'/><rect x='22' y='5' width='2' height='6' rx='1' fill='black'/><rect x='2' y='2' width='17' height='12' rx='2' fill='black'/></svg>") no-repeat center / contain; }
+
+    .app { flex: 1; overflow-y: auto; padding: 0 0 110px; }
+    .app::-webkit-scrollbar { display: none; }
+
+    .top {
+      padding: 4px 20px 8px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .back {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg);
+    }
+    .back svg { width: 14px; height: 14px; }
+    .top-actions { display: flex; gap: 8px; }
+    .ic-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg);
+    }
+    .ic-btn svg { width: 14px; height: 14px; }
+
+    .head { padding: 4px 20px 16px; }
+    .head .row1 { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .head .tk {
+      width: 44px; height: 44px; border-radius: 4px;
+      background: linear-gradient(135deg, oklch(38% 0.16 25), oklch(28% 0.14 25));
+      color: var(--accent-fg);
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .head .info { flex: 1; min-width: 0; }
+    .head .name {
+      font-family: var(--font-display); font-size: 22px; font-weight: 600;
+      letter-spacing: -0.018em; line-height: 1.15;
+    }
+    .head .name .en {
+      font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 4px;
+      font-family: var(--font-mono); letter-spacing: 0;
+    }
+    .head .id-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; flex-wrap: wrap; }
+    .head .id {
+      font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .head .pill {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.08em;
+      text-transform: uppercase; padding: 2px 5px; border-radius: 3px;
+      border: 1px solid var(--border-strong); color: var(--muted);
+    }
+    .head .pill.gold {
+      background: var(--warning-soft); color: var(--warning);
+      border-color: var(--warning); font-weight: 600;
+    }
+    .head .watch {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--fg); border: 1px solid var(--fg);
+      color: var(--accent-fg); display: grid; place-items: center;
+    }
+    .head .watch svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .scale-row { display: flex; align-items: baseline; gap: 10px; }
+    .scale {
+      font-family: var(--font-display); font-size: 30px; font-weight: 600;
+      letter-spacing: -0.022em; line-height: 1;
+    }
+    .scale .u {
+      font-family: var(--font-mono); font-size: 13px; color: var(--muted);
+      font-weight: 500; margin-left: 4px; letter-spacing: 0;
+    }
+    .yoy {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+      padding: 3px 8px; border-radius: 4px;
+    }
+    .yoy.up { color: var(--up); background: var(--up-soft); }
+    .yoy.down { color: var(--down); background: var(--down-soft); }
+    .asof {
+      font-family: var(--font-mono); font-size: 10.5px;
+      color: var(--muted); letter-spacing: 0.06em;
+      margin: 10px 0 8px;
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .asof .v { color: var(--fg-2); font-weight: 500; }
+    .asof .sep { color: var(--border-strong); padding: 0 2px; }
+
+    /* Secondary metric strip */
+    .strip {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+      margin-top: 14px; padding: 12px 14px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .strip .cell { display: flex; flex-direction: column; gap: 3px; padding: 0 8px; border-right: 1px solid var(--border-soft, var(--border)); }
+    .strip .cell:first-child { padding-left: 0; }
+    .strip .cell:last-child { padding-right: 0; border-right: none; }
+    .strip .lbl { font: 9px/1 var(--font-mono); color: var(--muted); letter-spacing: 0.06em; }
+    .strip .val { font: 13px/1.2 var(--font-mono); font-weight: 600; color: var(--fg); letter-spacing: -0.005em; }
+    .strip .val .u { font-size: 9px; color: var(--muted); font-weight: 500; margin-left: 1px; }
+    .strip .delta { font: 9.5px/1 var(--font-mono); font-weight: 600; }
+    .strip .delta.up { color: var(--up); }
+    .strip .delta.down { color: var(--down); }
+
+    /* Metric tab bar */
+    .mtabs {
+      display: flex; gap: 0; padding: 4px 20px 0;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .mtabs::-webkit-scrollbar { display: none; }
+    .mtab {
+      flex-shrink: 0; padding: 10px 0; margin-right: 18px;
+      font-size: 13px; font-weight: 500; color: var(--muted);
+      letter-spacing: -0.005em; position: relative;
+    }
+    .mtab.active { color: var(--fg); font-weight: 600; }
+    .mtab.active::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -1px;
+      height: 2px; background: var(--fg); border-radius: 2px;
+    }
+    .mtab .ct {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      margin-left: 4px; letter-spacing: 0.05em;
+    }
+
+    /* Body */
+    .body { padding: 16px 20px 0; }
+
+    .data-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 16px 16px 18px;
+      margin-bottom: 12px;
+    }
+    .data-card .h {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; gap: 8px;
+    }
+    .data-card .h h3 {
+      font-family: var(--font-display); font-size: 14px; font-weight: 600;
+      letter-spacing: -0.008em; line-height: 1.2;
+      flex: 1; min-width: 0;
+    }
+    .data-card .h .sub {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .data-card .h .ctrl { display: flex; gap: 4px; }
+    .data-card .seg {
+      font-family: var(--font-mono); font-size: 10px; padding: 3px 7px;
+      border-radius: 4px; color: var(--muted); letter-spacing: 0.04em;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .data-card .seg.active { background: var(--surface-2); color: var(--fg); }
+
+    /* AI interpretation card */
+    .ai-card {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface-warm) 100%);
+      border-color: var(--border-strong);
+    }
+    .ai-card .h h3 {
+      display: flex; align-items: center; gap: 6px;
+      background: linear-gradient(90deg, var(--fg) 0%, var(--accent) 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .ai-spark {
+      width: 14px; height: 14px;
+      color: var(--accent);
+      -webkit-text-fill-color: var(--accent);
+      flex-shrink: 0;
+    }
+    .ai-model {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.03em;
+      color: var(--accent);
+      background: var(--accent-soft);
+      border: 1px solid var(--border-strong);
+      padding: 2px 6px; border-radius: 3px; flex-shrink: 1;
+      max-width: 60%; text-align: right; line-height: 1.4;
+    }
+    .ai-summary {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; line-height: 1.5; margin-bottom: 12px;
+      padding-bottom: 10px; border-bottom: 1px dashed var(--border);
+    }
+    .ai-verdict {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--up);
+      background: var(--up-soft);
+      border: 1px solid var(--up);
+      padding: 2px 7px; border-radius: 3px; flex-shrink: 0;
+    }
+    .ai-verdict-text { color: var(--fg); }
+    .ai-verdict.v-good {
+      color: var(--down);
+      background: var(--down-soft);
+      border-color: var(--down);
+    }
+
+    .ai-findings { display: flex; flex-direction: column; gap: 9px; }
+    .ai-finding { display: flex; gap: 9px; align-items: flex-start; }
+    .ai-marker {
+      flex-shrink: 0;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 9.5px; font-weight: 700;
+      color: var(--bg);
+    }
+    .ai-marker.m-1 { background: var(--accent); }
+    .ai-marker.m-2 { background: var(--fg-2); }
+    .ai-marker.m-3 { background: var(--warning); }
+    .ai-body { flex: 1; min-width: 0; }
+    .ai-key {
+      font-family: var(--font-body); font-size: 12px; font-weight: 600;
+      color: var(--fg); line-height: 1.4; margin-bottom: 2px;
+    }
+    .ai-evi {
+      font-family: var(--font-body); font-size: 11.5px; color: var(--muted);
+      line-height: 1.55;
+    }
+    .ai-evi .hl-u { color: var(--up); font-weight: 600; font-family: var(--font-mono); font-size: 10.5px; }
+    .ai-evi .hl-d { color: var(--down); font-weight: 600; font-family: var(--font-mono); font-size: 10.5px; }
+
+    .ai-cta {
+      margin-top: 12px; padding: 9px 12px;
+      background: var(--accent-soft);
+      border: 1px dashed var(--accent);
+      border-radius: 4px;
+      display: flex; align-items: center; gap: 6px;
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .ai-cta:hover { background: var(--surface-warm); border-style: solid; }
+    .ai-cta-icon {
+      font-size: 13px; color: var(--accent); font-weight: 600;
+    }
+    .ai-cta-text {
+      font-family: var(--font-body); font-size: 11.5px;
+      color: var(--fg); font-weight: 500;
+    }
+    .ai-foot {
+      margin-top: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .ai-foot-right { color: var(--accent); cursor: pointer; }
+
+    .kv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 12px; }
+    .kv .k {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase;
+    }
+    .kv .v { font-size: 17px; font-weight: 600; letter-spacing: -0.012em; margin-top: 3px; }
+    .kv .v .u { font-size: 11px; color: var(--muted); font-weight: 500; margin-left: 2px; }
+    .kv .d { font-size: 10px; margin-top: 2px; font-weight: 500; }
+    .kv .d.up { color: var(--up); }
+    .kv .d.down { color: var(--down); }
+    .kv .d.neutral { color: var(--muted); }
+
+    /* Pie / dual donut */
+    .donut-wrap {
+      display: grid; grid-template-columns: 130px 1fr; gap: 12px; align-items: center;
+    }
+    .donut-svg { width: 130px; height: 130px; }
+    .donut-svg .ring-bg { fill: none; stroke: var(--surface-2); }
+    .donut-svg .seg { transition: opacity 0.18s ease; }
+    .donut-svg .seg:hover { opacity: 0.78; }
+
+    /* Grouped bar chart */
+    .bar-svg { display: block; width: 100%; height: auto; max-width: 100%; }
+    .donut-legend { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .lg-row { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+    .lg-dot { width: 8px; height: 8px; border-radius: 2px; flex-shrink: 0; }
+    .lg-row .pct { margin-left: auto; color: var(--fg); font-weight: 600; padding-left: 8px; }
+    .period-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.04em;
+      color: var(--muted); padding: 2px 6px; border: 1px solid var(--border);
+      border-radius: 3px; margin-bottom: 6px;
+    }
+    .period-tag .pdot { width: 5px; height: 5px; border-radius: 50%; }
+
+    /* Compact data table */
+    .tbl { width: 100%; border-collapse: collapse; }
+    .tbl th, .tbl td {
+      padding: 6px 4px; text-align: right;
+      font-family: var(--font-mono); font-size: 10.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tbl th:first-child, .tbl td:first-child {
+      text-align: left; font-family: var(--font-body);
+      color: var(--fg); font-weight: 500;
+      line-height: 1.25;
+    }
+    .tbl th {
+      color: var(--muted); font-weight: 500; font-size: 9.5px;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      background: var(--surface-2); border-bottom: 1px solid var(--border);
+    }
+    .tbl td.num-strong { font-weight: 600; color: var(--fg); }
+    .tbl td.delta-good { color: var(--up); font-weight: 600; }
+    .tbl td.delta-bad { color: var(--down); font-weight: 600; }
+    .tbl td.delta-neutral { color: var(--muted); }
+    .tbl td .arr { font-family: var(--font-mono); font-size: 9px; opacity: 0.7; margin-right: 2px; }
+    .tbl tr:last-child td { border-bottom: none; font-weight: 600; background: var(--surface-2); }
+    .tbl tr.total td { font-weight: 600; }
+    .tbl tr.total td:first-child { font-family: var(--font-body); }
+
+    /* Stacked percentage cell + percentage-point delta cell */
+    .tbl td.pct-cell { line-height: 1.35; font-size: 10.5px; white-space: nowrap; }
+    .tbl td.pct-cell .pct-prior { display: block; font-size: 9px; color: var(--muted); font-weight: 400; margin-top: 1px; }
+    .tbl td.pp-cell { font-size: 10.5px; color: var(--fg); font-weight: 600; white-space: nowrap; }
+    .tbl td.pp-cell.up { color: var(--up); }
+    .tbl td.pp-cell.down { color: var(--down); }
+    .tbl td.pp-cell.flat { color: var(--muted); font-weight: 500; }
+
+    /* 6-column balance-sheet tables */
+    .tbl-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px 2px; }
+    .tbl-6 { width: auto; min-width: 460px; }
+    .tbl-6 col.c-name { width: 110px; }
+    .tbl-6 col.c-v25 { width: 78px; }
+    .tbl-6 col.c-v24 { width: 78px; }
+    .tbl-6 col.c-delta { width: 70px; }
+    .tbl-6 col.c-pct { width: 64px; }
+    .tbl-6 col.c-pp { width: 60px; }
+    .tbl-6 th, .tbl-6 td { padding: 6px 4px; font-size: 10.5px; }
+    .tbl-6 td.pct-cell { font-size: 10.5px; }
+    .tbl-6 td.pp-cell { font-size: 10.5px; }
+    .tbl-scroll-hint { font-family: var(--font-mono); font-size: 9px; color: var(--muted); margin-top: 6px; letter-spacing: 0.04em; opacity: 0.7; }
+
+    /* Sticky first column for the 6-col table */
+    .tbl-6 th:first-child, .tbl-6 td:first-child {
+      position: sticky; left: 0; z-index: 2;
+      background: var(--surface);
+      box-shadow: 1px 0 0 var(--border);
+    }
+    .tbl-6 tr:last-child td:first-child, .tbl-6 tr.total td:first-child {
+      background: var(--surface-2);
+    }
+
+    .toggle-row { display: flex; gap: 6px; }
+    .tg-btn {
+      font-family: var(--font-mono); font-size: 10px; padding: 4px 9px;
+      border-radius: 4px; color: var(--muted); letter-spacing: 0.04em;
+      border: 1px solid var(--border); cursor: pointer;
+      background: var(--surface); transition: all 0.15s ease;
+      display: inline-flex; align-items: center; gap: 4px;
+    }
+    .tg-btn.active { background: var(--fg); color: var(--accent-fg); border-color: var(--fg); }
+    .tg-btn svg { width: 11px; height: 11px; }
+
+    .chart {
+      width: 100%; height: 130px; display: block;
+    }
+    .chart-axis {
+      display: flex; justify-content: space-between; margin-top: 6px;
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+    .chart-legend {
+      display: flex; gap: 14px; margin-top: 10px; flex-wrap: wrap;
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .legend-dot { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+    .legend-line { display: inline-block; width: 14px; height: 2px; margin-right: 5px; vertical-align: middle; }
+
+    /* Liquidity chart block (one chart per metric group) */
+    .liq-chart-block {
+      padding: 12px 0 4px;
+      border-top: 1px dashed var(--border);
+    }
+    .liq-chart-block:first-of-type { border-top: none; padding-top: 6px; }
+
+    .liq-chart-head {
+      margin-bottom: 8px;
+    }
+    .liq-chart-name {
+      font-family: var(--font-body); font-size: 13px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.005em;
+    }
+    .liq-kv { gap: 4px 18px; margin-bottom: 6px; }
+    .liq-kv .v { font-size: 16px; }
+    .liq-kv-3 { grid-template-columns: repeat(3, 1fr); gap: 4px 10px; }
+    .liq-kv-3 .k { font-size: 9.5px; letter-spacing: 0.04em; }
+    .liq-kv-3 .v { font-size: 14px; }
+    .liq-kv-3 .d { font-size: 9px; }
+
+    /* Chart toolbar — seg-ctrl row above the SVG (NIM-style) */
+    .chart-toolbar {
+      display: flex; justify-content: flex-end;
+      margin: 4px 0 6px;
+    }
+    .chart-seg { /* same as .seg-ctrl, contextualized for chart blocks */ }
+
+    /* Dual-line chart (NIM-style with axes) */
+    .chart-dual .grid { stroke: var(--border); stroke-width: 0.5; stroke-dasharray: 2 3; }
+    .chart-dual .y-tick {
+      font-family: var(--font-mono); font-size: 8.5px; fill: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .chart-dual .ref { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.7; fill: none; }
+    .chart-dual .ref-label {
+      font-family: var(--font-mono); font-size: 8.5px; fill: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .chart-dual .line { fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .chart-dual .line.solid { stroke: var(--up); }
+    .chart-dual .line.dashed { stroke: var(--accent); opacity: 0.7; stroke-dasharray: 4 3; }
+    .chart-dual .dot { stroke: var(--surface); stroke-width: 1.2; }
+    .chart-dual .end-label {
+      font-family: var(--font-mono); font-size: 8.5px; font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* Liquidity metric block (LCR / NSFR / 流动性比例) */
+    .liq-metric {
+      padding: 12px 0 10px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .liq-metric:last-child { border-bottom: none; padding-bottom: 2px; }
+    .liq-head {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      gap: 10px; margin-bottom: 6px;
+    }
+    .liq-name {
+      font-family: var(--font-body); font-size: 13px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.005em;
+      display: flex; align-items: baseline; gap: 7px;
+    }
+    .liq-name-en {
+      font-family: var(--font-body); font-size: 10.5px; font-weight: 400;
+      color: var(--muted); letter-spacing: 0;
+    }
+    .liq-val-wrap { text-align: right; flex-shrink: 0; }
+    .liq-val {
+      font-family: var(--font-mono); font-size: 19px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.012em; line-height: 1.1;
+    }
+    .liq-val .u { font-size: 11px; color: var(--muted); font-weight: 500; margin-left: 1px; }
+    .liq-delta {
+      font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+      margin-top: 2px; letter-spacing: 0.02em;
+    }
+    .liq-delta.up { color: var(--up); }
+    .liq-delta.down { color: var(--down); }
+
+    /* Combined LCR · NSFR block (dual-line chart) */
+    .liq-metric--dual .liq-val-row {
+      display: flex; gap: 10px; justify-content: flex-end; align-items: baseline;
+    }
+    .liq-val-mini { display: inline-flex; gap: 5px; align-items: baseline; }
+    .liq-mini-label {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+      color: var(--muted); letter-spacing: 0.04em;
+    }
+    .liq-mini-v {
+      font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.01em;
+    }
+    .liq-mini-v .u { font-size: 10px; color: var(--muted); font-weight: 500; margin-left: 1px; }
+    .liq-delta-row {
+      display: flex; gap: 10px; justify-content: flex-end; margin-top: 2px;
+    }
+
+    /* Line chart legend (used on combined LCR · NSFR block) */
+    .line-legend {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      font-family: var(--font-mono); font-size: 9.5px; color: var(--muted);
+      letter-spacing: 0.04em; margin: 2px 0 6px;
+    }
+    .ll-row { display: inline-flex; align-items: center; gap: 5px; }
+    .ll-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--up);
+    }
+    .ll-dot--nsfr {
+      background: transparent;
+      border: 1.6px solid oklch(58% 0.14 200);
+    }
+    .ll-dash {
+      width: 12px; height: 0;
+      border-top: 1.5px dashed var(--muted);
+    }
+
+    /* Period chips (1Y / 3Y / 5Y / MAX) — line chart range selector */
+    .period-chips {
+      display: inline-flex; gap: 0; margin: 4px 0 6px;
+      border: 1px solid var(--border); border-radius: 4px;
+      overflow: hidden; background: var(--surface);
+    }
+    .period-chip {
+      font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      padding: 3px 7px; cursor: pointer; transition: all 0.15s ease;
+      border-right: 1px solid var(--border);
+      user-select: none;
+    }
+    .period-chip:last-child { border-right: none; }
+    .period-chip:hover { background: var(--surface-2); color: var(--fg); }
+    .period-chip.active {
+      background: var(--fg); color: var(--accent-fg);
+    }
+
+    /* Historical line chart */
+    .line-svg { display: block; width: 100%; height: 88px; }
+    .line-svg .grid { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.6; }
+    .line-svg .area { opacity: 0.14; }
+    .line-svg .line { fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+    .line-svg .dot  { stroke: var(--surface); stroke-width: 1.2; }
+    .line-svg .ref  { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.7; }
+    .line-svg .ref-label {
+      font-family: var(--font-mono); font-size: 8.5px; fill: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .line-svg .last-label {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    /* Filings */
+    .filings-card .h { align-items: flex-start; margin-bottom: 14px; }
+    .filings-card .h-title { display: flex; flex-direction: column; gap: 3px; }
+    .filings-card .en {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500;
+      margin-left: 4px;
+    }
+    .filings-card .src {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.03em; line-height: 1.3;
+    }
+    .all-link {
+      font-size: 12px; color: var(--fg); font-weight: 500;
+      letter-spacing: -0.005em; flex-shrink: 0; padding-top: 2px;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .all-link .arr { transition: transform 0.18s ease; display: inline-block; }
+    .all-link:hover .arr { transform: translateX(3px); }
+
+    .year-tabs {
+      display: flex; gap: 0; margin: 0 -4px 10px;
+      overflow-x: auto; scrollbar-width: none;
+      border-bottom: 1px solid var(--border);
+      padding: 0 4px;
+    }
+    .year-tabs::-webkit-scrollbar { display: none; }
+    .ytab {
+      flex-shrink: 0; padding: 8px 0; margin-right: 16px;
+      font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+      letter-spacing: 0.02em; position: relative; cursor: pointer;
+    }
+    .ytab.active { color: var(--fg); font-weight: 600; }
+    .ytab.active::after {
+      content: ''; position: absolute; left: 0; right: 0; bottom: -1px;
+      height: 1.5px; background: var(--fg); border-radius: 1.5px;
+    }
+
+    .filings-list { display: flex; flex-direction: column; }
+    .filing-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 0; border-bottom: 1px solid var(--border);
+      gap: 12px; transition: background 0.15s ease;
+    }
+    .filing-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .filing-row:first-child { padding-top: 2px; }
+
+    .filing-left { flex: 1; min-width: 0; }
+    .filing-title-row {
+      display: flex; align-items: center; gap: 7px; margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    .filing-type {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+      padding: 2px 5px; border-radius: 3px;
+      background: var(--fg); color: var(--accent-fg);
+      letter-spacing: 0.05em;
+    }
+    .filing-title {
+      font-size: 13px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em;
+    }
+    .filing-tag {
+      font-family: var(--font-mono); font-size: 9px;
+      padding: 2px 5px; border-radius: 3px;
+      background: var(--surface-2); color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase;
+    }
+    .filing-meta {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.02em; line-height: 1.3;
+    }
+    .filing-right {
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .dl-count {
+      display: flex; align-items: center; gap: 3px;
+      font-size: 12px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em;
+    }
+    .dl-icon { font-size: 11px; color: var(--muted); font-weight: 500; }
+    .dl-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg);
+      transition: all 0.15s ease; cursor: pointer;
+    }
+    .dl-btn:hover { background: var(--fg); color: var(--accent-fg); border-color: var(--fg); }
+    .dl-btn:active { transform: scale(0.92); }
+    .dl-btn.flash { background: var(--fg); color: var(--accent-fg); border-color: var(--fg); }
+    .dl-btn svg { width: 13px; height: 13px; }
+
+    /* Subtle icon button for inline table toolbar (download etc.) */
+    .btn-icon {
+      width: 26px; height: 26px; border-radius: 5px; flex-shrink: 0;
+      background: transparent; border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--muted);
+      cursor: pointer; transition: all 0.15s ease; padding: 0;
+    }
+    .btn-icon:hover { background: var(--surface-2); color: var(--fg); border-color: var(--muted); }
+    .btn-icon:active { transform: scale(0.92); }
+    .btn-icon svg { width: 12px; height: 12px; }
+
+    /* Table caption (right-aligned unit / disclaimer, sits just above table) */
+    .tbl-caption {
+      font-family: var(--font-mono); font-size: 9.5px; color: var(--muted);
+      letter-spacing: 0.04em; text-align: right;
+      margin: -4px 0 6px;
+    }
+
+    /* Paywall */
+    .paywall {
+      margin: 0 0 20px; padding: 16px 16px 18px;
+      background: var(--fg); color: var(--accent-fg);
+      border-radius: 14px; position: relative; overflow: hidden;
+    }
+    .paywall::before {
+      content: ''; position: absolute; right: -30px; top: -30px;
+      width: 120px; height: 120px; border-radius: 50%;
+      background: radial-gradient(circle, oklch(58% 0.18 255 / 0.4) 0%, transparent 65%);
+    }
+    .paywall .lock-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      display: grid; place-items: center; margin-bottom: 10px;
+    }
+    .paywall .lock-icon svg { width: 14px; height: 14px; }
+    .paywall h4 {
+      font-family: var(--font-display); font-size: 16px; font-weight: 600;
+      letter-spacing: -0.012em; margin-bottom: 6px;
+    }
+    .paywall p {
+      font-size: 12px; line-height: 1.5; color: rgba(255,255,255,0.65);
+      margin-bottom: 14px;
+    }
+    .paywall .price-row {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .paywall .prc {
+      font-family: var(--font-display); font-size: 20px; font-weight: 600;
+      letter-spacing: -0.015em;
+    }
+    .paywall .prc .per { font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,0.55); font-weight: 500; }
+    .paywall .unlock {
+      padding: 8px 16px; border-radius: 999px;
+      background: var(--accent); color: var(--accent-fg);
+      font-size: 13px; font-weight: 500; letter-spacing: -0.005em;
+    }
+
+    /* Reports region */
+    .rpt-h-scroll {
+      display: flex; gap: 10px; overflow-x: auto;
+      scrollbar-width: none; margin: 0 -16px; padding: 0 16px 4px;
+    }
+    .rpt-h-scroll::-webkit-scrollbar { display: none; }
+    .rpt-feat {
+      flex: 0 0 240px; background: var(--fg); color: var(--accent-fg);
+      border-radius: 4px; padding: 14px 14px 14px;
+      position: relative; overflow: hidden; min-height: 130px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .rpt-feat::before {
+      content: ''; position: absolute; right: -30px; top: -30px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: radial-gradient(circle, oklch(58% 0.18 255 / 0.32) 0%, transparent 65%);
+    }
+    .rpt-feat .tag {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+      padding: 3px 6px; border-radius: 3px; background: rgba(255,255,255,0.12);
+      display: inline-flex; align-items: center; gap: 5px;
+      text-transform: uppercase; width: max-content;
+    }
+    .rpt-feat .tag::before {
+      content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--accent);
+    }
+    .rpt-feat .ttl {
+      font-family: var(--font-display); font-size: 15px; font-weight: 600;
+      line-height: 1.25; letter-spacing: -0.012em; margin: 10px 0 6px;
+    }
+    .rpt-feat .meta {
+      font-family: var(--font-mono); font-size: 9.5px; color: rgba(255,255,255,0.55);
+      letter-spacing: 0.04em; display: flex; gap: 6px; align-items: center;
+    }
+    .rpt-feat .meta .paid { color: var(--accent-fg); font-weight: 600; }
+
+    .rpt-list { display: flex; flex-direction: column; }
+    .rpt-row {
+      display: flex; gap: 10px; padding: 11px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .rpt-row:last-child { border-bottom: none; }
+    .rpt-cover {
+      flex-shrink: 0; width: 36px; height: 44px; border-radius: 4px;
+      background: linear-gradient(135deg, var(--surface-2) 0%, var(--border) 100%);
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 8px; font-weight: 600;
+      color: var(--muted); text-align: center; letter-spacing: 0.04em; line-height: 1.15;
+    }
+    .rpt-cover.accent { background: linear-gradient(135deg, oklch(58% 0.18 255 / 0.92), oklch(38% 0.14 250)); color: var(--accent-fg); }
+    .rpt-cover.success { background: linear-gradient(135deg, oklch(58% 0.14 145 / 0.92), oklch(38% 0.12 155)); color: var(--accent-fg); }
+    .rpt-cover.warning { background: linear-gradient(135deg, oklch(75% 0.15 75 / 0.92), oklch(60% 0.16 50)); color: var(--fg); }
+    .rpt-info { flex: 1; min-width: 0; }
+    .rpt-info .top-line {
+      display: flex; gap: 5px; align-items: center; margin-bottom: 3px;
+    }
+    .rpt-cat {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.06em;
+      color: var(--muted); text-transform: uppercase;
+    }
+    .rpt-date { font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+    .rpt-info .ttl { font-size: 12.5px; font-weight: 600; line-height: 1.3; letter-spacing: -0.005em; margin-bottom: 3px; }
+    .rpt-info .meta {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.04em; display: flex; gap: 6px;
+    }
+    .rpt-info .meta .free { color: var(--success); font-weight: 600; }
+    .rpt-info .meta .paid { color: var(--fg); font-weight: 600; }
+    .rpt-info .meta .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--border-strong); align-self: center; }
+
+    /* Metric segmented control for chart */
+    .seg-ctrl {
+      display: inline-flex; gap: 0; padding: 2px;
+      background: var(--surface-2); border-radius: 6px;
+    }
+    .seg-ctrl .seg {
+      font-family: var(--font-mono); font-size: 10px; padding: 3px 9px;
+      border-radius: 4px; color: var(--muted); letter-spacing: 0.04em;
+      cursor: pointer;
+    }
+    .seg-ctrl .seg.active { background: var(--surface); color: var(--fg); box-shadow: 0 0 0 1px var(--border); }
+
+    .delta-tag {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+      padding: 2px 5px; border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .ctrl-row { display: flex; align-items: center; gap: 8px; }
+    .period-bar {
+      display: flex; gap: 6px; margin-bottom: 12px;
+    }
+    .period-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.04em;
+      color: var(--fg); padding: 3px 7px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    .period-tag .pdot { width: 6px; height: 6px; border-radius: 50%; }
+    .dl-mini {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--muted);
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .dl-mini:hover { background: var(--fg); color: var(--accent-fg); border-color: var(--fg); }
+    .dl-mini:active { transform: scale(0.92); }
+    .dl-mini svg { width: 12px; height: 12px; }
+    .view-toggle {
+      width: 28px; height: 28px; border-radius: 6px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--muted);
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .view-toggle:hover { background: var(--fg); color: var(--accent-fg); border-color: var(--fg); }
+    .view-toggle:active { transform: scale(0.92); }
+    .view-toggle svg { width: 13px; height: 13px; stroke-width: 1.5; }
+    .delta-tag.good { color: var(--up); background: var(--up-soft); }
+    .delta-tag.bad { color: var(--down); background: var(--down-soft); }
+    .delta-tag.flat { color: var(--muted); background: var(--surface-2); }
+
+    /* Evolution sub-section */
+    .evo-section {
+      margin-top: 14px; padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .evo-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8px; gap: 8px;
+    }
+    .evo-title {
+      font-family: var(--font-mono); font-size: 9.5px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .period-tabs {
+      display: inline-flex; background: var(--surface-2);
+      border: 1px solid var(--border); border-radius: 4px; padding: 2px;
+    }
+    .pt-btn {
+      padding: 4px 9px; border: 0; background: transparent;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.04em; color: var(--muted);
+      border-radius: 3px; cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .pt-btn:hover { color: var(--fg); }
+    .pt-btn.active {
+      background: var(--surface); color: var(--accent);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    }
+    .legend {
+      display: flex; flex-wrap: wrap; gap: 4px 10px;
+      margin-top: 8px; padding-top: 8px;
+    }
+    .lg-item {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-family: var(--font-mono); font-size: 9px;
+      letter-spacing: 0.02em; color: var(--muted);
+    }
+    .lg-swatch {
+      display: inline-block; width: 10px; height: 10px;
+      border-radius: 2px; flex-shrink: 0;
+    }
+
+    /* Tab content panels — single panel at a time */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* Bottom tabs */
+    .tabs {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 78px; background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; padding: 6px 8px 22px;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px; color: var(--muted);
+      font-size: 10px; font-weight: 500; letter-spacing: -0.005em;
+    }
+    .tab.active { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; stroke-width: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status">
+        <div>9:41</div>
+        <div class="status-right">
+          <span class="icon icon-signal"></span>
+          <span class="icon icon-wifi"></span>
+          <span class="icon icon-battery"></span>
+        </div>
+      </div>
+
+      <div class="app">
+
+        <div class="top">
+          <a class="back" href="list.html" aria-label="返回">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m9 3-5 4 5 4"/>
+            </svg>
+          </a>
+          <div class="top-actions">
+            <a class="ic-btn" href="#" aria-label="分享">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 8v5a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V8M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5"/>
+              </svg>
+            </a>
+            <a class="ic-btn" href="#" aria-label="导出">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10v3a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-3M8 2v8m0 0 3-3m-3 3L5 7"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <header class="head">
+          <div class="row1">
+            <div class="tk">工</div>
+            <div class="info">
+              <div class="name">中国工商银行<span class="en">ICBC</span></div>
+              <div class="id-row">
+                <span class="pill gold">G-SIB</span>
+                <span class="pill">D-SIB</span>
+              </div>
+            </div>
+            <button class="watch" aria-label="加入自选">
+              <svg viewBox="0 0 16 16"><path d="M8 1.5l2.06 4.18 4.61.67-3.34 3.25.79 4.59L8 12l-4.12 2.17.79-4.59L1.33 6.35l4.61-.67z"/></svg>
+            </button>
+          </div>
+          <div class="asof">
+            <span class="k">数据截至</span>
+            <span class="v num">2025-12-31</span>
+            <span class="sep">·</span>
+            <span class="k">来源</span>
+            <span class="v">业绩快报</span>
+            <span class="sep">·</span>
+            <span class="k">更新于</span>
+            <span class="v num">06.15 14:32</span>
+          </div>
+          <div class="scale-row">
+            <div class="scale num">53.48<span class="u">万亿元</span></div>
+            <div class="yoy up num">+9.54% YoY</div>
+          </div>
+
+          <div class="strip">
+            <div class="cell">
+              <span class="lbl">NIM</span>
+              <span class="val num">1.43<span class="u">%</span></span>
+              <span class="delta down num">↓ −12 bp</span>
+            </div>
+            <div class="cell">
+              <span class="lbl">ROE</span>
+              <span class="val num">9.50<span class="u">%</span></span>
+              <span class="delta down num">↓ −0.6 pp</span>
+            </div>
+            <div class="cell">
+              <span class="lbl">CET1</span>
+              <span class="val num">14.94<span class="u">%</span></span>
+              <span class="delta up num">↑ +51 bp</span>
+            </div>
+            <div class="cell">
+              <span class="lbl">NPL</span>
+              <span class="val num">1.31<span class="u">%</span></span>
+              <span class="delta down num">↓ −3 bp</span>
+            </div>
+          </div>
+        </header>
+
+        <nav class="mtabs">
+          <a class="mtab active" href="#" data-tab="zcf">资负</a>
+          <a class="mtab" href="#" data-tab="rpt">重定价</a>
+          <a class="mtab" href="#" data-tab="liq">流动性</a>
+          <a class="mtab" href="#" data-tab="qua">资产质量</a>
+          <a class="mtab" href="#" data-tab="cap">资本</a>
+          <a class="mtab" href="#" data-tab="nim">净息差<span class="ct">NIM</span></a>
+          <a class="mtab" href="#" data-tab="rpt2">研究</a>
+          <a class="mtab" href="#" data-tab="fil">财报</a>
+        </nav>
+
+        <div class="body">
+
+          <!-- ============ NIM TAB ============ -->
+          <div class="tab-panel" data-panel="nim">
+
+            <div class="data-card">
+              <div class="h">
+                <h3>生息资产收益率</h3>
+                <div class="seg-ctrl chart-seg" data-target="asset-yield-range">
+                  <span class="seg" data-range="1Y">1Y</span>
+                  <span class="seg" data-range="3Y">3Y</span>
+                  <span class="seg active" data-range="5Y">5Y</span>
+                  <span class="seg" data-range="MAX">MAX</span>
+                </div>
+              </div>
+              <div class="kv liq-kv liq-kv-3">
+                <div>
+                  <div class="k">总生息 2025A</div>
+                  <div class="v num">2.68<span class="u">%</span></div>
+                  <div class="d down num">↓ −49 bp YoY</div>
+                </div>
+                <div>
+                  <div class="k">4Q25</div>
+                  <div class="v num">2.65<span class="u">%</span></div>
+                  <div class="d down num">↓ −3 bp QoQ</div>
+                </div>
+                <div>
+                  <div class="k">六大行中位</div>
+                  <div class="v num">2.85<span class="u">%</span></div>
+                  <div class="d down num">低于中位 −17 bp</div>
+                </div>
+              </div>
+              <div class="chart-wrap" style="margin-top:10px;">
+                <svg class="chart chart-dual" data-metric="asset-yield" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="chart-axis" data-axis-for="asset-yield"></div>
+              <div class="chart-legend">
+                <span><span class="legend-line" style="background:oklch(58% 0.18 25)"></span>客户贷款 2.81%</span>
+                <span><span class="legend-line" style="background:oklch(58% 0.18 255)"></span>债券投资 2.70%</span>
+                <span><span class="legend-line" style="background:oklch(60% 0.008 240); border-top:1px dashed oklch(60% 0.008 240); height:0;"></span>存放央行 1.64%</span>
+                <span><span class="legend-line" style="background:oklch(58% 0.14 200); border-top:1px dashed oklch(58% 0.14 200); height:0;"></span>存放拆放同业 2.27%</span>
+                <span style="color:var(--muted);font-family:var(--font-mono);">总生息 2.68%（加权）</span>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="h">
+                <h3>计息负债付息率</h3>
+                <div class="seg-ctrl chart-seg" data-target="liability-cost-range">
+                  <span class="seg" data-range="1Y">1Y</span>
+                  <span class="seg" data-range="3Y">3Y</span>
+                  <span class="seg active" data-range="5Y">5Y</span>
+                  <span class="seg" data-range="MAX">MAX</span>
+                </div>
+              </div>
+              <div class="kv liq-kv liq-kv-3">
+                <div>
+                  <div class="k">总计息 2025A</div>
+                  <div class="v num">1.53<span class="u">%</span></div>
+                  <div class="d down num">↓ −41 bp YoY</div>
+                </div>
+                <div>
+                  <div class="k">4Q25</div>
+                  <div class="v num">1.50<span class="u">%</span></div>
+                  <div class="d down num">↓ −3 bp QoQ</div>
+                </div>
+                <div>
+                  <div class="k">六大行中位</div>
+                  <div class="v num">1.62<span class="u">%</span></div>
+                  <div class="d up num">低于中位 −9 bp</div>
+                </div>
+              </div>
+              <div class="chart-wrap" style="margin-top:10px;">
+                <svg class="chart chart-dual" data-metric="liability-cost" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="chart-axis" data-axis-for="liability-cost"></div>
+              <div class="chart-legend">
+                <span><span class="legend-line" style="background:oklch(58% 0.18 25)"></span>客户存款 1.36%</span>
+                <span><span class="legend-line" style="background:oklch(58% 0.18 255)"></span>已发行债务凭证 1.93%</span>
+                <span><span class="legend-line" style="background:oklch(58% 0.14 200); border-top:1px dashed oklch(58% 0.14 200); height:0;"></span>已发行存款证及同业 2.66%</span>
+                <span style="color:var(--muted);font-family:var(--font-mono);">总计息 1.53%（加权）</span>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="h">
+                <h3>净息差</h3>
+                <div class="seg-ctrl chart-seg" data-target="nim-range">
+                  <span class="seg" data-range="1Y">1Y</span>
+                  <span class="seg" data-range="3Y">3Y</span>
+                  <span class="seg active" data-range="5Y">5Y</span>
+                  <span class="seg" data-range="MAX">MAX</span>
+                </div>
+              </div>
+              <div class="kv liq-kv liq-kv-3">
+                <div>
+                  <div class="k">最新 2025A</div>
+                  <div class="v num">1.43<span class="u">%</span></div>
+                  <div class="d down num">↓ −12 bp YoY</div>
+                </div>
+                <div>
+                  <div class="k">4Q25</div>
+                  <div class="v num">1.41<span class="u">%</span></div>
+                  <div class="d down num">↓ −3 bp QoQ</div>
+                </div>
+                <div>
+                  <div class="k">六大行中位</div>
+                  <div class="v num">1.45<span class="u">%</span></div>
+                  <div class="d down num">低于中位 −2 bp</div>
+                </div>
+              </div>
+              <div class="chart-wrap" style="margin-top:10px;">
+                <svg class="chart chart-dual" data-metric="nim" viewBox="0 0 320 130" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="chart-axis" data-axis-for="nim"></div>
+              <div class="chart-legend">
+                <span><span class="legend-line" style="background:oklch(92% 0.012 250)"></span>工商银行</span>
+                <span><span class="legend-line" style="background:oklch(60% 0.008 240); border-top:1px dashed oklch(60% 0.008 240); height:0;"></span>六大行中位</span>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="h">
+                <h3>息差变动归因</h3>
+                <span class="sub">2025A· 基点变动 · YoY</span>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:10px;">
+                <div style="display:grid;grid-template-columns:90px 1fr 60px;align-items:center;gap:10px;">
+                  <span style="font-size:12px;color:var(--fg);">资产收益</span>
+                  <div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;">
+                    <div style="width:70%;height:100%;background:var(--down);border-radius:3px;"></div>
+                  </div>
+                  <span class="num down" style="font-size:12px;font-weight:600;text-align:right;">↓ −19 bp</span>
+                </div>
+                <div style="display:grid;grid-template-columns:90px 1fr 60px;align-items:center;gap:10px;">
+                  <span style="font-size:12px;color:var(--fg);">负债成本</span>
+                  <div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;">
+                    <div style="width:42%;height:100%;background:var(--down);border-radius:3px;"></div>
+                  </div>
+                  <span class="num down" style="font-size:12px;font-weight:600;text-align:right;">↓ −11 bp</span>
+                </div>
+                <div style="display:grid;grid-template-columns:90px 1fr 60px;align-items:center;gap:10px;">
+                  <span style="font-size:12px;color:var(--fg);">结构优化</span>
+                  <div style="height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;">
+                    <div style="width:48%;height:100%;background:var(--up);border-radius:3px;"></div>
+                  </div>
+                  <span class="num up" style="font-size:12px;font-weight:600;text-align:right;">↑ +18 bp</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Research reports moved to dedicated 研究 tab -->
+
+          </div>
+
+          <!-- ============ 研究 TAB ============ -->
+          <div class="tab-panel" data-panel="rpt2">
+
+            <div class="data-card" id="reports-section">
+              <div class="h">
+                <h3>该行专题报告 · Atlas 研究</h3>
+                <a class="all-link" href="../reports/list.html">全部 86 篇<span class="arr">→</span></a>
+              </div>
+
+              <div class="rpt-h-scroll">
+                <a class="rpt-feat" href="../reports/detail.html">
+                  <span class="tag">深度 · 付费</span>
+                  <div>
+                    <div class="ttl">工商银行 2025 资产质量拐点判断</div>
+                    <div class="meta"><span>Atlas 研究</span><span class="dot">·</span><span class="paid">¥168</span><span class="dot">·</span><span>12 min</span></div>
+                  </div>
+                </a>
+                <a class="rpt-feat" href="../reports/detail.html" style="background: linear-gradient(135deg, oklch(35% 0.10 250), oklch(28% 0.08 250));">
+                  <span class="tag" style="background: rgba(255,255,255,0.12);">重定价</span>
+                  <div>
+                    <div class="ttl">重定价到期对 2026 NIM 的影响测算</div>
+                    <div class="meta"><span>Atlas 研究</span><span class="dot">·</span><span class="paid">¥98</span><span class="dot">·</span><span>9 min</span></div>
+                  </div>
+                </a>
+                <a class="rpt-feat" href="../reports/detail.html" style="background: linear-gradient(135deg, oklch(45% 0.14 25), oklch(35% 0.12 25));">
+                  <span class="tag" style="background: rgba(255,255,255,0.12);">资本</span>
+                  <div>
+                    <div class="ttl">ICBC 资本内生积累与 TLAC 过渡</div>
+                    <div class="meta"><span>Atlas 研究</span><span class="dot">·</span><span class="paid">¥128</span><span class="dot">·</span><span>10 min</span></div>
+                  </div>
+                </a>
+              </div>
+
+              <div class="rpt-list" style="margin-top: 14px;">
+                <a class="rpt-row" href="../reports/detail.html">
+                  <div class="rpt-cover accent">D-SIB<br/>2025</div>
+                  <div class="rpt-info">
+                    <div class="top-line"><span class="rpt-cat">行业 · 资本</span><span class="rpt-date num">06-09</span></div>
+                    <div class="ttl">六大行资本充足率与分红能力测算</div>
+                    <div class="meta"><span>CET1 · TLAC 过渡</span><span class="dot"></span><span class="free">免费</span><span class="dot"></span><span>8 min</span></div>
+                  </div>
+                </a>
+                <a class="rpt-row" href="../reports/detail.html">
+                  <div class="rpt-cover warning">NPL<br/>2025</div>
+                  <div class="rpt-info">
+                    <div class="top-line"><span class="rpt-cat">行业 · 资产质量</span><span class="rpt-date num">06-05</span></div>
+                    <div class="ttl">房地产对公贷款 NPL 拐点研究</div>
+                    <div class="meta"><span>六大行敞口</span><span class="dot"></span><span class="paid">¥98</span><span class="dot"></span><span>15 min</span></div>
+                  </div>
+                </a>
+                <a class="rpt-row" href="../reports/detail.html">
+                  <div class="rpt-cover success">NIM<br/>1Q26</div>
+                  <div class="rpt-info">
+                    <div class="top-line"><span class="rpt-cat">行业 · 净息差</span><span class="rpt-date num">06-12</span></div>
+                    <div class="ttl">1Q26 全球 30 家 G-SIBs NIM 拆解</div>
+                    <div class="meta"><span>息差驱动归因</span><span class="dot"></span><span class="paid">¥168</span><span class="dot"></span><span>12 min</span></div>
+                  </div>
+                </a>
+                <a class="rpt-row" href="../reports/detail.html">
+                  <div class="rpt-cover">IRRBB<br/>2025</div>
+                  <div class="rpt-info">
+                    <div class="top-line"><span class="rpt-cat">行业 · 重定价</span><span class="rpt-date num">05-28</span></div>
+                    <div class="ttl">六大行 IRRBB 利率冲击情景对比</div>
+                    <div class="meta"><span>ΔEVE / ΔNII</span><span class="dot"></span><span class="free">免费</span><span class="dot"></span><span>7 min</span></div>
+                  </div>
+                </a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ============ 财报 TAB ============ -->
+          <div class="tab-panel" data-panel="fil">
+
+            <div class="data-card filings-card">
+              <div class="h">
+                <div class="h-title">
+                  <h3>历年财报<span class="en">Historical Filings</span></h3>
+                  <div class="src">上交所 · IR · 自动同步</div>
+                </div>
+                <a href="#" class="all-link">全部 32 份<span class="arr">→</span></a>
+              </div>
+
+              <nav class="year-tabs" aria-label="按年份筛选">
+                <a class="ytab active" href="#" data-year="2026">2026</a>
+                <a class="ytab" href="#" data-year="2025">2025</a>
+                <a class="ytab" href="#" data-year="2024">2024</a>
+                <a class="ytab" href="#" data-year="2023">2023</a>
+                <a class="ytab" href="#" data-year="2022">2022</a>
+                <a class="ytab" href="#" data-year="2021">2021</a>
+                <a class="ytab" href="#" data-year="2020">2020</a>
+                <a class="ytab" href="#" data-year="2019">2019</a>
+                <a class="ytab" href="#" data-year="2018">2018</a>
+              </nav>
+
+              <div class="filings-list">
+
+                <div class="filing-row" data-filing="1q26">
+                  <div class="filing-left">
+                    <div class="filing-title-row">
+                      <span class="filing-type">1Q26</span>
+                      <span class="filing-title">一季度报告 · 2026</span>
+                      <span class="filing-tag">最新</span>
+                    </div>
+                    <div class="filing-meta">2026-04-28 披露 · PDF · 2.1 MB</div>
+                  </div>
+                  <div class="filing-right">
+                    <div class="dl-count num"><span class="dl-icon">↓</span><span class="dl-val">3,247</span></div>
+                    <button class="dl-btn" aria-label="下载 1Q26">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="filing-row" data-filing="annual-2025">
+                  <div class="filing-left">
+                    <div class="filing-title-row">
+                      <span class="filing-type">年报</span>
+                      <span class="filing-title">2025 年度报告</span>
+                    </div>
+                    <div class="filing-meta">2026-03-28 披露 · PDF · 8.6 MB · 含审计报告</div>
+                  </div>
+                  <div class="filing-right">
+                    <div class="dl-count num"><span class="dl-icon">↓</span><span class="dl-val">5,892</span></div>
+                    <button class="dl-btn" aria-label="下载 2025 年报">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="filing-row" data-filing="interim-2025">
+                  <div class="filing-left">
+                    <div class="filing-title-row">
+                      <span class="filing-type">中报</span>
+                      <span class="filing-title">2025 年中期报告</span>
+                    </div>
+                    <div class="filing-meta">2025-08-29 披露 · PDF · 6.2 MB</div>
+                  </div>
+                  <div class="filing-right">
+                    <div class="dl-count num"><span class="dl-icon">↓</span><span class="dl-val">4,128</span></div>
+                    <button class="dl-btn" aria-label="下载 2025 中报">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="filing-row" data-filing="3q25">
+                  <div class="filing-left">
+                    <div class="filing-title-row">
+                      <span class="filing-type">3Q25</span>
+                      <span class="filing-title">三季度报告 · 2025</span>
+                    </div>
+                    <div class="filing-meta">2025-10-30 披露 · PDF · 1.9 MB</div>
+                  </div>
+                  <div class="filing-right">
+                    <div class="dl-count num"><span class="dl-icon">↓</span><span class="dl-val">2,564</span></div>
+                    <button class="dl-btn" aria-label="下载 3Q25">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="filing-row" data-filing="annual-2024">
+                  <div class="filing-left">
+                    <div class="filing-title-row">
+                      <span class="filing-type">年报</span>
+                      <span class="filing-title">2024 年度报告</span>
+                    </div>
+                    <div class="filing-meta">2025-03-28 披露 · PDF · 8.2 MB</div>
+                  </div>
+                  <div class="filing-right">
+                    <div class="dl-count num"><span class="dl-icon">↓</span><span class="dl-val">4,621</span></div>
+                    <button class="dl-btn" aria-label="下载 2024 年报">
+                      <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="paywall">
+              <div class="lock-icon">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <rect x="3" y="6" width="8" height="6" rx="1"/>
+                  <path d="M5 6V4.5a2 2 0 0 1 4 0V6"/>
+                </svg>
+              </div>
+              <h4>解锁全部 5 大指标</h4>
+              <p>资负结构 / 重定价 / 流动性 / 资产质量 / 资本 · 5 年时间序列与跨行对比。</p>
+              <div class="price-row">
+                <div>
+                  <div class="prc">¥2,880 <span class="per">/ 年</span></div>
+                </div>
+                <a class="unlock" href="#">立即订阅</a>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- ============ 资负 TAB (default active) ============ -->
+          <div class="tab-panel active" data-panel="zcf">
+
+            <div class="data-card">
+              <div class="h">
+                <h3>生息资产结构</h3>
+                <div class="ctrl-row">
+                  <div class="toggle-row">
+                    <span class="tg-btn active" data-target="zcf" data-view="chart">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="9" width="2.5" height="2"/><rect x="5.5" y="6" width="2.5" height="5"/><rect x="9" y="2" width="2.5" height="9"/></svg>
+                      柱状图
+                    </span>
+                    <span class="tg-btn" data-target="zcf" data-view="table">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="8" height="1.5"/><rect x="2" y="6" width="8" height="1.5"/><rect x="2" y="9" width="5" height="1.5"/></svg>
+                      表格
+                    </span>
+                  </div>
+                  <button class="dl-mini" data-dl-svg="zcf-chart" aria-label="下载 柱状图">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Chart view -->
+              <div data-zcf-view="chart">
+                <div class="period-bar">
+                  <span class="period-tag"><span class="pdot" style="background:oklch(58% 0.18 255)"></span>2025-12-31</span>
+                  <span class="period-tag"><span class="pdot" style="background:oklch(60% 0.008 240)"></span>2024-12-31</span>
+                </div>
+                <svg class="bar-svg" id="zcf-chart" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+                  <!-- Y-axis grid lines (0-60%) -->
+                  <line x1="32" y1="4" x2="354" y2="4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="38" x2="354" y2="38" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="72" x2="354" y2="72" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="106" x2="354" y2="106" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+                  <!-- Y-axis labels -->
+                  <text x="28" y="7" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">60%</text>
+                  <text x="28" y="41" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">45%</text>
+                  <text x="28" y="75" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">30%</text>
+                  <text x="28" y="109" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">15%</text>
+                  <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+                  <!-- Group 1: 贷款 (center 71) -->
+                  <rect x="49" y="14.0" width="22" height="126.0" fill="oklch(58% 0.18 255)"/>
+                  <rect x="73" y="11.7" width="22" height="128.3" fill="oklch(60% 0.008 240)"/>
+                  <!-- Group 2: 债券投资 (center 158) -->
+                  <rect x="136" y="68.4" width="22" height="71.6" fill="oklch(58% 0.18 255)"/>
+                  <rect x="160" y="74.3" width="22" height="65.7" fill="oklch(60% 0.008 240)"/>
+                  <!-- Group 3: 同业资产 (center 245) -->
+                  <rect x="223" y="130.0" width="22" height="10.0" fill="oklch(58% 0.18 255)"/>
+                  <rect x="247" y="130.5" width="22" height="9.5" fill="oklch(60% 0.008 240)"/>
+                  <!-- Group 4: 现金及央行 (center 332) -->
+                  <rect x="310" y="124.4" width="22" height="15.6" fill="oklch(58% 0.18 255)"/>
+                  <rect x="334" y="124.6" width="22" height="15.4" fill="oklch(60% 0.008 240)"/>
+                  <!-- X-axis category labels -->
+                  <text x="71" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">贷款</text>
+                  <text x="158" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">债券</text>
+                  <text x="158" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">投资</text>
+                  <text x="245" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">同业</text>
+                  <text x="245" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">资产</text>
+                  <text x="332" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">现金</text>
+                  <text x="332" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">央行</text>
+                </svg>
+                <div class="legend">
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(58% 0.18 255)"></span>贷款 55.6%</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(60% 0.008 240)"></span>债券投资 31.6%</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(72% 0.04 250)"></span>同业资产 3.4%</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(48% 0.04 250)"></span>现金及央行 9.5%</span>
+                </div>
+              </div>
+
+              <!-- Table view -->
+              <div data-zcf-view="table" style="display:none;">
+                <div class="tbl-scroll">
+                  <table class="tbl tbl-6">
+                    <colgroup>
+                      <col class="c-name"><col class="c-v25"><col class="c-v24"><col class="c-delta"><col class="c-pct"><col class="c-pp">
+                    </colgroup>
+                    <thead>
+                      <tr><th>资产项</th><th>2025-12-31</th><th>2024-12-31</th><th>变动</th><th>占比 25/24</th><th>占比变动</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>贷款</td><td>29,712,359</td><td>27,613,781</td><td class="delta-good">+2,098,578</td><td class="pct-cell">55.6%<span class="pct-prior">56.6%</span></td><td class="pp-cell">−1.0pp</td></tr>
+                      <tr><td>债券投资</td><td>16,907,415</td><td>14,153,576</td><td class="delta-good">+2,753,839</td><td class="pct-cell">31.6%<span class="pct-prior">29.0%</span></td><td class="pp-cell">+2.6pp</td></tr>
+                      <tr><td>同业资产</td><td>1,794,756</td><td>2,430,093</td><td class="delta-bad">−635,337</td><td class="pct-cell">3.4%<span class="pct-prior">5.0%</span></td><td class="pp-cell">−1.6pp</td></tr>
+                      <tr><td>现金及央行</td><td>5,063,243</td><td>4,624,296</td><td class="delta-good">+438,947</td><td class="pct-cell">9.5%<span class="pct-prior">9.5%</span></td><td class="pp-cell">0.0</td></tr>
+                      <tr class="total"><td>生息资产合计</td><td>53,477,773</td><td>48,821,746</td><td>+4,656,027</td><td class="pct-cell">100%<span class="pct-prior">100%</span></td><td class="pp-cell">0.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;">← 左右滑动 · 人民币百万元</div>
+              </div>
+
+              <!-- Evolution sub-section -->
+              <div class="evo-section" data-evo="zcf">
+                <div class="evo-head">
+                  <span class="evo-title">结构变动</span>
+                  <div class="period-tabs" data-target="zcf-evo">
+                    <button class="pt-btn" data-period="1Y">1Y</button>
+                    <button class="pt-btn" data-period="3Y">3Y</button>
+                    <button class="pt-btn active" data-period="5Y">5Y</button>
+                    <button class="pt-btn" data-period="MAX">MAX</button>
+                  </div>
+                </div>
+                <svg class="bar-svg" id="zcf-evo" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet" data-chart="zcf-evo"></svg>
+                <div class="legend">
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(58% 0.18 255)"></span>贷款</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(68% 0.12 230)"></span>债券投资</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(60% 0.10 195)"></span>同业资产</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(72% 0.04 250)"></span>现金及央行</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="h">
+                <h3>计息负债结构</h3>
+                <div class="ctrl-row">
+                  <div class="toggle-row">
+                    <span class="tg-btn active" data-target="fzcf" data-view="chart">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="9" width="2.5" height="2"/><rect x="5.5" y="6" width="2.5" height="5"/><rect x="9" y="2" width="2.5" height="9"/></svg>
+                      柱状图
+                    </span>
+                    <span class="tg-btn" data-target="fzcf" data-view="table">
+                      <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="8" height="1.5"/><rect x="2" y="6" width="8" height="1.5"/><rect x="2" y="9" width="5" height="1.5"/></svg>
+                      表格
+                    </span>
+                  </div>
+                  <button class="dl-mini" data-dl-svg="fzcf-chart" aria-label="下载 柱状图">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Chart view -->
+              <div data-fzcf-view="chart">
+                <div class="period-bar">
+                  <span class="period-tag"><span class="pdot" style="background:oklch(58% 0.18 255)"></span>2025-12-31</span>
+                  <span class="period-tag"><span class="pdot" style="background:oklch(60% 0.008 240)"></span>2024-12-31</span>
+                </div>
+                <svg class="bar-svg" id="fzcf-chart" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+                  <!-- Y-axis grid lines (0-80%) -->
+                  <line x1="32" y1="4" x2="354" y2="4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="38" x2="354" y2="38" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="72" x2="354" y2="72" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="106" x2="354" y2="106" stroke="var(--border)" stroke-dasharray="2 2"/>
+                  <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+                  <!-- Y-axis labels -->
+                  <text x="28" y="7" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">80%</text>
+                  <text x="28" y="41" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">60%</text>
+                  <text x="28" y="75" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">40%</text>
+                  <text x="28" y="109" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">20%</text>
+                  <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+                  <!-- Group 1: 客户存款 (center 71) -->
+                  <rect x="49" y="10.1" width="22" height="129.9" fill="oklch(58% 0.18 255)"/>
+                  <rect x="73" y="9.6" width="22" height="130.4" fill="oklch(60% 0.008 240)"/>
+                  <!-- Group 2: 同业负债 (center 158) -->
+                  <rect x="136" y="123.7" width="22" height="16.3" fill="oklch(58% 0.18 255)"/>
+                  <rect x="160" y="125.1" width="22" height="14.9" fill="oklch(60% 0.008 240)"/>
+                  <!-- Group 3: 发行债券 (center 245) -->
+                  <rect x="223" y="132.7" width="22" height="7.3" fill="oklch(58% 0.18 255)"/>
+                  <rect x="247" y="132.7" width="22" height="7.3" fill="oklch(60% 0.008 240)"/>
+                  <!-- Group 4: 向央行借款 (center 332) -->
+                  <rect x="310" y="136.3" width="22" height="3.7" fill="oklch(58% 0.18 255)"/>
+                  <rect x="334" y="135.9" width="22" height="4.1" fill="oklch(60% 0.008 240)"/>
+                  <!-- X-axis category labels -->
+                  <text x="71" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">客户</text>
+                  <text x="71" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">存款</text>
+                  <text x="158" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">同业</text>
+                  <text x="158" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">负债</text>
+                  <text x="245" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">发行</text>
+                  <text x="245" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">债券</text>
+                  <text x="332" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">向央行</text>
+                  <text x="332" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">借款</text>
+                </svg>
+                <div class="legend">
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(58% 0.18 255)"></span>客户存款 76.4%</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(60% 0.008 240)"></span>同业负债 17.0%</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(72% 0.04 250)"></span>发行债券 4.3%</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(48% 0.04 250)"></span>向央行借款 2.2%</span>
+                </div>
+              </div>
+
+              <div data-fzcf-view="table" style="display:none;">
+                <div class="tbl-scroll">
+                  <table class="tbl tbl-6">
+                    <colgroup>
+                      <col class="c-name"><col class="c-v25"><col class="c-v24"><col class="c-delta"><col class="c-pct"><col class="c-pp">
+                    </colgroup>
+                    <thead>
+                      <tr><th>负债项</th><th>2025-12-31</th><th>2024-12-31</th><th>变动</th><th>占比 25/24</th><th>占比变动</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>客户存款</td><td>37,910,629</td><td>35,211,879</td><td class="delta-good">+2,698,750</td><td class="pct-cell">76.4%<span class="pct-prior">76.7%</span></td><td class="pp-cell">−0.3pp</td></tr>
+                      <tr><td>同业负债</td><td>8,447,565</td><td>7,536,478</td><td class="delta-good">+911,087</td><td class="pct-cell">17.0%<span class="pct-prior">16.4%</span></td><td class="pp-cell">+0.6pp</td></tr>
+                      <tr><td>发行债券</td><td>2,148,321</td><td>1,952,184</td><td class="delta-good">+196,137</td><td class="pct-cell">4.3%<span class="pct-prior">4.3%</span></td><td class="pp-cell">0.0</td></tr>
+                      <tr><td>向央行借款</td><td>1,103,452</td><td>1,094,367</td><td class="delta-good">+9,085</td><td class="pct-cell">2.2%<span class="pct-prior">2.4%</span></td><td class="pp-cell">−0.2pp</td></tr>
+                      <tr class="total"><td>计息负债合计</td><td>49,610,967</td><td>45,903,574</td><td>+3,707,393</td><td class="pct-cell">100%<span class="pct-prior">100%</span></td><td class="pp-cell">0.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;">← 左右滑动 · 人民币百万元</div>
+              </div>
+
+              <!-- Evolution sub-section -->
+              <div class="evo-section" data-evo="fzcf">
+                <div class="evo-head">
+                  <span class="evo-title">结构变动</span>
+                  <div class="period-tabs" data-target="fzcf-evo">
+                    <button class="pt-btn" data-period="1Y">1Y</button>
+                    <button class="pt-btn" data-period="3Y">3Y</button>
+                    <button class="pt-btn active" data-period="5Y">5Y</button>
+                    <button class="pt-btn" data-period="MAX">MAX</button>
+                  </div>
+                </div>
+                <svg class="bar-svg" id="fzcf-evo" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet" data-chart="fzcf-evo"></svg>
+                <div class="legend">
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(58% 0.18 255)"></span>客户存款</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(68% 0.12 230)"></span>同业负债</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(60% 0.10 195)"></span>发行债券</span>
+                  <span class="lg-item"><span class="lg-swatch" style="background:oklch(72% 0.04 250)"></span>向央行借款</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============ 重定价 TAB ============ -->
+          <div class="tab-panel" data-panel="rpt">
+
+            <div class="data-card">
+              <div class="h">
+                <h3>重定价期限分布</h3>
+                <div class="ctrl-row">
+                  <button class="view-toggle" data-target="rpt" aria-label="切换到表格" title="切换到表格">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="3" width="10" height="2"/><rect x="2" y="6.5" width="10" height="2"/><rect x="2" y="10" width="7" height="2"/>
+                    </svg>
+                  </button>
+                  <button class="dl-mini" data-dl-svg="rpt-chart" aria-label="下载 柱状图">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div data-rpt-view="chart">
+                <div class="period-bar" style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;gap:6px;">
+                    <span class="period-tag"><span class="pdot" style="background:oklch(58% 0.18 255)"></span>2025-12-31</span>
+                    <span class="period-tag"><span class="pdot" style="background:oklch(60% 0.008 240)"></span>2024-12-31</span>
+                  </div>
+                  <div class="seg-ctrl" data-target="rpt-mode">
+                    <span class="seg active" data-mode="pct">占比</span>
+                    <span class="seg" data-mode="amt">金额</span>
+                  </div>
+                </div>
+
+                <div data-mode="pct">
+                  <svg class="bar-svg" id="rpt-chart-pct" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y-axis grid lines (scale 0-45%) -->
+                    <line x1="32" y1="4" x2="354" y2="4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="49.3" x2="354" y2="49.3" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="94.7" x2="354" y2="94.7" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+                    <text x="28" y="7" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">45%</text>
+                    <text x="28" y="52" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">30%</text>
+                    <text x="28" y="97" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">15%</text>
+                    <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+                    <!-- Group 1: 无期限 (4.5% / 4.4%) -->
+                    <rect x="38.7" y="126.0" width="24" height="14.0" fill="oklch(58% 0.18 255)"/>
+                    <rect x="65.7" y="126.3" width="24" height="13.7" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 2: 3个月内 (34.4% / 31.3%) -->
+                    <rect x="103.1" y="33.0" width="24" height="107.0" fill="oklch(58% 0.18 255)"/>
+                    <rect x="130.1" y="42.6" width="24" height="97.4" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 3: 3个月至1年 (35.9% / 41.2%) -->
+                    <rect x="167.5" y="28.3" width="24" height="111.7" fill="oklch(58% 0.18 255)"/>
+                    <rect x="194.5" y="11.8" width="24" height="128.2" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 4: 1年至5年 (13.1% / 11.6%) -->
+                    <rect x="231.9" y="99.2" width="24" height="40.8" fill="oklch(58% 0.18 255)"/>
+                    <rect x="258.9" y="103.9" width="24" height="36.1" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 5: 5年以上 (12.1% / 11.5%) -->
+                    <rect x="296.3" y="102.4" width="24" height="37.6" fill="oklch(58% 0.18 255)"/>
+                    <rect x="323.3" y="104.2" width="24" height="35.8" fill="oklch(60% 0.008 240)"/>
+                    <text x="64.2" y="162" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">无期限</text>
+                    <text x="128.6" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月</text>
+                    <text x="128.6" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">内</text>
+                    <text x="193.0" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月至</text>
+                    <text x="193.0" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">至5年</text>
+                    <text x="321.8" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">5年</text>
+                    <text x="321.8" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">以上</text>
+                  </svg>
+                </div>
+
+                <div data-mode="amt" style="display:none;">
+                  <svg class="bar-svg" id="rpt-chart-amt" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y-axis grid lines (scale 0-20T) -->
+                    <line x1="32" y1="4" x2="354" y2="4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="38" x2="354" y2="38" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="72" x2="354" y2="72" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="106" x2="354" y2="106" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+                    <text x="28" y="7" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">20T</text>
+                    <text x="28" y="41" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">15T</text>
+                    <text x="28" y="75" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">10T</text>
+                    <text x="28" y="109" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">5T</text>
+                    <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+                    <!-- Group 1: 无期限 (2.42T / 2.29T) -->
+                    <rect x="38.7" y="123.1" width="24" height="16.9" fill="oklch(58% 0.18 255)"/>
+                    <rect x="65.7" y="124.0" width="24" height="16.0" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 2: 3个月内 (18.38T / 16.35T) -->
+                    <rect x="103.1" y="11.3" width="24" height="128.7" fill="oklch(58% 0.18 255)"/>
+                    <rect x="130.1" y="25.6" width="24" height="114.4" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 3: 3个月至1年 (19.20T / 21.57T) -->
+                    <rect x="167.5" y="5.6" width="24" height="134.4" fill="oklch(58% 0.18 255)"/>
+                    <rect x="194.5" y="-10.0" width="24" height="150.0" fill="oklch(60% 0.008 240)" style="opacity:0.45;"/>
+                    <!-- Group 4: 1年至5年 (6.99T / 6.08T) -->
+                    <rect x="231.9" y="91.1" width="24" height="48.9" fill="oklch(58% 0.18 255)"/>
+                    <rect x="258.9" y="97.4" width="24" height="42.6" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 5: 5年以上 (6.48T / 6.02T) -->
+                    <rect x="296.3" y="94.6" width="24" height="45.4" fill="oklch(58% 0.18 255)"/>
+                    <rect x="323.3" y="97.9" width="24" height="42.1" fill="oklch(60% 0.008 240)"/>
+                    <text x="64.2" y="162" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">无期限</text>
+                    <text x="128.6" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月</text>
+                    <text x="128.6" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">内</text>
+                    <text x="193.0" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月至</text>
+                    <text x="193.0" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">至5年</text>
+                    <text x="321.8" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">5年</text>
+                    <text x="321.8" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">以上</text>
+                  </svg>
+                </div>
+              </div>
+
+              <div data-rpt-view="table" style="display:none;">
+                <div class="tbl-scroll">
+                  <table class="tbl tbl-6">
+                    <colgroup>
+                      <col class="c-name"><col class="c-v25"><col class="c-v24"><col class="c-delta"><col class="c-pct"><col class="c-pp">
+                    </colgroup>
+                    <thead>
+                      <tr><th>期限</th><th>2025-12-31</th><th>2025-06-30</th><th>变动</th><th>占比 25/24</th><th>占比变动</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>无期限</td><td>2,422,692</td><td>2,293,960</td><td class="delta-good">+128,732</td><td class="pct-cell">4.5%<span class="pct-prior">4.4%</span></td><td class="pp-cell">+0.1pp</td></tr>
+                      <tr><td>3个月内</td><td>18,379,962</td><td>16,352,171</td><td class="delta-good">+2,027,791</td><td class="pct-cell">34.4%<span class="pct-prior">31.3%</span></td><td class="pp-cell">+3.1pp</td></tr>
+                      <tr><td>3个月至1年</td><td>19,201,688</td><td>21,570,509</td><td class="delta-bad">−2,368,821</td><td class="pct-cell">35.9%<span class="pct-prior">41.2%</span></td><td class="pp-cell">−5.3pp</td></tr>
+                      <tr><td>1年至5年</td><td>6,990,091</td><td>6,083,681</td><td class="delta-good">+906,410</td><td class="pct-cell">13.1%<span class="pct-prior">11.6%</span></td><td class="pp-cell">+1.4pp</td></tr>
+                      <tr><td>5年以上</td><td>6,483,340</td><td>6,017,610</td><td class="delta-good">+465,730</td><td class="pct-cell">12.1%<span class="pct-prior">11.5%</span></td><td class="pp-cell">+0.6pp</td></tr>
+                      <tr class="total"><td>合计</td><td>53,477,773</td><td>52,317,931</td><td>+1,159,842</td><td class="pct-cell">100%<span class="pct-prior">100%</span></td><td class="pp-cell">0.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;">← 左右滑动 · 人民币百万元</div>
+              </div>
+            </div>
+
+            <div class="data-card ai-card">
+              <div class="h">
+                <h3>
+                  <svg class="ai-spark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 4.7 4.7 1.8-4.7 1.8L8 14.5l-1.8-4.7L1.5 8l4.7-1.8z"/><path d="M13 2l.6 1.4L15 4l-1.4.6L13 6l-.6-1.4L11 4l1.4-.6z" fill="currentColor" stroke="none" opacity=".7"/></svg>
+                  重定价AI解读
+                </h3>
+                <span class="ai-model">DeepSeek-V4 · atlas-fin-rag 0.3</span>
+              </div>
+
+              <div class="ai-summary">
+                <span class="ai-verdict">偏空</span>
+                <span class="ai-verdict-text">重定价窗口前移，2026 年 NIM 仍承压；尾部利率风险改善。</span>
+              </div>
+
+              <div class="ai-findings">
+                <div class="ai-finding">
+                  <span class="ai-marker m-1">1</span>
+                  <div class="ai-body">
+                    <div class="ai-key">重定价窗口显著前移</div>
+                    <div class="ai-evi">1 年内敞口占比 <span class="hl-d">72.5% → 70.3%</span>（−2.2 pp），3 个月-1 年期规模收缩 <span class="hl-d">2.37 万亿</span>，3 个月内则扩张 <span class="hl-u">2.03 万亿</span>。</div>
+                  </div>
+                </div>
+                <div class="ai-finding">
+                  <span class="ai-marker m-2">2</span>
+                  <div class="ai-body">
+                    <div class="ai-key">长端配置略有提升</div>
+                    <div class="ai-evi">5 年以上占比由 11.5% 升至 <span class="hl-u">12.1%</span>（+0.6 pp），1 年至 5 年区间占比同步升至 13.1%（+1.4 pp）。</div>
+                  </div>
+                </div>
+                <div class="ai-finding">
+                  <span class="ai-marker m-3">3</span>
+                  <div class="ai-body">
+                    <div class="ai-key">2026 年 NIM 仍承压</div>
+                    <div class="ai-evi">短端利率持续下行 + 短期重定价占比仍高 → <span class="hl-d">2026 净息差收窄压力延续</span>；但长端占比提升使利率尾部风险改善。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ai-cta">
+                <span class="ai-cta-icon">↗</span>
+                <span class="ai-cta-text">展开完整分析报告 · 约 7,200 字</span>
+              </div>
+
+              <div class="ai-foot">
+                <span>生成于 2026-01-15 09:32 · 引用 4 份原始数据</span>
+                <span class="ai-foot-right">查看模型说明</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============ 流动性 TAB ============ -->
+          <div class="tab-panel" data-panel="liq">
+
+            <div class="data-card">
+              <div class="h">
+                <h3>流动性期限分布</h3>
+                <div class="ctrl-row">
+                  <button class="view-toggle" data-target="liq" aria-label="切换到表格" title="切换到表格">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="2" y="3" width="10" height="2"/><rect x="2" y="6.5" width="10" height="2"/><rect x="2" y="10" width="7" height="2"/>
+                    </svg>
+                  </button>
+                  <button class="dl-mini" data-dl-svg="liq-chart" aria-label="下载 柱状图">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2v8m0 0L4 7m3 3 3-3M2 12h10"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div data-liq-view="chart">
+                <div class="period-bar" style="display:flex;justify-content:space-between;align-items:center;">
+                  <div style="display:flex;gap:6px;">
+                    <span class="period-tag"><span class="pdot" style="background:oklch(58% 0.18 255)"></span>2025-12-31</span>
+                    <span class="period-tag"><span class="pdot" style="background:oklch(60% 0.008 240)"></span>2024-12-31</span>
+                  </div>
+                  <div class="seg-ctrl" data-target="liq-mode">
+                    <span class="seg active" data-mode="pct">占比</span>
+                    <span class="seg" data-mode="amt">金额</span>
+                  </div>
+                </div>
+
+                <div data-mode="pct">
+                  <svg class="bar-svg" id="liq-chart-pct" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y-axis grid lines (scale 0-40%) -->
+                    <line x1="32" y1="4" x2="354" y2="4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="38" x2="354" y2="38" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="72" x2="354" y2="72" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="106" x2="354" y2="106" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+                    <text x="28" y="7" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">40%</text>
+                    <text x="28" y="41" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">30%</text>
+                    <text x="28" y="75" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">20%</text>
+                    <text x="28" y="109" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">10%</text>
+                    <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+                    <!-- Group 1: 无期限 (9.9% / 9.0%) -->
+                    <rect x="38.7" y="105.4" width="24" height="34.6" fill="oklch(58% 0.18 255)"/>
+                    <rect x="65.7" y="108.5" width="24" height="31.5" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 2: 3个月内 (10.9% / 12.2%) -->
+                    <rect x="103.1" y="101.9" width="24" height="38.1" fill="oklch(58% 0.18 255)"/>
+                    <rect x="130.1" y="97.3" width="24" height="42.7" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 3: 3个月至1年 (18.7% / 19.3%) -->
+                    <rect x="167.5" y="74.6" width="24" height="65.4" fill="oklch(58% 0.18 255)"/>
+                    <rect x="194.5" y="72.4" width="24" height="67.6" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 4: 1年至5年 (22.2% / 21.2%) -->
+                    <rect x="231.9" y="62.3" width="24" height="77.7" fill="oklch(58% 0.18 255)"/>
+                    <rect x="258.9" y="65.8" width="24" height="74.2" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 5: 5年以上 (38.3% / 38.3%) -->
+                    <rect x="296.3" y="5.9" width="24" height="134.1" fill="oklch(58% 0.18 255)"/>
+                    <rect x="323.3" y="5.9" width="24" height="134.1" fill="oklch(60% 0.008 240)"/>
+                    <text x="64.2" y="162" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">无期限</text>
+                    <text x="128.6" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月</text>
+                    <text x="128.6" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">内</text>
+                    <text x="193.0" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月至</text>
+                    <text x="193.0" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">至5年</text>
+                    <text x="321.8" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">5年</text>
+                    <text x="321.8" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">以上</text>
+                  </svg>
+                </div>
+
+                <div data-mode="amt" style="display:none;">
+                  <svg class="bar-svg" id="liq-chart-amt" viewBox="0 0 360 200" preserveAspectRatio="xMidYMid meet">
+                    <!-- Y-axis grid lines (scale 0-25T) -->
+                    <line x1="32" y1="4" x2="354" y2="4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="33.4" x2="354" y2="33.4" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="62.8" x2="354" y2="62.8" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="92.2" x2="354" y2="92.2" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="121.6" x2="354" y2="121.6" stroke="var(--border)" stroke-dasharray="2 2"/>
+                    <line x1="32" y1="140" x2="354" y2="140" stroke="var(--border)"/>
+                    <text x="28" y="7" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">25T</text>
+                    <text x="28" y="36" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">20T</text>
+                    <text x="28" y="66" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">15T</text>
+                    <text x="28" y="95" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">10T</text>
+                    <text x="28" y="125" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">5T</text>
+                    <text x="28" y="143" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">0</text>
+                    <!-- Group 1: 无期限 (5.29T / 4.69T) -->
+                    <rect x="38.7" y="110.4" width="24" height="29.6" fill="oklch(58% 0.18 255)"/>
+                    <rect x="65.7" y="113.7" width="24" height="26.3" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 2: 3个月内 (5.83T / 6.40T) -->
+                    <rect x="103.1" y="107.4" width="24" height="32.6" fill="oklch(58% 0.18 255)"/>
+                    <rect x="130.1" y="104.2" width="24" height="35.8" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 3: 3个月至1年 (9.99T / 10.11T) -->
+                    <rect x="167.5" y="84.1" width="24" height="55.9" fill="oklch(58% 0.18 255)"/>
+                    <rect x="194.5" y="83.4" width="24" height="56.6" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 4: 1年至5年 (11.88T / 11.09T) -->
+                    <rect x="231.9" y="73.5" width="24" height="66.5" fill="oklch(58% 0.18 255)"/>
+                    <rect x="258.9" y="77.9" width="24" height="62.1" fill="oklch(60% 0.008 240)"/>
+                    <!-- Group 5: 5年以上 (20.49T / 20.03T) -->
+                    <rect x="296.3" y="25.3" width="24" height="114.7" fill="oklch(58% 0.18 255)"/>
+                    <rect x="323.3" y="27.8" width="24" height="112.2" fill="oklch(60% 0.008 240)"/>
+                    <text x="64.2" y="162" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">无期限</text>
+                    <text x="128.6" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月</text>
+                    <text x="128.6" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">内</text>
+                    <text x="193.0" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">3个月至</text>
+                    <text x="193.0" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">1年</text>
+                    <text x="257.4" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">至5年</text>
+                    <text x="321.8" y="156" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">5年</text>
+                    <text x="321.8" y="168" text-anchor="middle" font-family="var(--font-body)" font-size="10" fill="var(--fg)">以上</text>
+                  </svg>
+                </div>
+              </div>
+
+              <div data-liq-view="table" style="display:none;">
+                <div class="tbl-scroll">
+                  <table class="tbl tbl-6">
+                    <colgroup>
+                      <col class="c-name"><col class="c-v25"><col class="c-v24"><col class="c-delta"><col class="c-pct"><col class="c-pp">
+                    </colgroup>
+                    <thead>
+                      <tr><th>期限</th><th>2025-12-31</th><th>2025-06-30</th><th>变动</th><th>占比 12/6</th><th>占比变动</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>无期限</td><td>5,286,165</td><td>4,694,082</td><td class="delta-good">+592,083</td><td class="pct-cell">9.9%<span class="pct-prior">9.0%</span></td><td class="pp-cell">+0.9pp</td></tr>
+                      <tr><td>3个月内</td><td>5,828,282</td><td>6,402,652</td><td class="delta-bad">−574,370</td><td class="pct-cell">10.9%<span class="pct-prior">12.2%</span></td><td class="pp-cell">−1.3pp</td></tr>
+                      <tr><td>3个月至1年</td><td>9,993,094</td><td>10,106,512</td><td class="delta-bad">−113,418</td><td class="pct-cell">18.7%<span class="pct-prior">19.3%</span></td><td class="pp-cell">−0.6pp</td></tr>
+                      <tr><td>1年至5年</td><td>11,877,119</td><td>11,087,871</td><td class="delta-good">+789,248</td><td class="pct-cell">22.2%<span class="pct-prior">21.2%</span></td><td class="pp-cell">+1.0pp</td></tr>
+                      <tr><td>5年以上</td><td>20,493,113</td><td>20,026,814</td><td class="delta-good">+466,299</td><td class="pct-cell">38.3%<span class="pct-prior">38.3%</span></td><td class="pp-cell flat">+0.0pp</td></tr>
+                      <tr class="total"><td>合计</td><td>53,477,773</td><td>52,317,931</td><td>+1,159,842</td><td class="pct-cell">100%<span class="pct-prior">100%</span></td><td class="pp-cell flat">0.0</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div style="margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;">← 左右滑动 · 人民币百万元</div>
+              </div>
+            </div>
+
+            <!-- Liquidity indicators with history -->
+            <div class="data-card" id="liq-indicators">
+              <div class="h">
+                <h3>流动性指标</h3>
+              </div>
+
+              <div class="liq-chart-block">
+                <div class="liq-chart-head">
+                  <div class="liq-chart-name">LCR &amp; NSFR</div>
+                </div>
+                <div class="kv liq-kv">
+                  <div>
+                    <div class="k">LCR</div>
+                    <div class="v num">152.3<span class="u">%</span></div>
+                    <div class="d down num">↓ −4.2 pp QoQ</div>
+                  </div>
+                  <div>
+                    <div class="k">NSFR</div>
+                    <div class="v num">127.8<span class="u">%</span></div>
+                    <div class="d up num">↑ +1.5 pp QoQ</div>
+                  </div>
+                </div>
+                <div class="chart-toolbar">
+                  <div class="seg-ctrl chart-seg" data-target="liq-lcr-range">
+                    <span class="seg active" data-range="1Y">1Y</span>
+                    <span class="seg" data-range="3Y">3Y</span>
+                    <span class="seg" data-range="5Y">5Y</span>
+                    <span class="seg" data-range="MAX">MAX</span>
+                  </div>
+                </div>
+                <div class="chart-wrap">
+                  <svg class="chart chart-dual" data-metric="lcr-nsfr" viewBox="0 0 320 130" preserveAspectRatio="none"></svg>
+                </div>
+                <div class="chart-axis" data-axis-for="lcr-nsfr"></div>
+                <div class="chart-legend">
+                  <span><span class="legend-dot" style="background:var(--up)"></span>LCR</span>
+                  <span><span class="legend-dot" style="background:transparent;border:1.4px solid oklch(58% 0.14 200);"></span>NSFR</span>
+                  <span><span class="legend-line" style="border-top:1.5px dashed var(--muted);height:0;width:14px;"></span>监管 100%</span>
+                </div>
+              </div>
+
+              <div class="liq-chart-block">
+                <div class="liq-chart-head">
+                  <div class="liq-chart-name">流动性比例</div>
+                </div>
+                <div class="kv liq-kv">
+                  <div>
+                    <div class="k">人民币</div>
+                    <div class="v num">62.5<span class="u">%</span></div>
+                    <div class="d up num">↑ +1.7 pp QoQ</div>
+                  </div>
+                  <div>
+                    <div class="k">外币</div>
+                    <div class="v num">82.4<span class="u">%</span></div>
+                    <div class="d up num">↑ +0.4 pp QoQ</div>
+                  </div>
+                </div>
+                <div class="chart-toolbar">
+                  <div class="seg-ctrl chart-seg" data-target="liq-lr-range">
+                    <span class="seg active" data-range="1Y">1Y</span>
+                    <span class="seg" data-range="3Y">3Y</span>
+                    <span class="seg" data-range="5Y">5Y</span>
+                    <span class="seg" data-range="MAX">MAX</span>
+                  </div>
+                </div>
+                <div class="chart-wrap">
+                  <svg class="chart chart-dual" data-metric="lr-fx" viewBox="0 0 320 130" preserveAspectRatio="none"></svg>
+                </div>
+                <div class="chart-axis" data-axis-for="lr-fx"></div>
+                <div class="chart-legend">
+                  <span><span class="legend-dot" style="background:var(--up)"></span>人民币</span>
+                  <span><span class="legend-dot" style="background:transparent;border:1.4px solid oklch(58% 0.14 200);"></span>外币</span>
+                  <span><span class="legend-line" style="border-top:1.5px dashed var(--muted);height:0;width:14px;"></span>监管 25%</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="data-card ai-card">
+              <div class="h">
+                <h3>
+                  <svg class="ai-spark" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 1.5l1.8 4.7 4.7 1.8-4.7 1.8L8 14.5l-1.8-4.7L1.5 8l4.7-1.8z"/><path d="M13 2l.6 1.4L15 4l-1.4.6L13 6l-.6-1.4L11 4l1.4-.6z" fill="currentColor" stroke="none" opacity=".7"/></svg>
+                  流动性AI解读
+                </h3>
+                <span class="ai-model">DeepSeek-V4 · atlas-fin-rag 0.3</span>
+              </div>
+
+              <div class="ai-summary">
+                <span class="ai-verdict v-good">健康</span>
+                <span class="ai-verdict-text">短端覆盖充裕，长端资金匹配改善，流动性安全垫厚实。</span>
+              </div>
+
+              <div class="ai-findings">
+                <div class="ai-finding">
+                  <span class="ai-marker m-1">1</span>
+                  <div class="ai-body">
+                    <div class="ai-key">短期偿付能力充裕</div>
+                    <div class="ai-evi">LCR <span class="hl-u">152.3%</span>，较 6 月末小幅回落 4.2 pp 但仍显著高于 100% 监管底线，安全垫 <span class="hl-u">+52.3 pp</span>。</div>
+                  </div>
+                </div>
+                <div class="ai-finding">
+                  <span class="ai-marker m-2">2</span>
+                  <div class="ai-body">
+                    <div class="ai-key">NSFR 持续改善</div>
+                    <div class="ai-evi">NSFR 升至 <span class="hl-u">127.8%</span>（+1.5 pp QoQ），核心存款占比稳定，批发融资依赖度下降，长期资金匹配度提升。</div>
+                  </div>
+                </div>
+                <div class="ai-finding">
+                  <span class="ai-marker m-3">3</span>
+                  <div class="ai-body">
+                    <div class="ai-key">人民币流动性比例走高</div>
+                    <div class="ai-evi">人民币口径流动性比例 <span class="hl-u">62.5%</span>（+1.7 pp QoQ），远超 25% 监管要求；5 年以上长期负债占比 <span class="hl-u">38.3%</span>，期限错配改善。</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ai-cta">
+                <span class="ai-cta-icon">↗</span>
+                <span class="ai-cta-text">展开完整分析报告 · 约 5,800 字</span>
+              </div>
+
+              <div class="ai-foot">
+                <span>生成于 2026-01-15 09:32 · 引用 3 份原始数据</span>
+                <span class="ai-foot-right">查看模型说明</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ============ 资产质量 TAB ============ -->
+          <div class="tab-panel" data-panel="qua">
+
+            <div class="data-card">
+              <div class="h">
+                <h3>资产质量</h3>
+                <button class="btn-icon" title="下载表格" aria-label="下载表格">
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9"/><path d="M4 7l4 4 4-4"/><path d="M3 14h10"/></svg>
+                </button>
+              </div>
+
+              <table class="tbl">
+                <thead>
+                  <tr><th>指标</th><th>2025A</th><th>2024A</th><th>Δ</th><th>评价</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>不良贷款率</td><td class="num-strong">1.31%</td><td>1.34%</td><td>−3 bp</td><td><span class="delta-tag good">↓ 改善</span></td></tr>
+                  <tr><td>拨备覆盖率</td><td class="num-strong">213.60%</td><td>214.91%</td><td>−1.31 pp</td><td><span class="delta-tag bad">↓ 恶化</span></td></tr>
+                  <tr><td>拨贷比</td><td class="num-strong">2.80%</td><td>2.88%</td><td>−8 bp</td><td><span class="delta-tag bad">↓ 恶化</span></td></tr>
+                  <tr><td>关注贷款率</td><td class="num-strong">1.95%</td><td>2.02%</td><td>−7 bp</td><td><span class="delta-tag good">↓ 改善</span></td></tr>
+                  <tr><td>关注率 + 不良率</td><td class="num-strong">3.26%</td><td>3.36%</td><td>−10 bp</td><td><span class="delta-tag good">↓ 改善</span></td></tr>
+                  <tr><td>逾期贷款率</td><td class="num-strong">1.52%</td><td>1.43%</td><td>+9 bp</td><td><span class="delta-tag bad">↑ 恶化</span></td></tr>
+                  <tr><td>逾期 90 天以上 / 不良</td><td class="num-strong">83.31%</td><td>74.94%</td><td>+8.37 pp</td><td><span class="delta-tag bad">↑ 恶化</span></td></tr>
+                  <tr><td>逾期 1 年以上 / 损失</td><td class="num-strong">84.12%</td><td>85.97%</td><td>−1.85 pp</td><td><span class="delta-tag good">↓ 改善</span></td></tr>
+                  <tr><td>逾期 / 不良</td><td class="num-strong">115.97%</td><td>107.19%</td><td>+8.78 pp</td><td><span class="delta-tag bad">↑ 恶化</span></td></tr>
+                  <tr><td>重组贷款率</td><td class="num-strong">0.51%</td><td>0.49%</td><td>+2 bp</td><td><span class="delta-tag bad">↑ 恶化</span></td></tr>
+                </tbody>
+              </table>
+              <div style="margin-top:8px;font-family:var(--font-mono);font-size:9px;color:var(--muted);letter-spacing:0.04em;">Δ 改善 / 恶化 按业务含义着色</div>
+            </div>
+          </div>
+
+          <!-- ============ 资本 TAB ============ -->
+          <div class="tab-panel" data-panel="cap">
+
+            <div class="data-card">
+              <div class="h">
+                <h3>资本构成</h3>
+                <button class="btn-icon" title="下载表格" aria-label="下载表格">
+                  <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v9"/><path d="M4 7l4 4 4-4"/><path d="M3 14h10"/></svg>
+                </button>
+              </div>
+              <div class="tbl-caption">人民币百万元，百分比除外</div>
+              <table class="tbl">
+                <thead>
+                  <tr><th>项目</th><th>2024/12/31</th><th>2025/12/31</th><th>变化</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>核心一级资本净额</td><td class="num">3,624,342</td><td class="num-strong">3,837,149</td><td class="pp-cell up">+212,807</td></tr>
+                  <tr><td>一级资本净额</td><td class="num">3,949,453</td><td class="num-strong">4,222,676</td><td class="pp-cell up">+273,223</td></tr>
+                  <tr><td>二级资本净额</td><td class="num">1,037,078</td><td class="num-strong">1,080,120</td><td class="pp-cell up">+43,042</td></tr>
+                  <tr><td>资本净额</td><td class="num">4,986,531</td><td class="num-strong">5,302,796</td><td class="pp-cell up">+316,265</td></tr>
+                  <tr><td>加权风险资产</td><td class="num">25,710,855</td><td class="num-strong">28,269,948</td><td class="pp-cell up">+2,559,093</td></tr>
+                  <tr><td>核心一级资本充足率</td><td class="num">14.10%</td><td class="num-strong">13.57%</td><td class="pp-cell down">−53 bp</td></tr>
+                  <tr><td>一级资本充足率</td><td class="num">15.36%</td><td class="num-strong">14.94%</td><td class="pp-cell down">−42 bp</td></tr>
+                  <tr><td>资本充足率</td><td class="num">19.39%</td><td class="num-strong">18.76%</td><td class="pp-cell down">−63 bp</td></tr>
+                  <tr><td>贷款 / 加权风险资产</td><td class="num">110.35%</td><td class="num-strong">107.91%</td><td class="pp-cell down">−2.44 pp</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="data-card">
+              <div class="h">
+                <h3>资本充足率走势</h3>
+                <div class="seg-ctrl chart-seg" data-target="cap-adequacy-range">
+                  <span class="seg" data-range="1Y">1Y</span>
+                  <span class="seg" data-range="3Y">3Y</span>
+                  <span class="seg active" data-range="5Y">5Y</span>
+                  <span class="seg" data-range="MAX">MAX</span>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <svg class="chart chart-dual" data-metric="cap-adequacy" viewBox="0 0 320 150" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="chart-axis" data-axis-for="cap-adequacy"></div>
+              <div class="chart-legend">
+                <span><span class="legend-line" style="background:oklch(58% 0.18 255)"></span>CET1 13.57%</span>
+                <span><span class="legend-line" style="background:oklch(48% 0.14 255); border-top:1px dashed oklch(48% 0.14 255); height:0;"></span>Tier1 14.94%</span>
+                <span><span class="legend-line" style="background:oklch(60% 0.008 240); border-top:1px dashed oklch(60% 0.008 240); height:0;"></span>Total 18.76%</span>
+                <span style="color:var(--muted);font-family:var(--font-mono);">↓ 监管底线  CET1 8.5% / Tier1 9.5% / CAR 11.5%</span>
+              </div>
+            </div>
+
+            <div class="data-card cap-leverage-card">
+              <div class="h">
+                <h3>杠杆率</h3>
+              </div>
+              <div class="kv liq-kv liq-kv-3">
+                <div>
+                  <div class="k">2025A</div>
+                  <div class="v num">7.51<span class="u">%</span></div>
+                  <div class="d down num">↓ −0.24 pp YoY</div>
+                </div>
+                <div>
+                  <div class="k">2025Q3</div>
+                  <div class="v num">7.47<span class="u">%</span></div>
+                  <div class="d neutral num">持平 QoQ</div>
+                </div>
+                <div>
+                  <div class="k">监管底线</div>
+                  <div class="v num">4.00<span class="u">%</span></div>
+                  <div class="d up num">↑ 高于监管 +3.51 pp</div>
+                </div>
+              </div>
+              <div class="chart-toolbar">
+                <div class="seg-ctrl chart-seg" data-target="liq-lev-range">
+                  <span class="seg active" data-range="1Y">1Y</span>
+                  <span class="seg" data-range="3Y">3Y</span>
+                  <span class="seg" data-range="5Y">5Y</span>
+                  <span class="seg" data-range="MAX">MAX</span>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <svg class="chart chart-dual" data-metric="leverage" viewBox="0 0 320 140" preserveAspectRatio="none"></svg>
+              </div>
+              <div class="chart-axis" data-axis-for="leverage"></div>
+              <div class="chart-legend">
+                <span><span class="legend-dot" style="background:oklch(58% 0.18 255)"></span>杠杆率</span>
+                <span><span class="legend-line" style="border-top:1.5px dashed oklch(48% 0.14 200);height:0;width:14px;"></span>10Q 均值 7.65%</span>
+              </div>
+            </div>
+
+            <div class="data-card">
+              <div class="h">
+                <h3>监管资本缓冲</h3>
+              </div>
+              <div class="kv">
+                <div>
+                  <div class="k">CET1 缓冲</div>
+                  <div class="v num" style="color:var(--up);">+5.07<span class="u">pp</span></div>
+                  <div class="d up num">↑ 安全垫充裕</div>
+                </div>
+                <div>
+                  <div class="k">Tier1 缓冲</div>
+                  <div class="v num" style="color:var(--up);">+5.44<span class="u">pp</span></div>
+                  <div class="d up num">↑ 安全垫充裕</div>
+                </div>
+                <div>
+                  <div class="k">杠杆率</div>
+                  <div class="v num">7.51<span class="u">%</span></div>
+                  <div class="d up num">↑ 高于监管 +3.51 pp</div>
+                </div>
+                <div>
+                  <div class="k">CAR 缓冲</div>
+                  <div class="v num" style="color:var(--up);">+7.26<span class="u">pp</span></div>
+                  <div class="d up num">↑ 安全垫充裕</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <nav class="tabs">
+        <a class="tab" href="../home.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>首页</span>
+        </a>
+        <a class="tab active" href="list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+          </svg>
+          <span>银行</span>
+        </a>
+        <a class="tab" href="../reports/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>报告</span>
+        </a>
+        <a class="tab" href="../my.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+          </svg>
+          <span>我的</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <script>
+    // Tab switching (top metric tabs)
+    document.querySelectorAll('.mtab').forEach(tab => {
+      tab.addEventListener('click', e => {
+        e.preventDefault();
+        const target = tab.dataset.tab;
+        document.querySelectorAll('.mtab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        const panel = document.querySelector(`.tab-panel[data-panel="${target}"]`);
+        if (panel) panel.classList.add('active');
+        document.querySelector('.app').scrollTop = 0;
+      });
+    });
+
+    // Range segmented control (1Y/3Y/5Y/MAX)
+    document.querySelectorAll('.seg-ctrl').forEach(ctrl => {
+      ctrl.querySelectorAll('.seg').forEach(seg => {
+        seg.addEventListener('click', () => {
+          ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+          seg.classList.add('active');
+        });
+      });
+    });
+
+    // 占比 / 金额 mode toggle for 重定价 (rpt) and 流动性 (liq) chart cards
+    document.querySelectorAll('.seg-ctrl[data-target="rpt-mode"], .seg-ctrl[data-target="liq-mode"]').forEach(ctrl => {
+      ctrl.querySelectorAll('.seg').forEach(seg => {
+        seg.addEventListener('click', () => {
+          const mode = seg.dataset.mode;
+          const card = ctrl.closest('.data-card');
+          if (!card) return;
+          // Toggle only the chart's SVG wrappers, not the .seg buttons themselves
+          // (which also carry data-mode="pct"/"amt"). SVG wrappers are direct children
+          // of the chart view, sibling to the period-bar.
+          card.querySelectorAll('[data-rpt-view="chart"] > [data-mode], [data-liq-view="chart"] > [data-mode]').forEach(wrap => {
+            wrap.style.display = (wrap.dataset.mode === mode) ? '' : 'none';
+          });
+        });
+      });
+    });
+
+    // Single-icon view-toggle (chart ↔ table) for rpt and liq cards (HIG convention)
+    document.querySelectorAll('.view-toggle[data-target="rpt"], .view-toggle[data-target="liq"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        const card = btn.closest('.data-card');
+        if (!card) return;
+        const chartView = card.querySelector('[data-' + target + '-view="chart"]');
+        const tableView = card.querySelector('[data-' + target + '-view="table"]');
+        if (!chartView || !tableView) return;
+        const chartVisible = chartView.style.display !== 'none';
+        chartView.style.display = chartVisible ? 'none' : '';
+        tableView.style.display = chartVisible ? '' : 'none';
+        // HIG: icon shows TARGET state — chart view shows table icon, table view shows chart icon
+        const label = chartVisible ? '切换到柱状图' : '切换到表格';
+        btn.setAttribute('aria-label', label);
+        btn.setAttribute('title', label);
+        btn.innerHTML = chartVisible
+          ? '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="9" width="2" height="3"/><rect x="6" y="6" width="2" height="6"/><rect x="9.5" y="3" width="2" height="9"/></svg>'
+          : '<svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="10" height="2"/><rect x="2" y="6.5" width="10" height="2"/><rect x="2" y="10" width="7" height="2"/></svg>';
+      });
+    });
+
+    // View toggle (chart / table) for zcf, rpt, liq
+    document.querySelectorAll('.tg-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.target;
+        const view = btn.dataset.view;
+        document.querySelectorAll(`.tg-btn[data-target="${target}"]`).forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll(`[data-${target}-view]`).forEach(el => {
+          el.style.display = (el.dataset[target + 'View'] === view) ? '' : 'none';
+        });
+      });
+    });
+
+    // Year tabs (visual only)
+    document.querySelectorAll('.ytab').forEach(tab => {
+      tab.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('.ytab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+      });
+    });
+
+    // Evolution stacked bar charts (zcf-evo, fzcf-evo)
+    const evoData = {
+      'zcf-evo': {
+        colors: ['oklch(58% 0.18 255)', 'oklch(68% 0.12 230)', 'oklch(60% 0.10 195)', 'oklch(72% 0.04 250)'],
+        dates: ['18H1','18H2','19H1','19H2','20H1','20H2','21H1','21H2','22H1','22H2','23H1','23H2','24H1','24H2','25H1','25H2'],
+        points: [
+          [61.0, 20.5, 11.5, 7.0], [60.5, 21.5, 11.0, 7.0], [60.0, 22.5, 10.5, 7.0], [59.5, 23.5, 10.0, 7.0],
+          [59.0, 24.5, 9.5, 7.0],  [58.5, 25.5, 9.0, 7.0],  [58.0, 26.5, 8.5, 7.0],  [57.5, 27.5, 8.0, 7.0],
+          [57.0, 28.5, 7.5, 7.0],  [56.7, 29.0, 7.0, 7.3],  [56.4, 30.0, 6.5, 7.1],  [56.5, 29.5, 5.5, 8.5],
+          [56.5, 29.2, 5.0, 9.3],  [56.6, 29.0, 5.0, 9.4],  [56.0, 30.5, 4.2, 9.3],  [55.6, 31.6, 3.4, 9.5]
+        ]
+      },
+      'fzcf-evo': {
+        colors: ['oklch(58% 0.18 255)', 'oklch(68% 0.12 230)', 'oklch(60% 0.10 195)', 'oklch(72% 0.04 250)'],
+        dates: ['18H1','18H2','19H1','19H2','20H1','20H2','21H1','21H2','22H1','22H2','23H1','23H2','24H1','24H2','25H1','25H2'],
+        points: [
+          [79.0, 13.5, 5.0, 2.5], [78.5, 14.0, 5.0, 2.5], [78.0, 14.5, 5.0, 2.5], [77.5, 15.0, 5.0, 2.5],
+          [77.0, 15.5, 5.0, 2.5], [76.5, 16.0, 5.0, 2.5], [76.0, 16.5, 5.0, 2.5], [75.8, 16.7, 5.0, 2.5],
+          [75.6, 16.8, 5.0, 2.6], [75.4, 16.9, 5.0, 2.7], [75.2, 17.0, 5.0, 2.8], [75.0, 17.2, 5.0, 2.8],
+          [76.0, 16.8, 4.7, 2.5], [76.7, 16.7, 4.3, 2.3], [76.5, 16.8, 4.4, 2.3], [76.4, 17.0, 4.3, 2.3]
+        ]
+      }
+    };
+    const evoPeriodSlices = { '1Y': 2, '3Y': 6, '5Y': 10, 'MAX': 16 };
+
+    function renderEvoChart(chartId, period) {
+      const data = evoData[chartId];
+      const svg = document.getElementById(chartId);
+      if (!data || !svg) return;
+      const n = evoPeriodSlices[period] || 10;
+      const startIdx = data.dates.length - n;
+      const dates = data.dates.slice(startIdx);
+      const points = data.points.slice(startIdx);
+      const colors = data.colors;
+      const X0 = 32, X1 = 354, Y0 = 4, Y1 = 140;
+      const plotH = Y1 - Y0;
+      const slotW = (X1 - X0) / n;
+      const barW = Math.min(slotW * 0.72, 32);
+      const yToPx = v => Y1 - (v / 100) * plotH;
+
+      let out = '';
+      [0, 25, 50, 75, 100].forEach((v, i) => {
+        const y = yToPx(v);
+        out += `<line x1="${X0}" y1="${y}" x2="${X1}" y2="${y}" stroke="var(--border)" stroke-dasharray="${i === 0 ? '' : '2 2'}"/>`;
+        out += `<text x="${X0 - 4}" y="${y + 3}" text-anchor="end" font-family="var(--font-mono)" font-size="9" fill="var(--muted)">${v}%</text>`;
+      });
+      for (let i = 0; i < n; i++) {
+        const cx = X0 + slotW * (i + 0.5);
+        const x = cx - barW / 2;
+        let cum = 0;
+        for (let c = 0; c < points[i].length; c++) {
+          const v = points[i][c];
+          const h = (v / 100) * plotH;
+          const y = Y1 - ((cum + v) / 100) * plotH;
+          out += `<rect x="${x.toFixed(2)}" y="${y.toFixed(2)}" width="${barW.toFixed(2)}" height="${h.toFixed(2)}" fill="${colors[c]}"/>`;
+          cum += v;
+        }
+      }
+      const step = n <= 6 ? 1 : n <= 10 ? 2 : 3;
+      for (let i = 0; i < n; i++) {
+        if (i % step !== 0 && i !== n - 1) continue;
+        const cx = X0 + slotW * (i + 0.5);
+        out += `<text x="${cx.toFixed(2)}" y="155" text-anchor="middle" font-family="var(--font-mono)" font-size="8.5" fill="var(--muted)">${dates[i]}</text>`;
+      }
+      svg.innerHTML = out;
+    }
+
+    document.querySelectorAll('.period-tabs').forEach(ctrl => {
+      const chartId = ctrl.dataset.target;
+      const active = ctrl.querySelector('.pt-btn.active');
+      if (active) renderEvoChart(chartId, active.dataset.period);
+      ctrl.querySelectorAll('.pt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          ctrl.querySelectorAll('.pt-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderEvoChart(chartId, btn.dataset.period);
+        });
+      });
+    });
+
+    // Download buttons (legacy — none on this page, but kept for completeness)
+    document.querySelectorAll('.dl-btn').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        btn.classList.add('flash');
+        setTimeout(() => btn.classList.remove('flash'), 480);
+      });
+    });
+
+    // PNG export of chart SVGs (handles both single-id SVGs and rpt/liq dual-mode)
+    document.querySelectorAll('.dl-mini[data-dl-svg]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        e.preventDefault();
+        const id = btn.dataset.dlSvg;
+        let svg = document.getElementById(id);
+        // rpt-chart / liq-chart have dual SVGs (pct + amt); pick the currently-visible one
+        if (!svg) {
+          const card = btn.closest('.data-card');
+          if (card) {
+            const visible = card.querySelector('[data-mode]:not([style*="display: none"]) svg');
+            if (visible) svg = visible;
+          }
+        }
+        if (!svg) return;
+        const xml = new XMLSerializer().serializeToString(svg);
+        const svg64 = btoa(unescape(encodeURIComponent(xml)));
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = 520;
+          canvas.height = 520;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--surface').trim() || '#ffffff';
+          ctx.fillRect(0, 0, 520, 520);
+          ctx.drawImage(img, 0, 0, 520, 520);
+          const a = document.createElement('a');
+          a.download = id + '-' + Date.now() + '.png';
+          a.href = canvas.toDataURL('image/png');
+          a.click();
+        };
+        img.src = 'data:image/svg+xml;base64,' + svg64;
+      });
+    });
+
+    /* Liquidity historical line charts (LCR / NSFR / 流动性比例 + combined LCR · NSFR) */
+    (function () {
+      const NS = 'http://www.w3.org/2000/svg';
+
+      // 20 quarterly observations per metric (MAX = full series)
+      const SERIES = {
+        lcr:  [138.2, 141.6, 145.1, 148.7, 150.4, 153.9, 156.8, 155.2, 158.1, 156.5, 159.7, 161.3, 163.8, 160.2, 157.4, 155.1, 158.6, 160.4, 156.5, 152.3],
+        nsfr: [118.5, 119.7, 120.4, 121.2, 121.8, 122.3, 122.7, 123.4, 123.9, 124.6, 124.8, 125.1, 125.4, 125.7, 126.1, 126.3, 126.7, 127.2, 126.3, 127.8],
+        lr:   [ 51.3,  52.8,  54.1,  55.6,  56.7,  57.4,  58.3,  59.1,  58.8,  59.5,  60.2,  60.8,  61.4,  61.7,  60.5,  61.1,  61.8,  62.2,  60.8,  62.5]
+      };
+
+      // Periods in quarters from end-of-series (1Y=4Q, 3Y=12Q, 5Y=20Q, MAX=20Q)
+      const RANGE_Q = { '1Y': 4, '3Y': 12, '5Y': 20, 'MAX': 20 };
+
+      // Reference line per metric (regulatory minimum or characteristic level)
+      const REF = {
+        lcr:  { v: 100, label: '监管 100%' },
+        nsfr: { v: 100, label: '监管 100%' },
+        lr:   { v: 25,  label: '监管 25%'  }
+      };
+
+      function el(name, attrs, text) {
+        const n = document.createElementNS(NS, name);
+        if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+        if (text != null) n.textContent = text;
+        return n;
+      }
+
+      // Single-line renderer (used by .liq-metric with one data-metric)
+      function renderSingle(svg, metric, range) {
+        const W = 360, H = 88, PAD_L = 6, PAD_R = 38, PAD_T = 8, PAD_B = 14;
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+        const full = SERIES[metric];
+        const q = RANGE_Q[range] || 4;
+        const data = full.slice(full.length - q);
+        if (data.length < 2) return;
+
+        const ref = REF[metric];
+        const minV = Math.min.apply(null, data.concat([ref.v])) - 4;
+        const maxV = Math.max.apply(null, data.concat([ref.v])) + 4;
+        const yLo = Math.floor(minV / 10) * 10;
+        const yHi = Math.ceil(maxV / 10) * 10;
+
+        const xStep = (W - PAD_L - PAD_R) / (data.length - 1);
+        const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+        const xScale = i => PAD_L + i * xStep;
+
+        const yRef = yScale(ref.v);
+        svg.appendChild(el('line', { class: 'ref', x1: PAD_L, y1: yRef, x2: W - PAD_R, y2: yRef }));
+        svg.appendChild(el('text', { class: 'ref-label', x: PAD_L + 2, y: yRef - 2 }, ref.label));
+
+        for (let g = 1; g <= 2; g++) {
+          const yG = PAD_T + (H - PAD_T - PAD_B) * g / 3;
+          svg.appendChild(el('line', { class: 'grid', x1: PAD_L, y1: yG, x2: W - PAD_R, y2: yG }));
+        }
+
+        const pts = data.map((v, i) => xScale(i) + ',' + yScale(v));
+        const areaPts = [xScale(0) + ',' + (H - PAD_B)]
+          .concat(pts)
+          .concat([xScale(data.length - 1) + ',' + (H - PAD_B)]);
+
+        svg.appendChild(el('polygon', { class: 'area', points: areaPts.join(' '), fill: 'currentColor' }));
+        svg.appendChild(el('polyline', { class: 'line', points: pts.join(' '), stroke: 'currentColor' }));
+
+        const lastX = xScale(data.length - 1);
+        const lastY = yScale(data[data.length - 1]);
+        svg.appendChild(el('circle', { class: 'dot', cx: lastX, cy: lastY, r: 3, fill: 'currentColor' }));
+        svg.appendChild(el('text', { class: 'last-label', x: lastX + 6, y: lastY + 3, fill: 'currentColor' },
+          data[data.length - 1].toFixed(1) + '%'));
+      }
+
+      // Dual-line renderer (LCR · NSFR on one chart)
+      function renderDual(svg, range) {
+        const W = 360, H = 96, PAD_L = 6, PAD_R = 44, PAD_T = 10, PAD_B = 16;
+        while (svg.firstChild) svg.removeChild(svg.firstChild);
+        svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+        const q = RANGE_Q[range] || 4;
+        const lcr = SERIES.lcr.slice(SERIES.lcr.length - q);
+        const nsfr = SERIES.nsfr.slice(SERIES.nsfr.length - q);
+        if (lcr.length < 2 || nsfr.length < 2) return;
+
+        const minV = Math.min.apply(null, lcr.concat(nsfr).concat([100])) - 4;
+        const maxV = Math.max.apply(null, lcr.concat(nsfr).concat([100])) + 4;
+        const yLo = Math.floor(minV / 10) * 10;
+        const yHi = Math.ceil(maxV / 10) * 10;
+
+        const xStep = (W - PAD_L - PAD_R) / (lcr.length - 1);
+        const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+        const xScale = i => PAD_L + i * xStep;
+
+        // Reference line (监管 100%)
+        const yRef = yScale(100);
+        svg.appendChild(el('line', { class: 'ref', x1: PAD_L, y1: yRef, x2: W - PAD_R, y2: yRef }));
+        svg.appendChild(el('text', { class: 'ref-label', x: PAD_L + 2, y: yRef - 2 }, '监管 100%'));
+
+        // Y-axis tick labels (min / mid / max)
+        svg.appendChild(el('text', { class: 'ref-label', x: W - PAD_R + 4, y: PAD_T + 3, 'text-anchor': 'start' }, yHi.toFixed(0)));
+        svg.appendChild(el('text', { class: 'ref-label', x: W - PAD_R + 4, y: yScale((yLo + yHi) / 2) + 3, 'text-anchor': 'start' }, ((yLo + yHi) / 2).toFixed(0)));
+        svg.appendChild(el('text', { class: 'ref-label', x: W - PAD_R + 4, y: H - PAD_B + 3, 'text-anchor': 'start' }, yLo.toFixed(0)));
+
+        // Grid lines
+        for (let g = 1; g <= 2; g++) {
+          const yG = PAD_T + (H - PAD_T - PAD_B) * g / 3;
+          svg.appendChild(el('line', { class: 'grid', x1: PAD_L, y1: yG, x2: W - PAD_R, y2: yG }));
+        }
+
+        // LCR (solid red line with area fill)
+        const lcrPts = lcr.map((v, i) => xScale(i) + ',' + yScale(v));
+        const lcrArea = [xScale(0) + ',' + (H - PAD_B)]
+          .concat(lcrPts)
+          .concat([xScale(lcr.length - 1) + ',' + (H - PAD_B)]);
+        svg.appendChild(el('polygon', { class: 'area', points: lcrArea.join(' '), fill: 'var(--up)' }));
+        svg.appendChild(el('polyline', { class: 'line', points: lcrPts.join(' '), stroke: 'var(--up)' }));
+
+        // NSFR (dashed/dotted teal line — no fill)
+        const nsfrPts = nsfr.map((v, i) => xScale(i) + ',' + yScale(v));
+        const nsfrLine = el('polyline', { class: 'line', points: nsfrPts.join(' '), stroke: 'oklch(58% 0.14 200)', fill: 'none', 'stroke-dasharray': '4 3' });
+        svg.appendChild(nsfrLine);
+
+        // Endpoint dots + last-value labels (LCR solid + NSFR outlined)
+        const lcrX = xScale(lcr.length - 1), lcrY = yScale(lcr[lcr.length - 1]);
+        svg.appendChild(el('circle', { class: 'dot', cx: lcrX, cy: lcrY, r: 3, fill: 'var(--up)' }));
+        svg.appendChild(el('text', { class: 'last-label', x: lcrX + 6, y: lcrY + 3, fill: 'var(--up)' }, 'LCR ' + lcr[lcr.length - 1].toFixed(1) + '%'));
+
+        const nsfrX = xScale(nsfr.length - 1), nsfrY = yScale(nsfr[nsfr.length - 1]);
+        svg.appendChild(el('circle', { class: 'dot', cx: nsfrX, cy: nsfrY, r: 3, fill: 'oklch(58% 0.14 200)', stroke: 'var(--surface)' }));
+        svg.appendChild(el('text', { class: 'last-label', x: nsfrX + 6, y: nsfrY + 3, fill: 'oklch(58% 0.14 200)' }, 'NSFR ' + nsfr[nsfr.length - 1].toFixed(1) + '%'));
+      }
+
+      // Colorize pp-cell +/- signs (A-share: red up, green down) across all 6-col tables
+      document.querySelectorAll('.tbl-6 td.pp-cell').forEach(cell => {
+        if (cell.dataset.ppColored) return;
+        const text = (cell.textContent || '').trim();
+        if (text.startsWith('+')) cell.classList.add('up');
+        else if (text.startsWith('−') || text.startsWith('-')) cell.classList.add('down');
+        else cell.classList.add('flat');
+        cell.dataset.ppColored = '1';
+      });
+
+      /* Liquidity historical line charts (LCR & NSFR / 人民币 & 外币 — single seg-ctrl) */
+      (function () {
+        const NS = 'http://www.w3.org/2000/svg';
+
+        // 20 quarterly observations per metric
+        const SERIES = {
+          lcr:  [138.2, 141.6, 145.1, 148.7, 150.4, 153.9, 156.8, 155.2, 158.1, 156.5, 159.7, 161.3, 163.8, 160.2, 157.4, 155.1, 158.6, 160.4, 156.5, 152.3],
+          nsfr: [118.5, 119.7, 120.4, 121.2, 121.8, 122.3, 122.7, 123.4, 123.9, 124.6, 124.8, 125.1, 125.4, 125.7, 126.1, 126.3, 126.7, 127.2, 126.3, 127.8],
+          lr:   [ 51.3,  52.8,  54.1,  55.6,  56.7,  57.4,  58.3,  59.1,  58.8,  59.5,  60.2,  60.8,  61.4,  61.7,  60.5,  61.1,  61.8,  62.2,  60.8,  62.5],
+          fx:   [ 74.2,  75.1,  76.0,  76.8,  77.5,  78.1,  78.7,  79.3,  79.8,  80.2,  80.5,  80.8,  81.0,  81.2,  81.4,  81.6,  81.7,  81.9,  82.0,  82.4]
+        };
+
+        const RANGE_Q = { '1Y': 4, '3Y': 12, '5Y': 20, 'MAX': 20 };
+
+        // Compose quarter labels for the last N quarters (most recent on right)
+        function quarterLabels(n) {
+          const out = [];
+          const baseYear = 2025, baseMonth = 11; // Dec 2025
+          for (let i = n - 1; i >= 0; i--) {
+            const totalMonth = baseYear * 12 + baseMonth - i * 3;
+            const yr = Math.floor(totalMonth / 12);
+            const mo = ((totalMonth % 12) + 12) % 12;
+            const q = Math.floor(mo / 3) + 1;
+            out.push(String(yr).slice(2) + 'Q' + q);
+          }
+          return out;
+        }
+
+        const REF = {
+          'lcr-nsfr': { v: 100, label: '监管 100%' },
+          'lr-fx':    { v: 25,  label: '监管 25%' }
+        };
+
+        const METRICS = {
+          'lcr-nsfr': { s1: 'lcr', s2: 'nsfr', n1: 'LCR', n2: 'NSFR' },
+          'lr-fx':    { s1: 'lr',  s2: 'fx',  n1: '人民币', n2: '外币' }
+        };
+
+        function el(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+
+        function renderDual(svg, metric, range) {
+          const W = 320, H = 130, PAD_L = 32, PAD_R = 8, PAD_T = 4, PAD_B = 22;
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+
+          const cfg = METRICS[metric];
+          const ref = REF[metric];
+          const q = RANGE_Q[range] || 4;
+          const s1 = SERIES[cfg.s1].slice(-q);
+          const s2 = SERIES[cfg.s2].slice(-q);
+          if (s1.length < 2 || s2.length < 2) return;
+
+          // Y-axis range (round to 10s, include ref line)
+          const all = s1.concat(s2).concat([ref.v]);
+          let yLo = Math.floor((Math.min.apply(null, all) - 4) / 10) * 10;
+          let yHi = Math.ceil((Math.max.apply(null, all) + 4) / 10) * 10;
+          if (yLo === yHi) yHi = yLo + 10;
+          const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+          const xStep = (W - PAD_L - PAD_R) / (s1.length - 1);
+          const xScale = i => PAD_L + i * xStep;
+
+          // Horizontal gridlines (4 ticks) + y-axis labels
+          const yTicks = 4;
+          for (let g = 0; g <= yTicks; g++) {
+            const t = g / yTicks;
+            const y = PAD_T + (H - PAD_T - PAD_B) * t;
+            svg.appendChild(el('line', { class: 'grid', x1: PAD_L, y1: y, x2: W - PAD_R, y2: y }));
+            const v = yHi - t * (yHi - yLo);
+            svg.appendChild(el('text', { class: 'y-tick', x: PAD_L - 5, y: y + 3, 'text-anchor': 'end' }, v.toFixed(0) + '%'));
+          }
+
+          // Reference line (监管)
+          const yRef = yScale(ref.v);
+          svg.appendChild(el('line', { class: 'ref', x1: PAD_L, y1: yRef, x2: W - PAD_R, y2: yRef }));
+          svg.appendChild(el('text', { class: 'ref-label', x: PAD_L + 2, y: yRef - 2 }, ref.label));
+
+          // Series 1 (solid red)
+          const p1 = s1.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(el('polyline', { class: 'line solid', points: p1.join(' ') }));
+
+          // Series 2 (dashed teal)
+          const p2 = s2.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(el('polyline', { class: 'line dashed', points: p2.join(' ') }));
+
+          // Endpoint dots only (last values are shown above chart, not on the line)
+          const lx = xScale(s1.length - 1);
+          svg.appendChild(el('circle', { class: 'dot', cx: lx, cy: yScale(s1[s1.length - 1]), r: 2.5, fill: 'var(--up)' }));
+          svg.appendChild(el('circle', { class: 'dot', cx: lx, cy: yScale(s2[s2.length - 1]), r: 2.5, fill: 'oklch(58% 0.14 200)' }));
+        }
+
+        // X-axis quarter labels under each chart
+        function paintAxis(axisEl, range) {
+          const n = RANGE_Q[range] || 4;
+          const labels = quarterLabels(n);
+          // For small n show every quarter; for larger n sample evenly (max 5 labels)
+          const slots = n <= 5 ? n : 5;
+          const out = [];
+          for (let i = 0; i < slots; i++) {
+            const idx = slots === 1 ? 0 : Math.round(i * (labels.length - 1) / (slots - 1));
+            out.push(labels[idx]);
+          }
+          axisEl.innerHTML = out.map(l => '<span>' + l + '</span>').join('');
+        }
+
+        const card = document.getElementById('liq-indicators');
+        if (!card) return;
+
+        // Each .liq-chart-block has its own .chart-seg that drives only its own chart
+        card.querySelectorAll('.liq-chart-block').forEach(block => {
+          const svg = block.querySelector('.chart-dual');
+          const axis = block.querySelector('[data-axis-for]');
+          const ctrl = block.querySelector('.chart-seg');
+          if (!svg || !ctrl) return;
+
+          const init = (ctrl.querySelector('.seg.active') || ctrl.querySelector('.seg') || {}).dataset || { range: '1Y' };
+          const initRange = init.range || '1Y';
+          renderDual(svg, svg.dataset.metric, initRange);
+          if (axis) paintAxis(axis, initRange);
+
+          ctrl.querySelectorAll('.seg').forEach(seg => {
+            seg.addEventListener('click', () => {
+              ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+              seg.classList.add('active');
+              const range = seg.dataset.range;
+              renderDual(svg, svg.dataset.metric, range);
+              if (axis) paintAxis(axis, range);
+            });
+          });
+        });
+      })();
+
+      /* ===== Capital: Leverage ratio single-line chart with range + mean ref ===== */
+      (function () {
+        const NS = 'http://www.w3.org/2000/svg';
+        const card = document.querySelector('.cap-leverage-card');
+        if (!card) return;
+        const svg = card.querySelector('svg.chart-dual[data-metric="leverage"]');
+        const axis = card.querySelector('[data-axis-for="leverage"]');
+        const ctrl = card.querySelector('.chart-seg');
+        if (!svg || !ctrl) return;
+
+        // 10 time points: 2023Q3 → 2025A (mixed cadence: Q3/A/Q1/H1/...)
+        const all = [7.70, 7.95, 7.68, 7.80, 7.71, 7.75, 7.47, 7.49, 7.47, 7.51];
+        const allLabels = ['23Q3','23A','24Q1','24H1','24Q3','24A','25Q1','25H1','25Q3','25A'];
+        const mean = all.reduce((a, b) => a + b, 0) / all.length; // ≈ 7.653
+
+        // 1Y=last 4, 3Y/5Y/MAX = all 10 (only 10 obs available)
+        const N = { '1Y': 4, '3Y': 10, '5Y': 10, 'MAX': 10 };
+
+        const W = 320, H = 140, PAD_L = 32, PAD_R = 10, PAD_T = 8, PAD_B = 22;
+        const lineColor = 'oklch(58% 0.18 255)';
+
+        function makeEl(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+
+        function render(range) {
+          const n = N[range] || 10;
+          const data = all.slice(-n);
+          const labels = allLabels.slice(-n);
+
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+          const yLo = 7.0, yHi = 8.0;
+          const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+          const xStep = (W - PAD_L - PAD_R) / Math.max(1, data.length - 1);
+          const xScale = i => PAD_L + i * xStep;
+
+          // 5 gridlines + y-axis labels (0.25% steps)
+          for (let g = 0; g <= 4; g++) {
+            const t = g / 4;
+            const y = PAD_T + (H - PAD_T - PAD_B) * t;
+            svg.appendChild(makeEl('line', { class: 'grid', x1: PAD_L, y1: y, x2: W - PAD_R, y2: y }));
+            const v = yHi - t * (yHi - yLo);
+            svg.appendChild(makeEl('text', { class: 'y-tick', x: PAD_L - 5, y: y + 3, 'text-anchor': 'end' }, v.toFixed(2) + '%'));
+          }
+
+          // Mean ref line (7.65%) — shown in chart with dashed teal
+          const yMean = yScale(mean);
+          svg.appendChild(makeEl('line', { class: 'ref', x1: PAD_L, y1: yMean, x2: W - PAD_R, y2: yMean }));
+          svg.appendChild(makeEl('text', { class: 'ref-label', x: W - PAD_R, y: yMean - 2, 'text-anchor': 'end' }, '均值 ' + mean.toFixed(2) + '%'));
+
+          // Data line + dots
+          const pts = data.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(makeEl('polyline', { fill: 'none', stroke: lineColor, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', points: pts.join(' ') }));
+          data.forEach((v, i) => {
+            svg.appendChild(makeEl('circle', { cx: xScale(i), cy: yScale(v), r: 2.4, fill: lineColor }));
+          });
+
+          // Endpoint emphasis (last value)
+          const lx = xScale(data.length - 1), ly = yScale(data[data.length - 1]);
+          svg.appendChild(makeEl('circle', { cx: lx, cy: ly, r: 3.8, fill: lineColor, stroke: 'var(--surface)', 'stroke-width': 1.5 }));
+          svg.appendChild(makeEl('text', { class: 'end-label', x: lx - 5, y: ly - 6, 'text-anchor': 'end', fill: lineColor }, data[data.length - 1].toFixed(2) + '%'));
+
+          // (监管 4% callout removed — already shown in the kv card below)
+
+          // X-axis labels (mixed cadence, all short enough to show)
+          if (axis) {
+            axis.innerHTML = labels.map(l => '<span>' + l + '</span>').join('');
+          }
+        }
+
+        const init = (ctrl.querySelector('.seg.active') || ctrl.querySelector('.seg') || {}).dataset || { range: '1Y' };
+        render(init.range || '1Y');
+
+        ctrl.querySelectorAll('.seg').forEach(seg => {
+          seg.addEventListener('click', () => {
+            ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+            seg.classList.add('active');
+            render(seg.dataset.range);
+          });
+        });
+      })();
+
+      /* ===== Capital: 资本充足率走势 (3-line chart with 3 regulatory ref lines) ===== */
+      (function () {
+        const NS = 'http://www.w3.org/2000/svg';
+        const card = document.querySelector('.tab-panel[data-panel="cap"] .data-card .seg-ctrl[data-target="cap-adequacy-range"]');
+        if (!card) return;
+        const cardEl = card.closest('.data-card');
+        const svg = cardEl.querySelector('svg.chart-dual[data-metric="cap-adequacy"]');
+        const axis = cardEl.querySelector('[data-axis-for="cap-adequacy"]');
+        const ctrl = card;
+        if (!svg || !axis || !ctrl) return;
+
+        // 20 quarterly observations ending 2025Q4 (must match 资本构成 table: 13.57/14.94/18.76)
+        const SERIES = {
+          cet1:  [12.80,12.85,12.92,12.95,13.02,13.10,13.15,13.20,13.25,13.30, 13.32,13.36,13.40,13.43,13.46,13.48, 13.50,13.52,13.54,13.57],
+          tier1: [14.10,14.18,14.25,14.30,14.38,14.45,14.50,14.55,14.60,14.65, 14.70,14.74,14.78,14.82,14.85,14.88, 14.90,14.91,14.92,14.94],
+          total: [17.80,17.88,17.95,18.00,18.05,18.10,18.18,18.25,18.32,18.38, 18.42,18.46,18.50,18.55,18.58,18.62, 18.66,18.68,18.70,18.76]
+        };
+        const COLORS = {
+          cet1:  'oklch(58% 0.18 255)',
+          tier1: 'oklch(48% 0.14 255)',
+          total: 'oklch(65% 0.008 240)'
+        };
+        const REFS = [
+          { v: 8.5,  label: 'CET1 8.5%',  color: COLORS.cet1  },
+          { v: 9.5,  label: 'Tier1 9.5%', color: COLORS.tier1 },
+          { v: 11.5, label: 'CAR 11.5%',  color: COLORS.total }
+        ];
+        const RANGE_Q = { '1Y': 4, '3Y': 12, '5Y': 20, 'MAX': 20 };
+
+        const W = 320, H = 150, PAD_L = 32, PAD_R = 8, PAD_T = 8, PAD_B = 22;
+
+        function makeEl(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+
+        function quarterLabels(n) {
+          const out = [];
+          const baseYear = 2025, baseMonth = 11;
+          for (let i = n - 1; i >= 0; i--) {
+            const totalMonth = baseYear * 12 + baseMonth - i * 3;
+            const yr = Math.floor(totalMonth / 12);
+            const mo = ((totalMonth % 12) + 12) % 12;
+            const q = Math.floor(mo / 3) + 1;
+            out.push(String(yr).slice(2) + 'Q' + q);
+          }
+          return out;
+        }
+
+        function render(range) {
+          const q = RANGE_Q[range] || 20;
+          const s1 = SERIES.cet1.slice(-q);
+          const s2 = SERIES.tier1.slice(-q);
+          const s3 = SERIES.total.slice(-q);
+
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+          // Y range: data only (12.5–19%) so the 3 lines spread out clearly.
+          // Regulatory minimums (8.5/9.5/11.5) are shown as off-chart callouts below.
+          const all = s1.concat(s2, s3);
+          const dMin = Math.min.apply(null, all), dMax = Math.max.apply(null, all);
+          const yLo = Math.floor((dMin - 0.5) * 2) / 2;
+          const yHi = Math.ceil((dMax + 0.5) * 2) / 2;
+          const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+          const xStep = (W - PAD_L - PAD_R) / (s1.length - 1);
+          const xScale = i => PAD_L + i * xStep;
+
+          // 5 gridlines + y ticks (every 1%)
+          const yTicks = 4;
+          for (let g = 0; g <= yTicks; g++) {
+            const t = g / yTicks;
+            const y = PAD_T + (H - PAD_T - PAD_B) * t;
+            svg.appendChild(makeEl('line', { class: 'grid', x1: PAD_L, y1: y, x2: W - PAD_R, y2: y }));
+            const v = yHi - t * (yHi - yLo);
+            svg.appendChild(makeEl('text', { class: 'y-tick', x: PAD_L - 5, y: y + 3, 'text-anchor': 'end' }, v.toFixed(1) + '%'));
+          }
+
+          // (监管底线 callout moved to legend)
+
+          // 3 lines: Total (top, solid) is the most important — but per A-share convention
+          // the BIGGEST number (Total CAR) is at top, the smallest (CET1) is at bottom.
+          // Wait — for capital adequacy: CET1 < Tier1 < Total. CET1 is at the bottom.
+          // Render order (back-to-front): Total solid, Tier1 dashed, CET1 solid (top-of-stack visually = highest)
+          // Actually Total > Tier1 > CET1, so Total is at top, CET1 at bottom.
+          // To match legend order: CET1 (solid blue), Tier1 (dashed mid blue), Total (dashed gray)
+
+          // Line: CET1 (solid)
+          const p1 = s1.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(makeEl('polyline', { fill: 'none', stroke: COLORS.cet1, 'stroke-width': 1.6, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', points: p1.join(' ') }));
+          // Line: Tier1 (dashed)
+          const p2 = s2.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(makeEl('polyline', { fill: 'none', stroke: COLORS.tier1, 'stroke-width': 1.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-dasharray': '4 3', points: p2.join(' ') }));
+          // Line: Total (solid, thinner)
+          const p3 = s3.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(makeEl('polyline', { fill: 'none', stroke: COLORS.total, 'stroke-width': 1.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-dasharray': '2 3', points: p3.join(' ') }));
+
+          // Endpoint dots (last values)
+          const lx = xScale(s1.length - 1);
+          svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(s1[s1.length - 1]), r: 2.8, fill: COLORS.cet1, stroke: 'var(--surface)', 'stroke-width': 1.2 }));
+          svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(s2[s2.length - 1]), r: 2.4, fill: COLORS.tier1, stroke: 'var(--surface)', 'stroke-width': 1.2 }));
+          svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(s3[s3.length - 1]), r: 2.4, fill: COLORS.total, stroke: 'var(--surface)', 'stroke-width': 1.2 }));
+
+          // X-axis labels (sample to 5)
+          const labels = quarterLabels(q);
+          const slots = q <= 5 ? q : 5;
+          const out = [];
+          for (let i = 0; i < slots; i++) {
+            const idx = slots === 1 ? 0 : Math.round(i * (labels.length - 1) / (slots - 1));
+            out.push(labels[idx]);
+          }
+          axis.innerHTML = out.map(l => '<span>' + l + '</span>').join('');
+        }
+
+        const init = (ctrl.querySelector('.seg.active') || ctrl.querySelector('.seg') || {}).dataset || { range: '5Y' };
+        render(init.range || '5Y');
+
+        ctrl.querySelectorAll('.seg').forEach(seg => {
+          seg.addEventListener('click', () => {
+            ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+            seg.classList.add('active');
+            render(seg.dataset.range);
+          });
+        });
+      })();
+
+      /* ===== NIM tab: 净息差走势 (2-line: ICBC + peer median) ===== */
+      (function () {
+        const NS = 'http://www.w3.org/2000/svg';
+        const card = document.querySelector('.tab-panel[data-panel="nim"] .data-card .seg-ctrl[data-target="nim-range"]');
+        if (!card) return;
+        const cardEl = card.closest('.data-card');
+        const svg = cardEl.querySelector('svg.chart-dual[data-metric="nim"]');
+        const axis = cardEl.querySelector('[data-axis-for="nim"]');
+        const ctrl = card;
+        if (!svg || !axis || !ctrl) return;
+
+        // 20 quarterly observations ending 2025Q4; 1.43% final matches kv card.
+        const SERIES = {
+          icbc:  [2.15, 2.10, 2.05, 2.02, 2.00, 1.95, 1.90, 1.86, 1.82, 1.80, 1.76, 1.72, 1.68, 1.62, 1.58, 1.54, 1.50, 1.48, 1.46, 1.43],
+          peer:  [2.10, 2.05, 2.00, 1.97, 1.95, 1.92, 1.90, 1.86, 1.84, 1.82, 1.78, 1.74, 1.70, 1.64, 1.60, 1.56, 1.52, 1.49, 1.47, 1.45]
+        };
+        const COLORS = {
+          icbc: 'oklch(92% 0.012 250)',
+          peer: 'oklch(60% 0.008 240)'
+        };
+        const RANGE_Q = { '1Y': 4, '3Y': 12, '5Y': 20, 'MAX': 20 };
+
+        const W = 320, H = 130, PAD_L = 32, PAD_R = 8, PAD_T = 8, PAD_B = 22;
+
+        function makeEl(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+
+        function quarterLabels(n) {
+          const out = [];
+          const baseYear = 2025, baseMonth = 11;
+          for (let i = n - 1; i >= 0; i--) {
+            const totalMonth = baseYear * 12 + baseMonth - i * 3;
+            const yr = Math.floor(totalMonth / 12);
+            const mo = ((totalMonth % 12) + 12) % 12;
+            const q = Math.floor(mo / 3) + 1;
+            out.push(String(yr).slice(2) + 'Q' + q);
+          }
+          return out;
+        }
+
+        function render(range) {
+          const q = RANGE_Q[range] || 20;
+          const s1 = SERIES.icbc.slice(-q);
+          const s2 = SERIES.peer.slice(-q);
+
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+          const all = s1.concat(s2);
+          const dMin = Math.min.apply(null, all), dMax = Math.max.apply(null, all);
+          const yLo = Math.floor((dMin - 0.05) * 20) / 20;
+          const yHi = Math.ceil((dMax + 0.05) * 20) / 20;
+          const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+          const xStep = (W - PAD_L - PAD_R) / (s1.length - 1);
+          const xScale = i => PAD_L + i * xStep;
+
+          const yTicks = 3;
+          for (let g = 0; g <= yTicks; g++) {
+            const t = g / yTicks;
+            const y = PAD_T + (H - PAD_T - PAD_B) * t;
+            svg.appendChild(makeEl('line', { class: 'grid', x1: PAD_L, y1: y, x2: W - PAD_R, y2: y }));
+            const v = yHi - t * (yHi - yLo);
+            svg.appendChild(makeEl('text', { class: 'y-tick', x: PAD_L - 5, y: y + 3, 'text-anchor': 'end' }, v.toFixed(2) + '%'));
+          }
+
+          // ICBC: solid black
+          const p1 = s1.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(makeEl('polyline', { fill: 'none', stroke: COLORS.icbc, 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', points: p1.join(' ') }));
+
+          // Peer median: dashed gray
+          const p2 = s2.map((v, i) => xScale(i) + ',' + yScale(v));
+          svg.appendChild(makeEl('polyline', { fill: 'none', stroke: COLORS.peer, 'stroke-width': 1.2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-dasharray': '3 3', points: p2.join(' ') }));
+
+          const lx = xScale(s1.length - 1);
+          svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(s1[s1.length - 1]), r: 3, fill: COLORS.icbc, stroke: 'var(--surface)', 'stroke-width': 1.2 }));
+          svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(s2[s2.length - 1]), r: 2.4, fill: COLORS.peer, stroke: 'var(--surface)', 'stroke-width': 1.2 }));
+
+          const labels = quarterLabels(q);
+          const slots = q <= 5 ? q : 5;
+          const out = [];
+          for (let i = 0; i < slots; i++) {
+            const idx = slots === 1 ? 0 : Math.round(i * (labels.length - 1) / (slots - 1));
+            out.push(labels[idx]);
+          }
+          axis.innerHTML = out.map(l => '<span>' + l + '</span>').join('');
+        }
+
+        const init = (ctrl.querySelector('.seg.active') || ctrl.querySelector('.seg') || {}).dataset || { range: '5Y' };
+        render(init.range || '5Y');
+
+        ctrl.querySelectorAll('.seg').forEach(seg => {
+          seg.addEventListener('click', () => {
+            ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+            seg.classList.add('active');
+            render(seg.dataset.range);
+          });
+        });
+      })();
+
+      /* ===== NIM tab: 生息资产收益率 (5 lines, 20 quarters) ===== */
+      (function () {
+        const NS = 'http://www.w3.org/2000/svg';
+        const card = document.querySelector('.tab-panel[data-panel="nim"] .data-card .seg-ctrl[data-target="asset-yield-range"]');
+        if (!card) return;
+        const cardEl = card.closest('.data-card');
+        const svg = cardEl.querySelector('svg.chart-dual[data-metric="asset-yield"]');
+        const axis = cardEl.querySelector('[data-axis-for="asset-yield"]');
+        const ctrl = card;
+        if (!svg || !axis || !ctrl) return;
+
+        // 20 quarterly observations; 2024-end and 2025-end match image data exactly.
+        const SERIES = {
+          loan:  [4.50, 4.45, 4.40, 4.35, 4.30, 4.25, 4.20, 4.10, 4.00, 3.95, 3.90, 3.85, 3.80, 3.75, 3.70, 3.60, 3.55, 3.50, 3.40, 2.81],
+          bond:  [3.80, 3.75, 3.70, 3.65, 3.60, 3.55, 3.50, 3.45, 3.40, 3.35, 3.30, 3.25, 3.20, 3.18, 3.15, 3.13, 3.10, 3.10, 3.12, 2.70],
+          pboc:  [1.62, 1.60, 1.58, 1.60, 1.62, 1.64, 1.65, 1.66, 1.67, 1.68, 1.69, 1.70, 1.70, 1.71, 1.71, 1.71, 1.71, 1.72, 1.71, 1.64],
+          inter: [3.80, 3.60, 3.50, 3.40, 3.20, 3.10, 3.00, 2.90, 2.85, 2.80, 2.75, 2.70, 2.65, 2.60, 2.55, 2.50, 2.50, 2.45, 2.83, 2.27],
+          total: [4.10, 4.05, 4.00, 3.95, 3.90, 3.85, 3.80, 3.72, 3.65, 3.58, 3.52, 3.45, 3.40, 3.35, 3.30, 3.25, 3.20, 3.18, 3.17, 2.68]
+        };
+        const COLORS = {
+          loan:  'oklch(58% 0.18 25)',
+          bond:  'oklch(58% 0.18 255)',
+          pboc:  'oklch(60% 0.008 240)',
+          inter: 'oklch(58% 0.14 200)',
+          total: 'oklch(92% 0.012 250)'
+        };
+        const RANGE_Q = { '1Y': 4, '3Y': 12, '5Y': 20, 'MAX': 20 };
+
+        const W = 320, H = 150, PAD_L = 32, PAD_R = 8, PAD_T = 8, PAD_B = 22;
+
+        function makeEl(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+
+        function quarterLabels(n) {
+          const out = [];
+          const baseYear = 2025, baseMonth = 11;
+          for (let i = n - 1; i >= 0; i--) {
+            const totalMonth = baseYear * 12 + baseMonth - i * 3;
+            const yr = Math.floor(totalMonth / 12);
+            const mo = ((totalMonth % 12) + 12) % 12;
+            const q = Math.floor(mo / 3) + 1;
+            out.push(String(yr).slice(2) + 'Q' + q);
+          }
+          return out;
+        }
+
+        function render(range) {
+          const q = RANGE_Q[range] || 20;
+          const keys = ['total', 'loan', 'bond', 'inter', 'pboc'];
+          const series = {};
+          keys.forEach(k => series[k] = SERIES[k].slice(-q));
+
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+          const all = keys.reduce((acc, k) => acc.concat(series[k]), []);
+          const dMin = Math.min.apply(null, all), dMax = Math.max.apply(null, all);
+          const yLo = Math.floor((dMin - 0.2) * 5) / 5;
+          const yHi = Math.ceil((dMax + 0.2) * 5) / 5;
+          const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+          const xStep = (W - PAD_L - PAD_R) / (q - 1);
+          const xScale = i => PAD_L + i * xStep;
+
+          const yTicks = 4;
+          for (let g = 0; g <= yTicks; g++) {
+            const t = g / yTicks;
+            const y = PAD_T + (H - PAD_T - PAD_B) * t;
+            svg.appendChild(makeEl('line', { class: 'grid', x1: PAD_L, y1: y, x2: W - PAD_R, y2: y }));
+            const v = yHi - t * (yHi - yLo);
+            svg.appendChild(makeEl('text', { class: 'y-tick', x: PAD_L - 5, y: y + 3, 'text-anchor': 'end' }, v.toFixed(2) + '%'));
+          }
+
+          // Draw order: pboc (lowest, dashed gray) → inter (dashed teal) → bond (solid blue)
+          // → loan (solid red, biggest) → total (solid black, headline, drawn last on top)
+          const drawOrder = [
+            { k: 'pboc',  stroke: COLORS.pboc,  width: 1.2, dash: '3 3' },
+            { k: 'inter', stroke: COLORS.inter, width: 1.3, dash: '4 3' },
+            { k: 'bond',  stroke: COLORS.bond,  width: 1.4, dash: null },
+            { k: 'loan',  stroke: COLORS.loan,  width: 1.6, dash: null },
+            { k: 'total', stroke: COLORS.total, width: 1.8, dash: null }
+          ];
+          drawOrder.forEach(({ k, stroke, width, dash }) => {
+            const pts = series[k].map((v, i) => xScale(i) + ',' + yScale(v));
+            const attrs = { fill: 'none', stroke: stroke, 'stroke-width': width, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', points: pts.join(' ') };
+            if (dash) attrs['stroke-dasharray'] = dash;
+            svg.appendChild(makeEl('polyline', attrs));
+          });
+
+          // Endpoint dots (last values) — order: pboc → inter → bond → loan → total
+          const lx = xScale(q - 1);
+          drawOrder.forEach(({ k, stroke }) => {
+            svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(series[k][series[k].length - 1]), r: 2.2, fill: stroke, stroke: 'var(--surface)', 'stroke-width': 1 }));
+          });
+
+          const labels = quarterLabels(q);
+          const slots = q <= 5 ? q : 5;
+          const out = [];
+          for (let i = 0; i < slots; i++) {
+            const idx = slots === 1 ? 0 : Math.round(i * (labels.length - 1) / (slots - 1));
+            out.push(labels[idx]);
+          }
+          axis.innerHTML = out.map(l => '<span>' + l + '</span>').join('');
+        }
+
+        const init = (ctrl.querySelector('.seg.active') || ctrl.querySelector('.seg') || {}).dataset || { range: '5Y' };
+        render(init.range || '5Y');
+
+        ctrl.querySelectorAll('.seg').forEach(seg => {
+          seg.addEventListener('click', () => {
+            ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+            seg.classList.add('active');
+            render(seg.dataset.range);
+          });
+        });
+      })();
+
+      /* ===== NIM tab: 计息负债付息率 (4 lines, 20 quarters) ===== */
+      (function () {
+        const NS = 'http://www.w3.org/2000/svg';
+        const card = document.querySelector('.tab-panel[data-panel="nim"] .data-card .seg-ctrl[data-target="liability-cost-range"]');
+        if (!card) return;
+        const cardEl = card.closest('.data-card');
+        const svg = cardEl.querySelector('svg.chart-dual[data-metric="liability-cost"]');
+        const axis = cardEl.querySelector('[data-axis-for="liability-cost"]');
+        const ctrl = card;
+        if (!svg || !axis || !ctrl) return;
+
+        // 20 quarterly observations; 2024-end and 2025-end match image data exactly.
+        const SERIES = {
+          dep:   [2.10, 2.05, 2.00, 1.95, 1.90, 1.88, 1.85, 1.82, 1.80, 1.78, 1.76, 1.74, 1.72, 1.72, 1.72, 1.72, 1.72, 1.72, 1.72, 1.36],
+          debt:  [3.20, 3.10, 3.00, 2.95, 2.90, 2.85, 2.80, 2.75, 2.72, 2.70, 2.68, 2.65, 2.65, 2.65, 2.64, 2.64, 2.64, 2.64, 2.64, 1.93],
+          inter: [4.00, 3.90, 3.80, 3.70, 3.60, 3.50, 3.45, 3.40, 3.38, 3.36, 3.36, 3.36, 3.36, 3.36, 3.36, 3.36, 3.36, 3.38, 3.38, 2.66],
+          total: [2.40, 2.35, 2.30, 2.25, 2.20, 2.18, 2.15, 2.12, 2.10, 2.08, 2.05, 2.03, 2.00, 1.98, 1.96, 1.95, 1.94, 1.94, 1.94, 1.53]
+        };
+        const COLORS = {
+          dep:   'oklch(58% 0.18 25)',
+          debt:  'oklch(58% 0.18 255)',
+          inter: 'oklch(58% 0.14 200)',
+          total: 'oklch(92% 0.012 250)'
+        };
+        const RANGE_Q = { '1Y': 4, '3Y': 12, '5Y': 20, 'MAX': 20 };
+
+        const W = 320, H = 150, PAD_L = 32, PAD_R = 8, PAD_T = 8, PAD_B = 22;
+
+        function makeEl(name, attrs, text) {
+          const n = document.createElementNS(NS, name);
+          if (attrs) for (const k in attrs) n.setAttribute(k, attrs[k]);
+          if (text != null) n.textContent = text;
+          return n;
+        }
+
+        function quarterLabels(n) {
+          const out = [];
+          const baseYear = 2025, baseMonth = 11;
+          for (let i = n - 1; i >= 0; i--) {
+            const totalMonth = baseYear * 12 + baseMonth - i * 3;
+            const yr = Math.floor(totalMonth / 12);
+            const mo = ((totalMonth % 12) + 12) % 12;
+            const q = Math.floor(mo / 3) + 1;
+            out.push(String(yr).slice(2) + 'Q' + q);
+          }
+          return out;
+        }
+
+        function render(range) {
+          const q = RANGE_Q[range] || 20;
+          const keys = ['total', 'dep', 'debt', 'inter'];
+          const series = {};
+          keys.forEach(k => series[k] = SERIES[k].slice(-q));
+
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+          while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+          const all = keys.reduce((acc, k) => acc.concat(series[k]), []);
+          const dMin = Math.min.apply(null, all), dMax = Math.max.apply(null, all);
+          const yLo = Math.floor((dMin - 0.2) * 5) / 5;
+          const yHi = Math.ceil((dMax + 0.2) * 5) / 5;
+          const yScale = v => PAD_T + (H - PAD_T - PAD_B) * (1 - (v - yLo) / (yHi - yLo));
+          const xStep = (W - PAD_L - PAD_R) / (q - 1);
+          const xScale = i => PAD_L + i * xStep;
+
+          const yTicks = 4;
+          for (let g = 0; g <= yTicks; g++) {
+            const t = g / yTicks;
+            const y = PAD_T + (H - PAD_T - PAD_B) * t;
+            svg.appendChild(makeEl('line', { class: 'grid', x1: PAD_L, y1: y, x2: W - PAD_R, y2: y }));
+            const v = yHi - t * (yHi - yLo);
+            svg.appendChild(makeEl('text', { class: 'y-tick', x: PAD_L - 5, y: y + 3, 'text-anchor': 'end' }, v.toFixed(2) + '%'));
+          }
+
+          // inter (highest, dashed teal) → debt (solid blue) → dep (solid red, biggest) → total (solid black, headline)
+          const drawOrder = [
+            { k: 'inter', stroke: COLORS.inter, width: 1.3, dash: '4 3' },
+            { k: 'debt',  stroke: COLORS.debt,  width: 1.4, dash: null },
+            { k: 'dep',   stroke: COLORS.dep,   width: 1.6, dash: null },
+            { k: 'total', stroke: COLORS.total, width: 1.8, dash: null }
+          ];
+          drawOrder.forEach(({ k, stroke, width, dash }) => {
+            const pts = series[k].map((v, i) => xScale(i) + ',' + yScale(v));
+            const attrs = { fill: 'none', stroke: stroke, 'stroke-width': width, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', points: pts.join(' ') };
+            if (dash) attrs['stroke-dasharray'] = dash;
+            svg.appendChild(makeEl('polyline', attrs));
+          });
+
+          const lx = xScale(q - 1);
+          drawOrder.forEach(({ k, stroke }) => {
+            svg.appendChild(makeEl('circle', { cx: lx, cy: yScale(series[k][series[k].length - 1]), r: 2.4, fill: stroke, stroke: 'var(--surface)', 'stroke-width': 1 }));
+          });
+
+          const labels = quarterLabels(q);
+          const slots = q <= 5 ? q : 5;
+          const out = [];
+          for (let i = 0; i < slots; i++) {
+            const idx = slots === 1 ? 0 : Math.round(i * (labels.length - 1) / (slots - 1));
+            out.push(labels[idx]);
+          }
+          axis.innerHTML = out.map(l => '<span>' + l + '</span>').join('');
+        }
+
+        const init = (ctrl.querySelector('.seg.active') || ctrl.querySelector('.seg') || {}).dataset || { range: '5Y' };
+        render(init.range || '5Y');
+
+        ctrl.querySelectorAll('.seg').forEach(seg => {
+          seg.addEventListener('click', () => {
+            ctrl.querySelectorAll('.seg').forEach(s => s.classList.remove('active'));
+            seg.classList.add('active');
+            render(seg.dataset.range);
+          });
+        });
+      })();
+    })();
+  </script>
+  <script>
+    // Theme toggle (Dark ↔ Light)
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      var btn = document.getElementById('theme-trigger');
+      var svg = btn ? btn.querySelector('svg') : null;
+      function moonPath() {
+        return '<path d="M12.5 9.5A5 5 0 0 1 6.5 3.5a5 5 0 1 0 6 6z" fill="currentColor"/>';
+      }
+      function sunPath() {
+        return '<circle cx="8" cy="8" r="2.8"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>';
+      }
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        if (svg) svg.innerHTML = (theme === 'light') ? sunPath() : moonPath();
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      if (btn) btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        var next = cur === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        apply(next);
+      });
+    })();
+  </script>
+  </div>
+</body>
+</html>

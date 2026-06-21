@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>银图 Atlas · 我的</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --surface-warm: #1a2740;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --muted: #8492a6;
+      --soft: #475569;
+      --border: #263246;
+      --border-soft: #1c2638;
+      --border-strong: #344056;
+      --accent: #38bdf8;
+      --accent-soft: #0c2a3d;
+      --accent-fg: #03111a;
+      --success: #22c55e;
+      --success-soft: #082d1a;
+      --danger: #ef4444;
+      --danger-soft: #3a0d0d;
+      --warning: #f59e0b;
+      --warning-soft: #2d1f08;
+      --meta: #38bdf8;
+      --up: #ef4444;
+      --up-soft: #2a0a0a;
+      --down: #22c55e;
+      --down-soft: #082d1a;
+      --radius-sm: 4px;
+      --radius-md: 4px;
+      --radius-lg: 4px;
+      --radius-pill: 9999px;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', ui-monospace, Menlo, 'SF Mono', monospace;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --surface-warm: #f0f3f7;
+      --fg: #0f172a;
+      --fg-2: #475569;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --border-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #e0f2fe;
+      --accent-fg: #ffffff;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --warning: #d97706;
+      --warning-soft: #fef3c7;
+      --meta: #0284c7;
+      --up: #dc2626;
+      --up-soft: #fee2e2;
+      --down: #16a34a;
+      --down-soft: #dcfce7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); min-height: 100vh; display: grid; place-items: center; }
+    body { font-family: var(--font-body); -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; color: var(--fg); }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-family: var(--font-mono); }
+    a { color: inherit; text-decoration: none; }
+
+    .device {
+      width: 393px; height: 852px; background: #0a0d14; border-radius: 50px;
+      padding: 12px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1.5px #1a1f2c;
+    }
+    .device::before {
+      content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 32px; background: #0a0d14; border-radius: 20px; z-index: 10;
+    }
+    .device::after {
+      content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; background: rgba(255,255,255,0.55); border-radius: 5px; z-index: 10;
+    }
+    .screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+
+    .status {
+      height: 54px; padding: 16px 28px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+      letter-spacing: -0.01em; color: var(--fg);
+    }
+    .status-right { display: flex; align-items: center; gap: 6px; }
+    .icon { width: 16px; height: 16px; display: inline-block; }
+    .icon-signal { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='11' width='2.5' height='4' rx='0.5' fill='black'/><rect x='6' y='8' width='2.5' height='7' rx='0.5' fill='black'/><rect x='10' y='5' width='2.5' height='10' rx='0.5' fill='black'/><rect x='14' y='2' width='2.5' height='13' rx='0.5' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-wifi { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 11.5l1.5 1.5a2 2 0 0 1-3 0zM3 7a7 7 0 0 1 10 0l-1.4 1.4a5 5 0 0 0-7.2 0zM1 5a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-battery { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'><rect x='0.5' y='0.5' width='20' height='15' rx='3' stroke='black' stroke-width='1' fill='none'/><rect x='22' y='5' width='2' height='6' rx='1' fill='black'/><rect x='2' y='2' width='17' height='12' rx='2' fill='black'/></svg>") no-repeat center / contain; }
+
+    .app { flex: 1; overflow-y: auto; padding: 0 0 110px; }
+    .app::-webkit-scrollbar { display: none; }
+
+    /* Page header */
+    .page-head {
+      padding: 8px 20px 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .avatar {
+      width: 40px; height: 40px; border-radius: 4px;
+      background: linear-gradient(135deg, oklch(58% 0.18 255), oklch(40% 0.14 255));
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 14px; font-weight: 700;
+      color: var(--accent-fg); flex-shrink: 0;
+    }
+    .who { flex: 1; min-width: 0; }
+    .who .name {
+      font-family: var(--font-display); font-size: 17px; font-weight: 600;
+      letter-spacing: -0.012em; line-height: 1.2; margin-bottom: 3px;
+    }
+    .who .meta {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em; display: flex; align-items: center; gap: 6px;
+    }
+    .who .meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--muted); }
+    .who .meta .role { color: var(--accent); }
+    .head-icon {
+      width: 32px; height: 32px; border-radius: 4px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--muted); flex-shrink: 0;
+    }
+    .head-icon svg { width: 14px; height: 14px; }
+
+    /* Section heading */
+    .sec { padding: 0 20px; margin-top: 18px; }
+    .sec-h {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .sec-h .ttl {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .sec-h .more {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em; display: flex; align-items: center; gap: 3px;
+    }
+    .sec-h .more svg { width: 10px; height: 10px; }
+
+    /* ===== Subscription card (primary hero) ===== */
+    .sub-hero {
+      background: linear-gradient(135deg, var(--surface-warm) 0%, var(--surface) 60%);
+      border: 1px solid var(--border-strong);
+      border-radius: 4px;
+      padding: 14px 16px 14px;
+      position: relative; overflow: hidden;
+    }
+    .sub-hero::before {
+      content: ''; position: absolute; right: -20px; top: -20px;
+      width: 100px; height: 100px; border-radius: 50%;
+      background: var(--accent); opacity: 0.06; filter: blur(20px);
+    }
+    .sub-hero .top-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .tier-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+      letter-spacing: 0.08em; padding: 4px 8px; border-radius: 3px;
+    }
+    .tier-badge.pro {
+      color: var(--accent); background: var(--accent-soft);
+      border: 1px solid var(--accent);
+    }
+    .tier-badge .star {
+      width: 8px; height: 8px; fill: currentColor;
+    }
+    .sub-hero .tier-name {
+      font-family: var(--font-display); font-size: 22px; font-weight: 600;
+      letter-spacing: -0.018em; line-height: 1.1; margin-bottom: 2px;
+    }
+    .sub-hero .tier-sub {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .sub-hero .days {
+      display: flex; align-items: baseline; gap: 6px; margin-top: 12px;
+    }
+    .sub-hero .days .big {
+      font-family: var(--font-mono); font-size: 38px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.025em; line-height: 1;
+    }
+    .sub-hero .days .unit {
+      font-family: var(--font-mono); font-size: 12px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .sub-hero .days .expires {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em; margin-left: auto;
+    }
+    .sub-hero .progress {
+      height: 4px; background: var(--border-soft); border-radius: 2px;
+      margin-top: 10px; overflow: hidden;
+    }
+    .sub-hero .progress .bar {
+      height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent));
+      border-radius: 2px;
+    }
+    .sub-hero .progress .bar.warn {
+      background: linear-gradient(90deg, var(--warning), var(--warning));
+    }
+    .sub-hero .actions {
+      display: flex; gap: 8px; margin-top: 14px;
+    }
+    .btn {
+      flex: 1; padding: 10px 12px; border-radius: 4px;
+      font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+      letter-spacing: 0.04em; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 5px;
+      transition: all 0.15s ease;
+    }
+    .btn-primary {
+      background: var(--accent); color: var(--accent-fg); border: 1px solid var(--accent);
+    }
+    .btn-secondary {
+      background: transparent; color: var(--fg); border: 1px solid var(--border-strong);
+    }
+    .btn svg { width: 12px; height: 12px; }
+
+    /* Team license card (secondary, smaller) */
+    .sub-team {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 12px 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sub-team .ic-box {
+      width: 36px; height: 36px; border-radius: 4px;
+      background: var(--warning-soft); border: 1px solid var(--warning);
+      display: grid; place-items: center; color: var(--warning); flex-shrink: 0;
+    }
+    .sub-team .ic-box svg { width: 16px; height: 16px; }
+    .sub-team .body { flex: 1; min-width: 0; }
+    .sub-team .lbl {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px;
+    }
+    .sub-team .line {
+      display: flex; align-items: baseline; gap: 6px;
+    }
+    .sub-team .tier {
+      font-family: var(--font-display); font-size: 14px; font-weight: 600;
+      letter-spacing: -0.005em;
+    }
+    .sub-team .tier .seats {
+      font-family: var(--font-mono); font-size: 13px; color: var(--fg);
+    }
+    .sub-team .tier .seats .used { color: var(--warning); }
+    .sub-team .tier .seats .total { color: var(--muted); }
+    .sub-team .tier .seats .slash { color: var(--muted); margin: 0 2px; }
+    .sub-team .ctx {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.03em; margin-top: 2px;
+    }
+    .sub-team .arrow {
+      color: var(--muted); width: 14px; height: 14px; flex-shrink: 0;
+    }
+
+    /* ===== Watchlist horizontal scroll ===== */
+    .watchlist {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding: 0 20px 2px; margin: 0 -20px;
+      scrollbar-width: none;
+    }
+    .watchlist::-webkit-scrollbar { display: none; }
+    .watch-tile {
+      flex-shrink: 0; width: 124px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 10px 11px 9px;
+    }
+    .watch-tile .tk-row { display: flex; align-items: center; gap: 5px; margin-bottom: 7px; }
+    .watch-tile .tk {
+      width: 18px; height: 18px; border-radius: 3px;
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 8px; font-weight: 700;
+      color: var(--accent-fg);
+    }
+    .watch-tile .nm {
+      font-family: var(--font-body); font-size: 11px; font-weight: 600;
+      letter-spacing: -0.005em; color: var(--fg);
+    }
+    .watch-tile .spark { width: 100%; height: 28px; display: block; margin-bottom: 4px; }
+    .watch-tile .stats { display: flex; align-items: baseline; gap: 4px; }
+    .watch-tile .metric {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .watch-tile .val {
+      font-family: var(--font-mono); font-size: 12px; font-weight: 600;
+      letter-spacing: -0.005em; color: var(--fg); line-height: 1;
+    }
+    .watch-tile .delta {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+      margin-left: auto;
+    }
+    .watch-tile .delta.up { color: var(--up); }
+    .watch-tile .delta.down { color: var(--down); }
+    .watch-tile.add {
+      background: transparent; border-style: dashed; border-color: var(--border-strong);
+      display: grid; place-items: center; color: var(--muted);
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.04em; gap: 4px;
+    }
+    .watch-tile.add svg { width: 16px; height: 16px; }
+
+    /* ===== Data usage progress card ===== */
+    .usage {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 4px; padding: 14px 16px;
+    }
+    .usage .h {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .usage .h .lbl {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .usage .h .pct {
+      font-family: var(--font-mono); font-size: 11px; color: var(--fg);
+      font-weight: 600; letter-spacing: 0.02em;
+    }
+    .usage .progress {
+      height: 6px; background: var(--border-soft); border-radius: 3px;
+      overflow: hidden; margin-bottom: 12px;
+    }
+    .usage .progress .bar {
+      height: 100%; background: var(--accent); border-radius: 3px;
+      transition: width 0.3s;
+    }
+    .usage .progress .bar.warn { background: var(--warning); }
+    .usage .progress .bar.danger { background: var(--danger); }
+    .usage .grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      padding-top: 10px; border-top: 1px dashed var(--border);
+    }
+    .usage .grid .col { display: flex; flex-direction: column; gap: 3px; }
+    .usage .grid .col .k {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .usage .grid .col .v {
+      font-family: var(--font-mono); font-size: 13px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.005em; line-height: 1.1;
+    }
+    .usage .grid .col .v .u { font-size: 9px; color: var(--muted); font-weight: 500; }
+    .usage .grid .col .delta {
+      font-family: var(--font-mono); font-size: 9px; font-weight: 600;
+    }
+    .usage .grid .col .delta.up { color: var(--up); }
+    .usage .grid .col .delta.down { color: var(--down); }
+    .usage .upgrade {
+      margin-top: 12px; padding: 9px 12px;
+      background: var(--accent-soft); border: 1px dashed var(--accent);
+      border-radius: 4px;
+      display: flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+      letter-spacing: 0.04em; cursor: pointer;
+    }
+    .usage .upgrade svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ===== Alerts / 提醒中心 ===== */
+    .alerts { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .alert {
+      background: var(--surface); padding: 11px 14px;
+      display: flex; align-items: center; gap: 11px;
+    }
+    .alert .ic {
+      width: 30px; height: 30px; border-radius: 4px;
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .alert .ic svg { width: 14px; height: 14px; }
+    .alert .ic.evt { background: var(--accent-soft); color: var(--accent); }
+    .alert .ic.warn { background: var(--warning-soft); color: var(--warning); }
+    .alert .ic.rpt { background: var(--down-soft); color: var(--down); }
+    .alert .body { flex: 1; min-width: 0; }
+    .alert .ttl {
+      font-size: 12px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em; line-height: 1.3; margin-bottom: 2px;
+    }
+    .alert .meta {
+      font-family: var(--font-mono); font-size: 9.5px; color: var(--muted);
+      letter-spacing: 0.04em; display: flex; align-items: center; gap: 6px;
+    }
+    .alert .meta .dot { width: 2px; height: 2px; border-radius: 50%; background: var(--muted); }
+    .alert .meta .hl { color: var(--fg-2); }
+    .alert .chev { color: var(--muted); width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ===== Recently / collection list ===== */
+    .list { display: flex; flex-direction: column; gap: 1px; background: var(--border-soft); border-radius: 4px; overflow: hidden; border: 1px solid var(--border); }
+    .list-row {
+      background: var(--surface); padding: 12px 14px;
+      display: flex; align-items: center; gap: 11px; cursor: pointer;
+    }
+    .list-row .ic {
+      width: 28px; height: 28px; border-radius: 4px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg-2); flex-shrink: 0;
+    }
+    .list-row .ic svg { width: 13px; height: 13px; }
+    .list-row .body { flex: 1; min-width: 0; }
+    .list-row .ttl {
+      font-size: 12.5px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em; line-height: 1.2; margin-bottom: 2px;
+    }
+    .list-row .sub {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .list-row .right { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+    .list-row .badge {
+      font-family: var(--font-mono); font-size: 9px; padding: 2px 6px;
+      border-radius: 3px; color: var(--muted); letter-spacing: 0.04em;
+      background: var(--surface-2);
+    }
+    .list-row .badge.acc { color: var(--accent); background: var(--accent-soft); }
+    .list-row .chev { color: var(--muted); width: 12px; height: 12px; }
+
+    /* ===== Theme preference row ===== */
+    .theme-row {
+      background: var(--surface); padding: 12px 14px;
+      display: flex; align-items: center; gap: 11px;
+    }
+    .theme-row .body { flex: 1; min-width: 0; }
+    .theme-row .ttl {
+      font-size: 12.5px; font-weight: 600; color: var(--fg);
+      letter-spacing: -0.005em; line-height: 1.2; margin-bottom: 2px;
+    }
+    .theme-row .sub {
+      font-family: var(--font-mono); font-size: 10px; color: var(--muted);
+      letter-spacing: 0.04em;
+    }
+    .theme-seg {
+      display: inline-flex;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: 4px; padding: 2px; flex-shrink: 0;
+    }
+    .theme-seg button {
+      padding: 6px 10px; border: 0; background: transparent;
+      font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.04em; color: var(--muted);
+      border-radius: 3px; cursor: pointer;
+      display: flex; align-items: center; gap: 5px;
+      transition: color 0.15s ease;
+    }
+    .theme-seg button.active {
+      background: var(--surface); color: var(--fg);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    }
+    .theme-seg button:hover:not(.active) { color: var(--fg-2); }
+    .theme-seg button svg { width: 11px; height: 11px; }
+
+    /* Bottom tabs */
+    .tabs {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 78px; background: rgba(255,255,255,0.86);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; padding: 6px 8px 22px;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px; color: var(--muted);
+      font-size: 10px; font-weight: 500; letter-spacing: -0.005em;
+    }
+    .tab.active { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; stroke-width: 1.6; }
+    .tab .badge {
+      position: absolute; top: 4px; right: calc(50% - 22px);
+      font-family: var(--font-mono); font-size: 8px; font-weight: 700;
+      padding: 1px 4px; border-radius: 6px; min-width: 14px; text-align: center;
+      background: var(--accent); color: var(--accent-fg);
+    }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status">
+        <div>9:41</div>
+        <div class="status-right">
+          <span class="icon icon-signal"></span>
+          <span class="icon icon-wifi"></span>
+          <span class="icon icon-battery"></span>
+        </div>
+      </div>
+
+      <div class="app">
+
+        <!-- Page header: avatar + name + role + settings -->
+        <div class="page-head">
+          <div class="avatar">LZ</div>
+          <div class="who">
+            <div class="name">林哲 · Z. Lin</div>
+            <div class="meta">
+              <span>研究员</span>
+              <span class="dot"></span>
+              <span class="role">PRO · 2025 级</span>
+              <span class="dot"></span>
+              <span>ID 88421</span>
+            </div>
+          </div>
+          <a class="head-icon" href="#" aria-label="设置">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+            </svg>
+          </a>
+        </div>
+
+        <!-- 订阅状态 — 主卡：个人专业版 -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="ttl">订阅状态</div>
+            <a class="more" href="subscription.html">查看方案
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+          </div>
+
+          <div class="sub-hero">
+            <div class="top-row">
+              <span class="tier-badge pro">
+                <svg class="star" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8 5.8 21.3l2.4-7.4L2 9.4h7.6z"/></svg>
+                PRO
+              </span>
+              <span class="tier-sub">自 2025-06-14 起 · 自动续费</span>
+            </div>
+            <div class="tier-name">专业版</div>
+            <div class="tier-sub">¥1,999 / 年 · 1,240+ 银行 · 全报告 · 实时数据</div>
+
+            <div class="days">
+              <span class="big num">23</span>
+              <span class="unit">天后到期</span>
+              <span class="expires">2026-07-07 续费</span>
+            </div>
+            <div class="progress" aria-label="订阅周期进度">
+              <div class="bar warn" style="width: 87.5%"></div>
+            </div>
+
+            <div class="actions">
+              <a class="btn btn-primary" href="subscription.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+                升级机构版
+              </a>
+              <a class="btn btn-secondary" href="#">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16M3 21v-5h5"/></svg>
+                续费
+              </a>
+            </div>
+          </div>
+
+          <!-- Team license sub-card -->
+          <div style="height: 8px"></div>
+          <a class="sub-team" href="subscription.html">
+            <div class="ic-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="body">
+              <div class="lbl">团队管理 · 国君固收组</div>
+              <div class="line">
+                <span class="tier">机构版</span>
+                <span class="seats">
+                  <span class="used">8</span><span class="slash">/</span><span class="total">10</span>
+                </span>
+              </div>
+              <div class="ctx">2 席位待分配 · 2026-09-12 到期</div>
+            </div>
+            <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+          </a>
+        </div>
+
+        <!-- 自选银行 -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="ttl">自选银行 · 06</div>
+            <a class="more" href="#">管理
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+          </div>
+
+          <div class="watchlist">
+            <!-- 工行 -->
+            <a class="watch-tile" href="banks/detail.html">
+              <div class="tk-row">
+                <span class="tk" style="background: oklch(38% 0.16 25)">IC</span>
+                <span class="nm">工商银行</span>
+              </div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline points="0,18 14,16 28,17 42,12 56,14 70,10 84,12 100,9" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+                <circle cx="100" cy="9" r="1.6" fill="var(--accent)"/>
+              </svg>
+              <div class="stats">
+                <span class="metric">NIM</span>
+                <span class="val">1.43</span>
+                <span class="delta down">▼3bp</span>
+              </div>
+            </a>
+
+            <!-- 建行 -->
+            <a class="watch-tile" href="banks/detail.html">
+              <div class="tk-row">
+                <span class="tk" style="background: oklch(45% 0.14 255)">CC</span>
+                <span class="nm">建设银行</span>
+              </div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline points="0,20 14,18 28,19 42,15 56,16 70,13 84,14 100,11" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+                <circle cx="100" cy="11" r="1.6" fill="var(--accent)"/>
+              </svg>
+              <div class="stats">
+                <span class="metric">NIM</span>
+                <span class="val">1.51</span>
+                <span class="delta down">▼2bp</span>
+              </div>
+            </a>
+
+            <!-- 招行 -->
+            <a class="watch-tile" href="banks/detail.html">
+              <div class="tk-row">
+                <span class="tk" style="background: oklch(55% 0.16 15)">CMB</span>
+                <span class="nm">招商银行</span>
+              </div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline points="0,12 14,11 28,13 42,9 56,10 70,7 84,8 100,5" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+                <circle cx="100" cy="5" r="1.6" fill="var(--accent)"/>
+              </svg>
+              <div class="stats">
+                <span class="metric">NIM</span>
+                <span class="val">1.92</span>
+                <span class="delta up">▲4bp</span>
+              </div>
+            </a>
+
+            <!-- 农行 -->
+            <a class="watch-tile" href="banks/detail.html">
+              <div class="tk-row">
+                <span class="tk" style="background: oklch(48% 0.13 145)">ABC</span>
+                <span class="nm">农业银行</span>
+              </div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline points="0,19 14,17 28,18 42,14 56,16 70,12 84,13 100,10" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+                <circle cx="100" cy="10" r="1.6" fill="var(--accent)"/>
+              </svg>
+              <div class="stats">
+                <span class="metric">NIM</span>
+                <span class="val">1.46</span>
+                <span class="delta down">▼2bp</span>
+              </div>
+            </a>
+
+            <!-- 中行 -->
+            <a class="watch-tile" href="banks/detail.html">
+              <div class="tk-row">
+                <span class="tk" style="background: oklch(45% 0.12 220)">BOC</span>
+                <span class="nm">中国银行</span>
+              </div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline points="0,17 14,15 28,16 42,13 56,14 70,11 84,12 100,9" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+                <circle cx="100" cy="9" r="1.6" fill="var(--accent)"/>
+              </svg>
+              <div class="stats">
+                <span class="metric">NIM</span>
+                <span class="val">1.41</span>
+                <span class="delta down">▼3bp</span>
+              </div>
+            </a>
+
+            <!-- 兴业 -->
+            <a class="watch-tile" href="banks/detail.html">
+              <div class="tk-row">
+                <span class="tk" style="background: oklch(50% 0.14 200)">CIB</span>
+                <span class="nm">兴业银行</span>
+              </div>
+              <svg class="spark" viewBox="0 0 100 28" preserveAspectRatio="none">
+                <polyline points="0,16 14,14 28,15 42,12 56,13 70,10 84,11 100,8" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+                <circle cx="100" cy="8" r="1.6" fill="var(--accent)"/>
+              </svg>
+              <div class="stats">
+                <span class="metric">NIM</span>
+                <span class="val">1.66</span>
+                <span class="delta up">▲1bp</span>
+              </div>
+            </a>
+
+            <!-- 添加 -->
+            <a class="watch-tile add" href="banks/list.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              添加
+            </a>
+          </div>
+        </div>
+
+        <!-- 数据用量 -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="ttl">数据用量</div>
+            <a class="more" href="#">明细
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+          </div>
+          <div class="usage">
+            <div class="h">
+              <span class="lbl">本月报告下载 · 6 大行 6 城商</span>
+              <span class="pct">22 / 30</span>
+            </div>
+            <div class="progress">
+              <div class="bar" style="width: 73%"></div>
+            </div>
+            <div class="grid">
+              <div class="col">
+                <div class="k">下载次数</div>
+                <div class="v">22<span class="u">/30</span></div>
+                <div class="delta up">▲4 WoW</div>
+              </div>
+              <div class="col">
+                <div class="k">API 调用</div>
+                <div class="v">8.4k<span class="u">/10k</span></div>
+                <div class="delta down">▼12%</div>
+              </div>
+              <div class="col">
+                <div class="k">剩余天数</div>
+                <div class="v">23<span class="u">d</span></div>
+                <div class="delta">同步续费</div>
+              </div>
+            </div>
+            <a class="upgrade" href="subscription.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              73% 已用 · 升档到 60 份/月 解锁跨境 + 衍生品维度
+            </a>
+          </div>
+        </div>
+
+        <!-- 提醒中心 -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="ttl">提醒 · 03</div>
+            <a class="more" href="#">全部
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+          </div>
+          <div class="alerts">
+            <a class="alert" href="#">
+              <div class="ic evt">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">工行 25Q1 业绩发布会 · 4 月 30 日 16:00</div>
+                <div class="meta">
+                  <span>事件</span><span class="dot"></span>
+                  <span class="hl">距今 2 天</span>
+                </div>
+              </div>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+            <a class="alert" href="#">
+              <div class="ic warn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">建行 不良率突破 1.52% · 关注类 +18bp</div>
+                <div class="meta">
+                  <span>告警</span><span class="dot"></span>
+                  <span class="hl">3 分钟前</span><span class="dot"></span>
+                  <span>来自 资产质量 tab</span>
+                </div>
+              </div>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+            <a class="alert" href="#">
+              <div class="ic rpt">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">《2025Q1 商业银行 NIM 归因专题》已发布</div>
+                <div class="meta">
+                  <span>研报推送</span><span class="dot"></span>
+                  <span class="hl">PRO 专享</span><span class="dot"></span>
+                  <span>¥58 / 试读 30%</span>
+                </div>
+              </div>
+              <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- 收藏 / 笔记 / 关注 / 设置 -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="ttl">工作区</div>
+          </div>
+          <div class="list">
+            <a class="list-row" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">我的收藏</div>
+                <div class="sub">42 篇报告 · 18 银行</div>
+              </div>
+              <div class="right">
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </div>
+            </a>
+            <a class="list-row" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">研究笔记</div>
+                <div class="sub">127 条 · 4 标签</div>
+              </div>
+              <div class="right">
+                <span class="badge acc">NEW</span>
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </div>
+            </a>
+            <a class="list-row" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">关注的指标</div>
+                <div class="sub">NIM · ROE · 不良率 · CET1</div>
+              </div>
+              <div class="right">
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </div>
+            </a>
+            <a class="list-row" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">数据导出记录</div>
+                <div class="sub">最近 30 天 · 22 份 CSV</div>
+              </div>
+              <div class="right">
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </div>
+            </a>
+            <a class="list-row" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01"/></svg>
+              </div>
+              <div class="body">
+                <div class="ttl">帮助与反馈</div>
+                <div class="sub">常见问题 · 联系客服 · API 文档</div>
+              </div>
+              <div class="right">
+                <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <!-- 外观 · 主题 -->
+        <div class="sec">
+          <div class="sec-h">
+            <div class="ttl">外观 · 主题</div>
+            <span class="more">全站生效</span>
+          </div>
+          <div class="list">
+            <div class="theme-row">
+              <div class="body">
+                <div class="ttl">界面主题</div>
+                <div class="sub">深色默认 · 适合长时段盯盘 · 浅色适合截图分享</div>
+              </div>
+              <div class="theme-seg" role="tablist" aria-label="主题选择">
+                <button type="button" id="theme-dark" aria-label="深色主题">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <path d="M12.5 9.5A5 5 0 0 1 6.5 3.5a5 5 0 1 0 6 6z" fill="currentColor"/>
+                  </svg>
+                  深色
+                </button>
+                <button type="button" id="theme-light" aria-label="浅色主题">
+                  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                    <circle cx="8" cy="8" r="2.8"/>
+                    <path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>
+                  </svg>
+                  浅色
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom tabs -->
+      <nav class="tabs">
+        <a class="tab" href="home.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>首页</span>
+        </a>
+        <a class="tab" href="banks/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+          </svg>
+          <span>银行</span>
+        </a>
+        <a class="tab" href="reports/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>报告</span>
+        </a>
+        <a class="tab active" href="my.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+          </svg>
+          <span>我的</span>
+        </a>
+      </nav>
+    </div>
+  </div>
+  <script>
+    // Global theme switcher (mobile-my.html is the canonical toggle surface;
+    // all pages read localStorage and apply on load via this same IIFE)
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      var btnDark = document.getElementById('theme-dark');
+      var btnLight = document.getElementById('theme-light');
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        if (btnDark) btnDark.classList.toggle('active', theme === 'dark');
+        if (btnLight) btnLight.classList.toggle('active', theme === 'light');
+      }
+      function setTheme(t) {
+        try { localStorage.setItem(KEY, t); } catch (e) {}
+        apply(t);
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      if (btnDark) btnDark.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation(); setTheme('dark');
+      });
+      if (btnLight) btnLight.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation(); setTheme('light');
+      });
+    })();
+  </script>
+</body>
+</html>

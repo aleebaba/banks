@@ -1,0 +1,1330 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>银图 Atlas · 首页</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --surface-warm: #1a2438;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --muted: #8492a6;
+      --border: #263246;
+      --border-soft: #1c2638;
+      --accent: #38bdf8;
+      --accent-on: #03111a;
+      --success: #22c55e;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --up: #ef4444;
+      --down: #22c55e;
+      --font-display: Inter, system-ui, -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+      --font-mono: 'Roboto Mono', 'SF Mono', ui-monospace, Menlo, monospace;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --surface-warm: #f0f3f7;
+      --fg: #0f172a;
+      --fg-2: #475569;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --accent: #0284c7;
+      --accent-on: #ffffff;
+      --success: #16a34a;
+      --warn: #d97706;
+      --danger: #dc2626;
+      --up: #dc2626;
+      --down: #16a34a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); min-height: 100vh; display: grid; place-items: center; }
+    body {
+      font-family: var(--font-display);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; font-family: var(--font-mono); }
+    a { color: inherit; text-decoration: none; }
+
+    /* iPhone frame */
+    .device {
+      width: 393px; height: 852px; background: #0a0d14; border-radius: 50px;
+      padding: 12px; position: relative;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1.5px #263246;
+    }
+    .device::before {
+      content: ''; position: absolute; top: 18px; left: 50%; transform: translateX(-50%);
+      width: 110px; height: 32px; background: #070b12; border-radius: 20px; z-index: 10;
+    }
+    .device::after {
+      content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 134px; height: 5px; background: rgba(248,250,252,0.55); border-radius: 5px; z-index: 10;
+    }
+    .screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 38px;
+      overflow: hidden; position: relative; display: flex; flex-direction: column;
+    }
+
+    /* Status bar */
+    .status {
+      height: 54px; padding: 16px 28px 0;
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 15px; font-weight: 600;
+      letter-spacing: -0.01em; color: var(--fg);
+    }
+    .status-right { display: flex; align-items: center; gap: 6px; }
+    .icon { width: 16px; height: 16px; display: inline-block; }
+    .icon-signal { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect x='2' y='11' width='2.5' height='4' rx='0.5' fill='black'/><rect x='6' y='8' width='2.5' height='7' rx='0.5' fill='black'/><rect x='10' y='5' width='2.5' height='10' rx='0.5' fill='black'/><rect x='14' y='2' width='2.5' height='13' rx='0.5' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-wifi { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M8 11.5l1.5 1.5a2 2 0 0 1-3 0zM3 7a7 7 0 0 1 10 0l-1.4 1.4a5 5 0 0 0-7.2 0zM1 5a10 10 0 0 1 14 0l-1.4 1.4a8 8 0 0 0-11.2 0z' fill='black'/></svg>") no-repeat center / contain; }
+    .icon-battery { background: currentColor; -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'><rect x='0.5' y='0.5' width='20' height='15' rx='3' stroke='black' stroke-width='1' fill='none'/><rect x='22' y='5' width='2' height='6' rx='1' fill='black'/><rect x='2' y='2' width='17' height='12' rx='2' fill='black'/></svg>") no-repeat center / contain; }
+
+    /* App content */
+    .app { flex: 1; overflow-y: auto; padding: 8px 0 110px; background: var(--bg); }
+    .app::-webkit-scrollbar { display: none; }
+
+    .nav {
+      padding: 4px 20px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .greeting { font-size: 13px; color: var(--muted); letter-spacing: -0.005em; font-family: var(--font-mono); }
+    .greeting strong { color: var(--fg); font-weight: 500; }
+    .nav-right { display: flex; gap: 8px; }
+    .nav-btn {
+      width: 32px; height: 32px;
+      background: var(--surface); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--fg-2);
+    }
+    .nav-btn svg { width: 16px; height: 16px; }
+
+    .search {
+      margin: 4px 20px 20px;
+      height: 38px; background: var(--surface);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+      padding: 0 12px; color: var(--muted);
+    }
+    .search svg { width: 14px; height: 14px; }
+    .search input {
+      border: 0; background: transparent; outline: 0; flex: 1;
+      font: inherit; color: var(--fg); font-size: 14px;
+    }
+    .search input::placeholder { color: var(--muted); }
+    .search .kbd {
+      font: 10px/1 var(--font-mono); color: var(--muted);
+      border: 1px solid var(--border); padding: 3px 5px;
+    }
+
+    .section { padding: 0 20px 24px; }
+    .sec-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .sec-head h2 {
+      font-family: var(--font-display); font-size: 13px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; color: var(--fg);
+    }
+    .sec-head .meta {
+      font-family: var(--font-mono); font-size: 11px;
+      color: var(--muted); letter-spacing: 0.04em;
+    }
+    .sec-head .meta:hover { color: var(--accent); }
+    .sec-head .meta strong { color: var(--accent); font-weight: 500; }
+
+    /* Featured report hero card — elevated dark surface with cyan accent bar */
+    .feature {
+      background: var(--surface-warm);
+      color: var(--fg);
+      padding: 16px 18px 18px;
+      position: relative; overflow: hidden;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+    }
+    .feature::before {
+      content: ''; position: absolute; right: -50px; top: -50px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 70%);
+    }
+    .feature .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      padding: 4px 8px;
+      background: rgba(56,189,248,0.12); color: var(--accent);
+      border: 1px solid rgba(56,189,248,0.3);
+      margin-bottom: 14px;
+    }
+    .feature .tag::before { content: ''; width: 5px; height: 5px; background: var(--accent); }
+    .feature .h {
+      font-family: var(--font-display); font-size: 21px; line-height: 1.28;
+      font-weight: 600; letter-spacing: -0.012em; margin-bottom: 10px;
+      color: var(--fg);
+    }
+    .feature .lede {
+      font-size: 13px; line-height: 1.55; color: var(--fg-2);
+      margin-bottom: 16px; max-width: 280px;
+    }
+    .feature .row { display: flex; align-items: center; justify-content: space-between; }
+    .feature .author { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); font-family: var(--font-mono); }
+    .feature .author .av {
+      width: 22px; height: 22px;
+      background: linear-gradient(135deg, #38bdf8, #22d3ee);
+    }
+    .feature .cta {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 600; color: var(--accent-on);
+      background: var(--accent); padding: 7px 12px;
+      font-family: var(--font-mono); letter-spacing: 0.04em;
+    }
+    .feature .cta svg { width: 10px; height: 10px; }
+
+    /* Snapshot strip — 3 columns of market data */
+    .snap {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+    .snap > div { padding: 12px 14px; }
+    .snap > div + div { border-left: 1px solid var(--border-soft); }
+    .snap .k {
+      font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+    }
+    .snap .v { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; color: var(--fg); font-family: var(--font-mono); }
+    .snap .d { font-size: 11px; margin-top: 2px; font-weight: 500; font-family: var(--font-mono); }
+    .up { color: var(--up); }
+    .down { color: var(--down); }
+    .up::before { content: '▲ '; }
+    .down::before { content: '▼ '; }
+
+    /* Data coverage stats row (between search and data section) */
+    .stats {
+      margin: 8px 20px 0;
+      display: grid; grid-template-columns: 1fr 1px 1fr 1px 1fr;
+      padding: 14px 4px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .stats > div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .stats .stats-num {
+      font-family: var(--font-mono);
+      font-size: 20px; font-weight: 600;
+      letter-spacing: -0.01em; color: var(--fg);
+      line-height: 1;
+      display: inline-flex; align-items: baseline;
+    }
+    .stats .stats-num .plus {
+      color: var(--accent); font-weight: 500; font-size: 13px;
+      margin-left: 1px;
+    }
+    .stats .stats-lbl {
+      font-size: 10px; color: var(--muted);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      font-family: var(--font-mono);
+    }
+    .stats .stats-sep { background: var(--border); align-self: stretch; width: 1px; }
+
+    /* What's new hero (between stats and data section) */
+    .whats-new {
+      margin: 8px 20px 0;
+      padding: 14px 16px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--accent);
+    }
+    .whats-new-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .whats-new-kicker {
+      font: 600 12px/1 var(--font-mono);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--accent);
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .whats-new-kicker::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--accent);
+    }
+    .whats-new-date {
+      font: 500 10px/1 var(--font-mono);
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+    .whats-new-list {
+      display: flex; flex-direction: column;
+    }
+    .whats-new-list li {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 0;
+      border-top: 1px solid var(--border-soft);
+      font-size: 13px; line-height: 1.4;
+      color: var(--fg-2);
+      letter-spacing: -0.003em;
+    }
+    .whats-new-list li:first-child { border-top: none; padding-top: 2px; }
+    .whats-new-list li:last-child { padding-bottom: 2px; }
+    .whats-new-cat {
+      font: 600 9px/1 var(--font-mono);
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      padding: 4px 6px;
+      border: 1px solid var(--accent);
+      flex-shrink: 0;
+      min-width: 34px;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .whats-new-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .whats-new-all {
+      display: inline-block;
+      margin-top: 8px;
+      font: 500 11px/1 var(--font-mono);
+      color: var(--accent);
+      letter-spacing: 0.04em;
+    }
+    .whats-new-all:hover { color: var(--fg); }
+
+    /* Data topics: 2x4 grid */
+    .dim-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .dim-grid .dim {
+      background: var(--surface);
+      width: auto; flex-shrink: 1; height: 86px;
+      padding: 10px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .dim-grid .dim:hover { background: var(--surface-2); }
+    .dim-grid .dim .ic {
+      width: 26px; height: 26px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center; color: var(--accent);
+    }
+    .dim-grid .dim .ic svg { width: 14px; height: 14px; stroke-width: 1.5; }
+    .dim-grid .dim .lbl {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+      line-height: 1.2; color: var(--fg);
+    }
+
+    /* Banks module: 4 favorite bank cards (2x2) + 3 hot this week */
+    .banks-fav-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .bank-fav {
+      background: var(--surface);
+      padding: 12px 12px 10px;
+      display: flex; flex-direction: column; gap: 10px;
+      color: var(--fg);
+    }
+    .bank-fav:hover { background: var(--surface-2); }
+    .bank-fav-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .bank-fav-logo {
+      width: 22px; height: 22px;
+      background: var(--surface-2); border: 1px solid var(--border);
+      display: grid; place-items: center;
+      font: 600 11px/1 var(--font-mono);
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+    .bank-fav-name {
+      font-size: 12px; font-weight: 600;
+      color: var(--fg); letter-spacing: -0.003em;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .bank-fav-pill {
+      font: 500 9px/1 var(--font-mono);
+      padding: 2px 4px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+    .bank-fav-pill.gold { color: var(--accent); border-color: var(--accent); }
+    .bank-fav-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .bank-fav-k {
+      font: 600 9px/1 var(--font-mono);
+      color: var(--muted); letter-spacing: 0.06em;
+      margin-bottom: 3px;
+    }
+    .bank-fav-v {
+      font: 600 13px/1 var(--font-mono);
+      color: var(--fg); letter-spacing: -0.005em;
+    }
+    .bank-fav-v .u { color: var(--muted); font-weight: 500; font-size: 9px; margin-left: 1px; }
+    .bank-fav-spark { width: 100%; height: 18px; display: block; }
+    .bank-fav-spark path { fill: none; stroke-width: 1.2; }
+    .bank-fav-spark path.up { stroke: var(--up); }
+    .bank-fav-spark path.down { stroke: var(--down); }
+
+    .banks-hot { margin-top: 12px; border: 1px solid var(--border); background: var(--surface); }
+    .banks-hot-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      padding: 10px 12px 8px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .banks-hot-kicker {
+      font: 600 10px/1 var(--font-mono);
+      color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .banks-hot-asof {
+      font: 500 9px/1 var(--font-mono);
+      color: var(--muted); letter-spacing: 0.04em;
+    }
+    .banks-hot-list { display: flex; flex-direction: column; }
+    .banks-hot-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--border-soft);
+      font-size: 12px; color: var(--fg-2);
+    }
+    .banks-hot-item:first-child { border-top: 0; }
+    .banks-hot-item:hover { background: var(--surface-2); }
+    .banks-hot-rank {
+      font: 600 10px/1 var(--font-mono);
+      color: var(--muted); width: 16px; flex-shrink: 0;
+    }
+    .banks-hot-name { font-weight: 600; color: var(--fg); }
+    .banks-hot-delta {
+      margin-left: auto;
+      font: 500 11px/1 var(--font-mono);
+      letter-spacing: -0.005em;
+    }
+
+    /* Toolbox: 2 tool list rows */
+    .toolbox {
+      display: flex; flex-direction: column; gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+    }
+    .toolbox .tool-item {
+      background: var(--surface); padding: 14px 14px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .toolbox .tool-item:hover { background: var(--surface-2); }
+    .toolbox .tool-icon {
+      width: 38px; height: 38px;
+      background: var(--accent); color: var(--accent-on);
+      display: grid; place-items: center; flex-shrink: 0;
+    }
+    .toolbox .tool-icon svg { width: 18px; height: 18px; stroke-width: 1.6; }
+    .toolbox .tool-mid { flex: 1; min-width: 0; }
+    .toolbox .tool-name {
+      font-size: 14px; font-weight: 600; letter-spacing: -0.005em;
+      display: flex; align-items: center; gap: 8px; color: var(--fg);
+    }
+    .toolbox .tool-name .soon {
+      font-family: var(--font-mono); font-size: 9px; padding: 1px 5px;
+      background: var(--surface-2); color: var(--muted);
+      letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600;
+      border: 1px solid var(--border);
+    }
+    .toolbox .tool-desc {
+      font-size: 11px; color: var(--muted); letter-spacing: 0;
+      margin-top: 3px; line-height: 1.4; font-family: var(--font-mono);
+    }
+    .toolbox .tool-arrow { color: var(--accent); flex-shrink: 0; display: grid; place-items: center; }
+    .toolbox .tool-arrow svg { width: 14px; height: 14px; stroke-width: 1.6; }
+
+    /* Reports: segmented tab control + 3 panes (one visible at a time) */
+    .reports .reports-tabs {
+      display: flex; gap: 0;
+      background: var(--surface); border: 1px solid var(--border);
+      margin: 24px 0 14px;
+    }
+    .reports .reports-tab {
+      flex: 1; display: inline-flex; align-items: center; justify-content: center;
+      gap: 6px; padding: 9px 8px;
+      border: 0; background: transparent;
+      cursor: pointer;
+      font: 500 11px/1 var(--font-mono);
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--muted);
+      border-right: 1px solid var(--border);
+      transition: background 0.15s, color 0.15s;
+    }
+    .reports .reports-tab:last-child { border-right: 0; }
+    .reports .reports-tab:hover { color: var(--fg); }
+    .reports .reports-tab.active {
+      background: var(--accent); color: var(--accent-on);
+    }
+    .reports .reports-pane { display: none; }
+    .reports .reports-pane.active { display: block; }
+    .reports .report-list { display: flex; flex-direction: column; }
+    .reports .report-item {
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 14px 0; border-bottom: 1px solid var(--border-soft);
+      color: var(--fg);
+    }
+    .reports .report-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .reports .report-item:first-child { padding-top: 0; }
+    .reports .report-item:hover .report-item-title { color: var(--accent); }
+    .reports .report-item-head {
+      display: flex; align-items: center; justify-content: space-between;
+      font-family: var(--font-mono); font-size: 10px;
+      letter-spacing: 0.04em; color: var(--muted);
+    }
+    .reports .report-item-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .reports .report-item-tag .tg {
+      padding: 2px 6px; border: 1px solid var(--border); color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      font-size: 9px; font-weight: 600;
+    }
+    .reports .report-item-tag .t {
+      padding: 2px 6px; background: var(--accent); color: var(--accent-on);
+      font-size: 9px; font-weight: 600; letter-spacing: 0.08em;
+    }
+    .reports .report-item-meta { color: var(--muted); }
+    .reports .report-item-meta .num { color: var(--fg); font-weight: 600; }
+    .reports .report-item-meta .en {
+      font-family: var(--font-mono); font-size: 9px; color: var(--muted);
+      margin-left: 2px;
+    }
+    .reports .report-item-title {
+      font-family: var(--font-display); font-size: 14px; font-weight: 600;
+      letter-spacing: -0.005em; line-height: 1.35; color: var(--fg);
+      transition: color 0.15s;
+    }
+
+    /* Tab bar — dark glass */
+    .tabs {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      height: 78px; background: rgba(7,11,18,0.86);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      display: flex; padding: 6px 8px 22px;
+    }
+    .tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      justify-content: center; gap: 3px; color: var(--muted);
+      font-size: 10px; font-weight: 500; letter-spacing: 0.02em;
+    }
+    .tab.active { color: var(--accent); }
+    .tab svg { width: 22px; height: 22px; stroke-width: 1.6; }
+
+    /* Help system: Tier 1 inline ? icon + popover */
+    .help-i {
+      display: inline-grid; place-items: center;
+      width: 13px; height: 13px;
+      border: 1px solid var(--border-strong);
+      border-radius: 50%;
+      font: 600 9px/1 var(--font-mono);
+      color: var(--muted);
+      cursor: help;
+      vertical-align: middle;
+      margin-left: 6px;
+      position: relative;
+      transition: color 0.15s, border-color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .help-i:hover, .help-i.open { color: var(--accent); border-color: var(--accent); }
+    .help-pop {
+      position: absolute;
+      z-index: 50;
+      background: var(--surface-warm);
+      border: 1px solid var(--border-strong);
+      padding: 12px 14px;
+      width: 280px;
+      display: none;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    }
+    .help-pop.show { display: block; }
+    .help-pop .pop-title {
+      font: 600 12px/1.2 var(--font-display);
+      color: var(--fg); margin-bottom: 10px;
+      letter-spacing: -0.005em;
+    }
+    .help-pop dl { display: grid; grid-template-columns: 68px 1fr; gap: 6px 10px; margin: 0; }
+    .help-pop dt {
+      font: 600 10px/1.4 var(--font-mono);
+      color: var(--accent); letter-spacing: 0.04em;
+      margin: 0;
+    }
+    .help-pop dd { margin: 0; color: var(--fg-2); font-size: 11.5px; line-height: 1.5; letter-spacing: -0.003em; }
+
+    /* Help system: Tier 2 platform conventions bottom sheet */
+    .sheet-mask {
+      position: absolute; inset: 0;
+      background: rgba(7,11,18,0.6);
+      z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .sheet-mask.show { opacity: 1; pointer-events: auto; }
+    .sheet {
+      position: absolute; left: 0; right: 0; bottom: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border-strong);
+      padding: 18px 20px 24px;
+      max-height: 75%;
+      overflow-y: auto;
+      z-index: 201;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1);
+    }
+    .sheet.show { transform: translateY(0); }
+    .sheet-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .sheet-title {
+      font: 600 14px/1 var(--font-display);
+      letter-spacing: -0.005em; color: var(--fg);
+    }
+    .sheet-close {
+      width: 28px; height: 28px;
+      background: transparent;
+      border: 1px solid var(--border);
+      display: grid; place-items: center;
+      color: var(--muted); cursor: pointer;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sheet-close:hover { color: var(--fg); border-color: var(--border-strong); }
+    .sheet-close svg { width: 12px; height: 12px; }
+    .sheet-section { margin-bottom: 14px; }
+    .sheet-section:last-child { margin-bottom: 0; }
+    .sect-tag {
+      font: 600 9px/1 var(--font-mono);
+      color: var(--accent); letter-spacing: 0.1em;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .sheet-row {
+      display: grid; grid-template-columns: 88px 1fr;
+      gap: 10px; padding: 7px 0;
+      border-top: 1px solid var(--border-soft);
+      font-size: 12px; line-height: 1.5;
+    }
+    .sheet-row:first-child { border-top: 0; padding-top: 2px; }
+    .sheet-row .k {
+      font: 500 10px/1.5 var(--font-mono);
+      color: var(--muted); letter-spacing: 0.04em;
+    }
+    .sheet-row .v { color: var(--fg-2); letter-spacing: -0.003em; }
+    .sheet-row .v code {
+      font: 500 10px/1.4 var(--font-mono);
+      color: var(--fg);
+      background: var(--surface-2);
+      padding: 1px 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="device">
+    <div class="screen">
+      <div class="status">
+        <div>9:41</div>
+        <div class="status-right">
+          <span class="icon icon-signal"></span>
+          <span class="icon icon-wifi"></span>
+          <span class="icon icon-battery"></span>
+        </div>
+      </div>
+
+      <div class="app">
+        <div class="nav">
+          <div>
+            <div class="greeting">下午好 · <strong>陈研究员</strong></div>
+          </div>
+          <div class="nav-right">
+            <a class="nav-btn" href="#" aria-label="通知">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M3 6a5 5 0 0 1 10 0v3l1.5 2.5h-13L3 9z"/>
+                <path d="M6.5 13.5a1.5 1.5 0 0 0 3 0"/>
+              </svg>
+            </a>
+            <a class="nav-btn" href="#" aria-label="说明" id="help-trigger">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="8" cy="8" r="6.5"/>
+                <path d="M6.2 6.2c0-1 .8-1.8 1.8-1.8s1.8.8 1.8 1.8c0 .7-.4 1.2-1 1.5-.5.3-.8.6-.8 1.1"/>
+                <circle cx="8" cy="11.5" r="0.6" fill="currentColor"/>
+              </svg>
+            </a>
+            <a class="nav-btn" href="#" aria-label="账户">
+              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+                <circle cx="8" cy="6" r="2.5"/>
+                <path d="M3 13.5c0-2 2.2-3.5 5-3.5s5 1.5 5 3.5"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="search">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="7" cy="7" r="4.5"/>
+            <path d="m14 14-3.5-3.5"/>
+          </svg>
+          <input type="text" placeholder="搜索银行、监管机构、报告" />
+          <span class="kbd">⌘K</span>
+        </div>
+
+        <!-- Data coverage stats (highlights scale of the data set) -->
+        <div class="stats" aria-label="数据覆盖统计">
+          <div>
+            <span class="stats-num">1,240<span class="plus">+</span></span>
+            <span class="stats-lbl">家银行</span>
+          </div>
+          <div class="stats-sep" aria-hidden="true"></div>
+          <div>
+            <span class="stats-num">38</span>
+            <span class="stats-lbl">数据专题</span>
+          </div>
+          <div class="stats-sep" aria-hidden="true"></div>
+          <div>
+            <span class="stats-num">320<span class="plus">+</span></span>
+            <span class="stats-lbl">指标项</span>
+          </div>
+        </div>
+
+        <!-- What's new hero: this week's updates across data / tools / reports -->
+        <section class="whats-new" aria-label="本周新增">
+          <header class="whats-new-head">
+            <span class="whats-new-kicker">本周新增</span>
+            <span class="whats-new-date">06.09 – 06.13</span>
+          </header>
+          <ul class="whats-new-list">
+            <li>
+              <span class="whats-new-cat">数据</span>
+              <span class="whats-new-text">5 项监管专题 · 覆盖 G-SIB 资本要求与 TLAC 缺口</span>
+            </li>
+            <li>
+              <span class="whats-new-cat">工具</span>
+              <span class="whats-new-text">同业对标新增 5Y / MAX 多窗口对比</span>
+            </li>
+            <li>
+              <span class="whats-new-cat">报告</span>
+              <span class="whats-new-text">美联储 6 月议息专题 · 降息路径推演</span>
+            </li>
+          </ul>
+          <a class="whats-new-all" href="#">查看全部 →</a>
+        </section>
+
+        <!-- Data topics: 2x4 grid, 8 categories incl. 监管 (open-ended: 全部 38 项) -->
+        <div class="section">
+          <div class="sec-head">
+            <h2>数据 / Data</h2>
+            <a class="meta" href="#">更多数据 →</a>
+          </div>
+          <div class="dim-grid">
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                  <rect x="2.5" y="3" width="4.5" height="10"/>
+                  <rect x="9" y="6" width="4.5" height="7"/>
+                  <line x1="1.5" y1="13.5" x2="14.5" y2="13.5"/>
+                </svg>
+              </div>
+              <div class="lbl">资负结构</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                  <circle cx="5" cy="5" r="1.8"/>
+                  <circle cx="11" cy="11" r="1.8"/>
+                  <line x1="13.5" y1="2.5" x2="2.5" y2="13.5"/>
+                </svg>
+              </div>
+              <div class="lbl">资负价格</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round">
+                  <path d="M 8 1.8 C 5.5 5.2 4 7.5 4 10.2 A 4 4 0 0 0 12 10.2 C 12 7.5 10.5 5.2 8 1.8 Z"/>
+                  <path d="M 6 9.5 C 6 11 6.8 12 8 12" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div class="lbl">流动性</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                  <path d="M 2.8 7 A 5.2 5.2 0 0 1 13 5.5"/>
+                  <polyline points="9.8,2.2 13,5.5 9.5,7.4"/>
+                  <path d="M 13.2 9 A 5.2 5.2 0 0 1 3 10.5"/>
+                  <polyline points="6.2,13.8 3,10.5 6.5,8.6"/>
+                </svg>
+              </div>
+              <div class="lbl">重定价</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="square">
+                  <path d="M 8 1.8 L 2.8 3.8 V 8.4 C 2.8 11.2 5 13.4 8 14.4 C 11 13.4 13.2 11.2 13.2 8.4 V 3.8 Z"/>
+                  <polyline points="5.4,8 7.2,9.8 10.8,5.8" stroke-linecap="square"/>
+                </svg>
+              </div>
+              <div class="lbl">资产质量</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square">
+                  <rect x="2" y="3" width="12" height="2.2"/>
+                  <rect x="2" y="6.9" width="9" height="2.2"/>
+                  <rect x="2" y="10.8" width="5.5" height="2.2"/>
+                </svg>
+              </div>
+              <div class="lbl">资本专题</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round">
+                  <circle cx="8" cy="8" r="5.2"/>
+                  <path d="M 8 2.8 A 5.2 5.2 0 0 1 12.7 6.4 L 8 8 Z" fill="currentColor" stroke="none" opacity="0.35"/>
+                  <line x1="8" y1="8" x2="8" y2="2.8"/>
+                  <line x1="8" y1="8" x2="12.7" y2="6.4"/>
+                </svg>
+              </div>
+              <div class="lbl">利润专题</div>
+            </a>
+            <a class="dim" href="#">
+              <div class="ic">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="square" stroke-linejoin="round">
+                  <line x1="8" y1="1.8" x2="8" y2="14.2"/>
+                  <line x1="2.5" y1="3.8" x2="13.5" y2="3.8"/>
+                  <path d="M 2.5 3.8 L 0.8 7.6 L 4.2 7.6 Z"/>
+                  <path d="M 13.5 3.8 L 11.8 7.6 L 15.2 7.6 Z"/>
+                  <rect x="6" y="13" width="4" height="1.2"/>
+                </svg>
+              </div>
+              <div class="lbl">监管专题</div>
+            </a>
+          </div>
+        </div>
+
+        <!-- Banks module: 4 favorite bank cards (2x2) + 3 hot this week -->
+        <div class="section">
+          <div class="sec-head">
+            <h2>银行 / Banks<span class="help-i" data-pop="banks-card" aria-label="术语说明">?</span></h2>
+            <a class="meta" href="banks/list.html">更多银行 →</a>
+          </div>
+          <div class="banks-fav-grid">
+            <a class="bank-fav" href="banks/detail.html">
+              <div class="bank-fav-top">
+                <div class="bank-fav-logo">工</div>
+                <div class="bank-fav-name">工商银行</div>
+                <span class="bank-fav-pill gold">G-SIB</span>
+              </div>
+              <div class="bank-fav-metrics">
+                <div>
+                  <div class="bank-fav-k">NIM</div>
+                  <div class="bank-fav-v num">1.43<span class="u">%</span></div>
+                </div>
+                <div>
+                  <div class="bank-fav-k">CET1</div>
+                  <div class="bank-fav-v num">14.94<span class="u">%</span></div>
+                </div>
+              </div>
+              <svg class="bank-fav-spark" viewBox="0 0 100 18" preserveAspectRatio="none">
+                <path class="down" d="M0,4 L12,5 L24,3 L36,7 L48,8 L60,9 L72,11 L84,12 L96,14 L100,15"/>
+              </svg>
+            </a>
+            <a class="bank-fav" href="banks/detail.html">
+              <div class="bank-fav-top">
+                <div class="bank-fav-logo">招</div>
+                <div class="bank-fav-name">招商银行</div>
+                <span class="bank-fav-pill gold">G-SIB</span>
+              </div>
+              <div class="bank-fav-metrics">
+                <div>
+                  <div class="bank-fav-k">NIM</div>
+                  <div class="bank-fav-v num">1.92<span class="u">%</span></div>
+                </div>
+                <div>
+                  <div class="bank-fav-k">CET1</div>
+                  <div class="bank-fav-v num">13.86<span class="u">%</span></div>
+                </div>
+              </div>
+              <svg class="bank-fav-spark" viewBox="0 0 100 18" preserveAspectRatio="none">
+                <path class="down" d="M0,3 L12,5 L24,4 L36,8 L48,7 L60,10 L72,12 L84,11 L96,13 L100,15"/>
+              </svg>
+            </a>
+            <a class="bank-fav" href="banks/detail.html">
+              <div class="bank-fav-top">
+                <div class="bank-fav-logo">农</div>
+                <div class="bank-fav-name">农业银行</div>
+                <span class="bank-fav-pill gold">G-SIB</span>
+              </div>
+              <div class="bank-fav-metrics">
+                <div>
+                  <div class="bank-fav-k">NIM</div>
+                  <div class="bank-fav-v num">1.46<span class="u">%</span></div>
+                </div>
+                <div>
+                  <div class="bank-fav-k">CET1</div>
+                  <div class="bank-fav-v num">11.62<span class="u">%</span></div>
+                </div>
+              </div>
+              <svg class="bank-fav-spark" viewBox="0 0 100 18" preserveAspectRatio="none">
+                <path class="down" d="M0,2 L12,4 L24,3 L36,5 L48,6 L60,8 L72,7 L84,10 L96,9 L100,12"/>
+              </svg>
+            </a>
+            <a class="bank-fav" href="banks/detail.html">
+              <div class="bank-fav-top">
+                <div class="bank-fav-logo">中</div>
+                <div class="bank-fav-name">中国银行</div>
+                <span class="bank-fav-pill gold">G-SIB</span>
+              </div>
+              <div class="bank-fav-metrics">
+                <div>
+                  <div class="bank-fav-k">NIM</div>
+                  <div class="bank-fav-v num">1.41<span class="u">%</span></div>
+                </div>
+                <div>
+                  <div class="bank-fav-k">CET1</div>
+                  <div class="bank-fav-v num">12.20<span class="u">%</span></div>
+                </div>
+              </div>
+              <svg class="bank-fav-spark" viewBox="0 0 100 18" preserveAspectRatio="none">
+                <path class="up" d="M0,12 L12,11 L24,10 L36,9 L48,8 L60,9 L72,7 L84,6 L96,5 L100,3"/>
+              </svg>
+            </a>
+          </div>
+
+          <div class="banks-hot">
+            <div class="banks-hot-head">
+              <span class="banks-hot-kicker">本周热门<span class="help-i" data-pop="banks-hot" aria-label="定义说明">?</span></span>
+              <span class="banks-hot-asof num">06.15 – 06.20</span>
+            </div>
+            <div class="banks-hot-list">
+              <a class="banks-hot-item" href="banks/detail.html">
+                <span class="banks-hot-rank num">01</span>
+                <span class="banks-hot-name">工商银行</span>
+                <span class="banks-hot-delta num">1,238 次</span>
+              </a>
+              <a class="banks-hot-item" href="banks/detail.html">
+                <span class="banks-hot-rank num">02</span>
+                <span class="banks-hot-name">招商银行</span>
+                <span class="banks-hot-delta num">892 次</span>
+              </a>
+              <a class="banks-hot-item" href="banks/detail.html">
+                <span class="banks-hot-rank num">03</span>
+                <span class="banks-hot-name">农业银行</span>
+                <span class="banks-hot-delta num">743 次</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Toolbox (replaces 自选银行) -->
+        <div class="section">
+          <div class="sec-head">
+            <h2>工具 / Tools</h2>
+            <a class="meta" href="#">更多工具 →</a>
+          </div>
+          <div class="toolbox">
+            <a class="tool-item" href="compare.html">
+              <div class="tool-icon">
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-linecap="square">
+                  <rect x="2" y="6" width="5" height="9"/>
+                  <rect x="11" y="3" width="5" height="12"/>
+                  <line x1="1" y1="15.5" x2="17" y2="15.5"/>
+                </svg>
+              </div>
+              <div class="tool-mid">
+                <div class="tool-name">同业对标</div>
+                <div class="tool-desc">5 家 G-SIB 多维对比 · 1Y / 3Y / 5Y / MAX</div>
+              </div>
+              <div class="tool-arrow">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m5 3 4 4-4 4"/>
+                </svg>
+              </div>
+            </a>
+            <a class="tool-item" href="#">
+              <div class="tool-icon">
+                <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-linecap="square" stroke-linejoin="round">
+                  <line x1="9" y1="2" x2="9" y2="5"/>
+                  <line x1="2.5" y1="5" x2="15.5" y2="5"/>
+                  <line x1="2.5" y1="5" x2="2.5" y2="8.5"/>
+                  <line x1="9" y1="5" x2="9" y2="8.5"/>
+                  <line x1="15.5" y1="5" x2="15.5" y2="8.5"/>
+                  <line x1="2.5" y1="8.5" x2="2.5" y2="12"/>
+                  <line x1="9" y1="8.5" x2="9" y2="12"/>
+                  <line x1="15.5" y1="8.5" x2="15.5" y2="12"/>
+                  <rect x="1.7" y="12" width="1.6" height="3"/>
+                  <rect x="8.2" y="12" width="1.6" height="2"/>
+                  <rect x="14.7" y="12" width="1.6" height="3.5"/>
+                </svg>
+              </div>
+              <div class="tool-mid">
+                <div class="tool-name">归因分析<span class="soon">即将</span></div>
+                <div class="tool-desc">银行 NIM / ROE 变动的驱动拆解</div>
+              </div>
+              <div class="tool-arrow">
+                <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m5 3 4 4-4 4"/>
+                </svg>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="sec-head">
+            <h2>报告 / Reports</h2>
+            <a class="meta" href="reports/list.html">更多报告 →</a>
+          </div>
+
+          <div class="feature">
+            <span class="tag">编辑精选 · 付费</span>
+            <h3 class="h">美联储降息周期下<br/>全球系统重要性银行<br/>的净息差博弈</h3>
+            <p class="lede">追踪 30 家 G-SIBs 在 2024–2025 降息预期下的 NIM 路径，附资产端重定价窗口与负债成本粘性测算。</p>
+            <div class="row">
+              <div class="author">
+                <span class="av"></span>
+                <span>Atlas 研究 · 12 min</span>
+              </div>
+              <a class="cta" href="#">
+                解锁
+                <svg viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="m3 5 4 0m0 0L4.5 2.5M7 5 4.5 7.5"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="reports">
+            <div class="reports-tabs" role="tablist">
+              <button type="button" class="reports-tab active" data-tab="latest" role="tab" aria-selected="true">
+                <span>最新</span>
+              </button>
+              <button type="button" class="reports-tab" data-tab="hot" role="tab" aria-selected="false">
+                <span>最热</span>
+              </button>
+              <button type="button" class="reports-tab" data-tab="paid" role="tab" aria-selected="false">
+                <span>付费最多</span>
+              </button>
+            </div>
+            <div class="reports-pane active" data-pane="latest" role="tabpanel">
+              <div class="report-list">
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="t">深度</span>
+                      <span>12 min</span>
+                    </span>
+                    <span class="report-item-meta num">2026-06-12</span>
+                  </div>
+                  <div class="report-item-title">美联储降息周期下全球系统重要性银行的净息差博弈</div>
+                </a>
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="tg">分析</span>
+                      <span>8 min</span>
+                    </span>
+                    <span class="report-item-meta num">2026-06-10</span>
+                  </div>
+                  <div class="report-item-title">2026 Q1 美欧银行业 ROE 拆解：盈利结构与杠杆效率</div>
+                </a>
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="tg">快评</span>
+                      <span>5 min</span>
+                    </span>
+                    <span class="report-item-meta num">2026-06-08</span>
+                  </div>
+                  <div class="report-item-title">中国 D-SIB 名单更新对国有大行资本充足率影响测算</div>
+                </a>
+              </div>
+            </div>
+            <div class="reports-pane" data-pane="hot" role="tabpanel">
+              <div class="report-list">
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="t">深度</span>
+                      <span>12 min</span>
+                    </span>
+                    <span class="report-item-meta num">阅读 1,438</span>
+                  </div>
+                  <div class="report-item-title">美联储降息周期下全球系统重要性银行的净息差博弈</div>
+                </a>
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="tg">模型</span>
+                      <span>15 min</span>
+                    </span>
+                    <span class="report-item-meta num">阅读 982</span>
+                  </div>
+                  <div class="report-item-title">欧洲 G-SIBs TLAC 缺口与发行节奏预测 2026–2028</div>
+                </a>
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="tg">研究</span>
+                      <span>10 min</span>
+                    </span>
+                    <span class="report-item-meta num">阅读 864</span>
+                  </div>
+                  <div class="report-item-title">美联储缩表节奏、银行准备金水平与回购利率走廊</div>
+                </a>
+              </div>
+            </div>
+            <div class="reports-pane" data-pane="paid" role="tabpanel">
+              <div class="report-list">
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="t">深度</span>
+                      <span>12 min</span>
+                    </span>
+                    <span class="report-item-meta num">¥299</span>
+                  </div>
+                  <div class="report-item-title">美联储降息周期下全球系统重要性银行的净息差博弈</div>
+                </a>
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="tg">模型</span>
+                      <span>15 min</span>
+                    </span>
+                    <span class="report-item-meta num">¥259</span>
+                  </div>
+                  <div class="report-item-title">欧洲 G-SIBs TLAC 缺口与发行节奏预测 2026–2028</div>
+                </a>
+                <a class="report-item" href="reports/detail.html">
+                  <div class="report-item-head">
+                    <span class="report-item-tag">
+                      <span class="tg">分析</span>
+                      <span>8 min</span>
+                    </span>
+                    <span class="report-item-meta num">¥199</span>
+                  </div>
+                  <div class="report-item-title">2026 Q1 美欧银行业 ROE 拆解：盈利结构与杠杆效率</div>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <nav class="tabs">
+        <a class="tab active" href="home.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>
+          </svg>
+          <span>首页</span>
+        </a>
+        <a class="tab" href="banks/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+          </svg>
+          <span>银行</span>
+        </a>
+        <a class="tab" href="reports/list.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h12a4 4 0 0 1 4 4v12H8a4 4 0 0 1-4-4zM8 8h8M8 12h8M8 16h5"/>
+          </svg>
+          <span>报告</span>
+        </a>
+        <a class="tab" href="my.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="4"/>
+            <path d="M4 21c0-4 4-7 8-7s8 3 8 7"/>
+          </svg>
+          <span>我的</span>
+        </a>
+      </nav>
+
+      <!-- Help system: Tier 1 inline popovers -->
+      <div class="help-pop" data-pop-target="banks-card">
+        <div class="pop-title">银行卡片术语</div>
+        <dl>
+          <dt>NIM</dt><dd>净息差。生息资产收益率与付息负债成本率之差。</dd>
+          <dt>CET1</dt><dd>核心一级资本充足率。衡量银行吸收损失能力的核心指标。</dd>
+          <dt>G-SIB</dt><dd>全球系统重要性银行（Global Systemically Important Bank），由金融稳定理事会 FSB 评定。</dd>
+          <dt>Sparkline</dt><dd>近 8 季度 NIM 走势。绿=下行，红=上行（A-share 方向色）。</dd>
+        </dl>
+      </div>
+
+      <div class="help-pop" data-pop-target="banks-hot">
+        <div class="pop-title">本周热门 · 定义</div>
+        <dl>
+          <dt>排序</dt><dd>按本周（06.15 – 06.20）平台对该银行详情页的访问次数降序。</dd>
+          <dt>次</dt><dd>访问次数（含重复访问），按平台匿名统计。</dd>
+        </dl>
+      </div>
+
+      <!-- Help system: Tier 2 platform conventions bottom sheet -->
+      <div class="sheet-mask" id="sheet-mask"></div>
+      <div class="sheet" id="platform-sheet">
+        <div class="sheet-head">
+          <span class="sheet-title">Atlas · 数据约定</span>
+          <button class="sheet-close" id="sheet-close" aria-label="关闭">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6">
+              <path d="m3 3 6 6m0-6-6 6"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="sheet-section">
+          <div class="sect-tag">数据时点</div>
+          <div class="sheet-row">
+            <div class="k">数据截至</div>
+            <div class="v">页级 asof 在头部明示（如 <code>2025-12-31</code>），管辖本页所有数字。</div>
+          </div>
+          <div class="sheet-row">
+            <div class="k">数据源</div>
+            <div class="v"><code>业绩快报</code>（披露快、未审计）vs <code>年报</code>（披露慢、已审计）。</div>
+          </div>
+          <div class="sheet-row">
+            <div class="k">更新频率</div>
+            <div class="v">业绩快报 24h 内同步；季报 7 个工作日；年报 30 个工作日。</div>
+          </div>
+        </div>
+
+        <div class="sheet-section">
+          <div class="sect-tag">方向约定</div>
+          <div class="sheet-row">
+            <div class="k">红涨绿跌</div>
+            <div class="v">A-share 惯例：<code style="color:var(--up)">↑ 红</code> = 上升，<code style="color:var(--down)">↓ 绿</code> = 下降。与「好坏」无关。</div>
+          </div>
+        </div>
+
+        <div class="sheet-section">
+          <div class="sect-tag">单位</div>
+          <div class="sheet-row">
+            <div class="k">bp</div>
+            <div class="v">基点（basis point），1bp = 0.01pp。常用于 NIM / 利率变动。</div>
+          </div>
+          <div class="sheet-row">
+            <div class="k">pp</div>
+            <div class="v">百分点（percentage point）。常用于 NPL / 拨备覆盖率变动。</div>
+          </div>
+        </div>
+
+        <div class="sheet-section">
+          <div class="sect-tag">排行口径</div>
+          <div class="sheet-row">
+            <div class="k">本周热门</div>
+            <div class="v">按平台当周访问次数降序。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.reports .reports-tab');
+      var panes = document.querySelectorAll('.reports .reports-pane');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var key = tab.getAttribute('data-tab');
+          tabs.forEach(function (t) {
+            var on = t === tab;
+            t.classList.toggle('active', on);
+            t.setAttribute('aria-selected', on ? 'true' : 'false');
+          });
+          panes.forEach(function (p) {
+            p.classList.toggle('active', p.getAttribute('data-pane') === key);
+          });
+        });
+      });
+    })();
+
+    (function () {
+      // Tier 1: inline ? icon → toggle popover
+      var helpIcons = document.querySelectorAll('.help-i[data-pop]');
+      function closeAllPops() {
+        document.querySelectorAll('.help-i.open').forEach(function (i) { i.classList.remove('open'); });
+        document.querySelectorAll('.help-pop.show').forEach(function (p) { p.classList.remove('show'); });
+      }
+      helpIcons.forEach(function (icon) {
+        icon.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var popName = icon.getAttribute('data-pop');
+          var pop = document.querySelector('.help-pop[data-pop-target="' + popName + '"]');
+          var wasOpen = icon.classList.contains('open');
+          closeAllPops();
+          if (!wasOpen && pop) {
+            icon.classList.add('open');
+            var screenEl = document.querySelector('.screen');
+            var screenRect = screenEl.getBoundingClientRect();
+            var iconRect = icon.getBoundingClientRect();
+            var popWidth = 280;
+            var top = iconRect.bottom - screenRect.top + 6;
+            var left = iconRect.left - screenRect.left;
+            if (left + popWidth > screenRect.width - 8) {
+              left = Math.max(8, screenRect.width - popWidth - 8);
+            }
+            pop.style.top = top + 'px';
+            pop.style.left = left + 'px';
+            pop.classList.add('show');
+          }
+        });
+      });
+      document.querySelectorAll('.help-pop').forEach(function (p) {
+        p.addEventListener('click', function (e) { e.stopPropagation(); });
+      });
+      document.addEventListener('click', closeAllPops);
+
+      // Tier 2: nav ? → platform conventions bottom sheet
+      var trigger = document.getElementById('help-trigger');
+      var sheet = document.getElementById('platform-sheet');
+      var mask = document.getElementById('sheet-mask');
+      var closeBtn = document.getElementById('sheet-close');
+      function openSheet() {
+        sheet.classList.add('show');
+        mask.classList.add('show');
+      }
+      function closeSheet() {
+        sheet.classList.remove('show');
+        mask.classList.remove('show');
+      }
+      if (trigger) trigger.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); openSheet(); });
+      if (closeBtn) closeBtn.addEventListener('click', closeSheet);
+      if (mask) mask.addEventListener('click', closeSheet);
+    })();
+
+    // Theme toggle (Dark ↔ Light)
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      var btn = document.getElementById('theme-trigger');
+      var svg = btn ? btn.querySelector('svg') : null;
+      function moonPath() {
+        return '<path d="M12.5 9.5A5 5 0 0 1 6.5 3.5a5 5 0 1 0 6 6z" fill="currentColor"/>';
+      }
+      function sunPath() {
+        return '<circle cx="8" cy="8" r="2.8"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3 3l1.4 1.4M11.6 11.6L13 13M3 13l1.4-1.4M11.6 4.4L13 3"/>';
+      }
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        if (svg) svg.innerHTML = (theme === 'light') ? sunPath() : moonPath();
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      if (btn) btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var cur = root.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        var next = cur === 'light' ? 'dark' : 'light';
+        try { localStorage.setItem(KEY, next); } catch (e) {}
+        apply(next);
+      });
+    })();
+  </script>
+</body>
+</html>

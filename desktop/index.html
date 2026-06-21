@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>银图 Atlas — 原型索引</title>
+  <style>
+    :root {
+      --bg: #070b12;
+      --surface: #101826;
+      --surface-2: #162238;
+      --surface-warm: #1a2740;
+      --fg: #f8fafc;
+      --fg-2: #cbd5e1;
+      --muted: #8492a6;
+      --soft: #475569;
+      --border: #263246;
+      --border-soft: #1c2638;
+      --border-strong: #344056;
+      --accent: #38bdf8;
+      --accent-soft: #0c2a3d;
+      --accent-on: #03111a;
+      --success: #22c55e;
+      --success-soft: #082d1a;
+      --danger: #ef4444;
+      --danger-soft: #3a0d0d;
+      --warning: #f59e0b;
+      --warning-soft: #2d1f08;
+      --meta: #38bdf8;
+      --up: #ef4444;
+      --up-soft: #2a0a0a;
+      --down: #22c55e;
+      --down-soft: #082d1a;
+      --radius-sm: 4px;
+      --radius-md: 4px;
+      --radius-lg: 4px;
+      --radius-pill: 9999px;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', 'Helvetica Neue', Inter, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'IBM Plex Mono', 'Roboto Mono', ui-monospace, Menlo, 'SF Mono', monospace;
+      --container-max: 1240px;
+      --section-y: 120px;
+      --display-1: 72px;
+    }
+    :root[data-theme="light"] {
+      --bg: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #eef1f5;
+      --surface-warm: #f0f3f7;
+      --fg: #0f172a;
+      --fg-2: #475569;
+      --muted: #64748b;
+      --soft: #94a3b8;
+      --border: #e2e8f0;
+      --border-soft: #f1f5f9;
+      --border-strong: #cbd5e1;
+      --accent: #0284c7;
+      --accent-soft: #e0f2fe;
+      --accent-on: #ffffff;
+      --success: #16a34a;
+      --success-soft: #dcfce7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --warning: #d97706;
+      --warning-soft: #fef3c7;
+      --meta: #0284c7;
+      --up: #dc2626;
+      --up-soft: #fee2e2;
+      --down: #16a34a;
+      --down-soft: #dcfce7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { background: var(--bg); color: var(--fg); }
+    body {
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+    }
+    a { color: inherit; text-decoration: none; }
+    .num { font-variant-numeric: tabular-nums; font-feature-settings: 'tnum'; }
+
+    .page { max-width: var(--container-max); margin: 0 auto; padding: var(--section-y) 40px 96px; }
+
+    /* Header */
+    .topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 32px; border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark {
+      width: 32px; height: 32px; border-radius: var(--radius-sm);
+      background: var(--accent); color: var(--accent-on);
+      display: grid; place-items: center;
+      font-family: var(--font-mono); font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+    }
+    .brand-name {
+      font-family: var(--font-display); font-size: 16px; font-weight: 600; letter-spacing: -0.01em;
+    }
+    .brand-sub { font-size: 12px; color: var(--muted); margin-top: 2px; letter-spacing: 0.02em; }
+    .meta-row { display: flex; gap: 24px; align-items: center; }
+    .meta-pill {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .meta-pill strong { color: var(--fg); font-weight: 500; }
+    .topbar-right { display: flex; align-items: center; gap: 20px; }
+    .theme-toggle {
+      display: inline-flex; align-items: center;
+      background: var(--surface-2); border: 1px solid var(--border);
+      border-radius: var(--radius-pill); padding: 2px; gap: 0;
+    }
+    .theme-btn {
+      padding: 5px 12px;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em;
+      text-transform: uppercase; color: var(--muted);
+      background: transparent; border: 0;
+      border-radius: var(--radius-pill); cursor: pointer;
+      transition: color 0.15s, background 0.15s;
+    }
+    .theme-btn:hover:not(.active) { color: var(--fg); }
+    .theme-btn.active { background: var(--accent); color: var(--accent-on); }
+
+    /* Hero */
+    .hero { padding: 64px 0 56px; max-width: 880px; }
+    .eyebrow {
+      font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 24px;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .eyebrow::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+    .h1 {
+      font-family: var(--font-display);
+      font-size: var(--display-1); line-height: 1.04; letter-spacing: -0.025em;
+      font-weight: 600; margin-bottom: 24px;
+    }
+    .h1 em { font-style: normal; color: var(--accent); }
+    .lede {
+      font-size: 19px; line-height: 1.55; color: var(--fg-2);
+      max-width: 720px; letter-spacing: -0.005em;
+    }
+
+    /* Stat strip */
+    .strip {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      margin: 48px 0 56px;
+    }
+    .strip > div { padding: 24px 0; }
+    .strip > div + div { border-left: 1px solid var(--border); padding-left: 28px; }
+    .strip .k {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+    }
+    .strip .v {
+      font-family: var(--font-display); font-size: 28px; font-weight: 500;
+      letter-spacing: -0.015em; line-height: 1;
+    }
+    .strip .v sup { font-size: 13px; color: var(--muted); margin-left: 4px; font-weight: 400; }
+
+    /* Section heading */
+    .sec-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 24px; }
+    .sec-head h2 {
+      font-family: var(--font-display); font-size: 22px; font-weight: 600; letter-spacing: -0.015em;
+    }
+    .sec-head .sec-sub { font-size: 13px; color: var(--muted); }
+    .sec-head .sec-sub .num { color: var(--fg); }
+
+    /* Screen grid */
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .card {
+      display: block; background: var(--surface);
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      overflow: hidden; transition: border-color 0.15s, transform 0.15s;
+    }
+    .card:hover { border-color: var(--accent); transform: translateY(-1px); }
+    .card-frame {
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      aspect-ratio: 16 / 11;
+      display: grid; place-items: center;
+      padding: 28px;
+      position: relative;
+    }
+    .phone {
+      width: 132px; height: 274px; background: #0a0d14; border-radius: 22px;
+      position: relative; padding: 6px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .phone-screen {
+      width: 100%; height: 100%; background: var(--bg); border-radius: 16px;
+      overflow: hidden; position: relative;
+    }
+    .phone-screen svg { width: 100%; height: 100%; display: block; }
+    .phone::after {
+      content: ''; position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
+      width: 38px; height: 8px; background: #0a0d14; border-radius: 8px;
+    }
+    .card-body { padding: 18px 20px 20px; }
+    .card-num {
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .card-title {
+      font-family: var(--font-display); font-size: 16px; font-weight: 600;
+      letter-spacing: -0.01em; margin-bottom: 4px;
+    }
+    .card-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+    /* Footer */
+    footer {
+      margin-top: 88px; padding-top: 24px; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .strip { grid-template-columns: repeat(2, 1fr); }
+      .strip > div + div { border-left: 0; padding-left: 0; }
+      .h1 { font-size: 48px; }
+    }
+    @media (max-width: 600px) {
+      .page { padding: 56px 20px 60px; }
+      .grid { grid-template-columns: 1fr; }
+      .h1 { font-size: 36px; }
+      .meta-row { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark">ATL</div>
+        <div>
+          <div class="brand-name">银图 Atlas</div>
+          <div class="brand-sub">全球银行与监管数据 · 一站式研究平台</div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="meta-row">
+          <div class="meta-pill"><strong>v0.1</strong> · Prototype</div>
+          <div class="meta-pill">iOS · 393 × 852</div>
+          <div class="meta-pill">设计系统 · Trading Terminal</div>
+        </div>
+        <div class="theme-toggle" role="group" aria-label="主题切换">
+          <button class="theme-btn active" data-set-theme="dark" type="button">Dark</button>
+          <button class="theme-btn" data-set-theme="light" type="button">Light</button>
+        </div>
+      </div>
+    </div>
+
+    <header class="hero">
+      <div class="eyebrow">Trading Terminal · 数据密度优先</div>
+      <h1 class="h1">从 ALM 视角<br/>重新<em>审视</em>全球银行的多维度数据分析平台。</h1>
+      <p class="lede">覆盖多维度银行数据指标、4 大司法辖区监管口径、定期专题分析报告。一次性锁定 10 屏核心流程 — 首页、银行目录、单家深度、监管、报告，同业对标 workbench、订阅方案与研究员工作台。</p>
+    </header>
+
+    <section class="strip">
+      <div>
+        <div class="k">覆盖银行</div>
+        <div class="v"><span class="num">1,240</span><sup>+ 上市行</sup></div>
+      </div>
+      <div>
+        <div class="k">监管口径</div>
+        <div class="v"><span class="num">11</span><sup>辖区</sup></div>
+      </div>
+      <div>
+        <div class="k">数据维度</div>
+        <div class="v"><span class="num">38+</span><sup>项</sup></div>
+      </div>
+      <div>
+        <div class="k">起售价</div>
+        <div class="v">¥<span class="num">1,999</span><sup>/ 年</sup></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="sec-head">
+        <h2>原型屏幕</h2>
+        <div class="sec-sub"><span class="num">10</span> 屏 · 银行 / 监管 / 报告 / 同业对标 / 订阅 / 工作台 · 可扩</div>
+      </div>
+
+      <div class="grid">
+
+        <a class="card" href="../mobile/home.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="40" height="3" rx="1.5" fill="var(--fg-2)"/>
+                  <rect x="10" y="22" width="22" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="32" width="100" height="8" rx="3" fill="var(--surface-2)"/>
+                  <rect x="10" y="46" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="14" y="50" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="36" y="46" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="40" y="50" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="62" y="46" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="66" y="50" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="88" y="46" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="92" y="50" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="10" y="72" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="14" y="76" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="36" y="72" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="40" y="76" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="62" y="72" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="66" y="76" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="88" y="72" width="22" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="92" y="76" width="6" height="6" rx="1" fill="var(--fg-2)"/>
+                  <rect x="10" y="100" width="100" height="14" rx="3" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="14" y="104" width="8" height="8" rx="2" fill="var(--fg-2)"/>
+                  <rect x="26" y="104" width="50" height="2" rx="0.5" fill="var(--fg-2)"/>
+                  <rect x="26" y="109" width="70" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="118" width="100" height="14" rx="3" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="14" y="122" width="8" height="8" rx="2" fill="var(--fg-2)"/>
+                  <rect x="26" y="122" width="50" height="2" rx="0.5" fill="var(--fg-2)"/>
+                  <rect x="26" y="127" width="60" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="142" width="100" height="18" rx="3" fill="var(--fg)"/>
+                  <rect x="14" y="146" width="20" height="2" rx="1" fill="var(--accent-on)"/>
+                  <rect x="14" y="151" width="70" height="2" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="155" width="40" height="2" rx="0.5" fill="var(--soft)"/>
+                  <rect x="10" y="164" width="100" height="10" rx="2" fill="var(--surface-2)"/>
+                  <rect x="14" y="167" width="6" height="2" rx="0.5" fill="var(--fg-2)"/>
+                  <rect x="24" y="167" width="50" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="216" width="100" height="24" fill="var(--bg)"/>
+                  <rect x="22" y="222" width="14" height="2" rx="1" fill="var(--accent)"/>
+                  <rect x="46" y="222" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="70" y="222" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="94" y="222" width="14" height="2" rx="1" fill="var(--muted)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">01 · HOME</div>
+            <div class="card-title">首页 / 发现</div>
+            <div class="card-desc">数据 2×4（8 类：资负结构 / 资负价格 / 流动性 / 重定价 / 资产质量 / 资本 / 利润 / 监管）+ 工具（同业对标 / 归因分析）+ 报告（编辑精选 + 最新 / 最热 / 付费最多）· 无实时市场数据。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/banks/list.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="50" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="26" width="100" height="16" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="30" width="6" height="6" rx="3" fill="var(--muted)"/>
+                  <rect x="24" y="32" width="40" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="48" width="42" height="10" rx="3" fill="var(--fg)"/>
+                  <rect x="56" y="48" width="24" height="10" rx="3" fill="var(--surface-2)"/>
+                  <rect x="84" y="48" width="26" height="10" rx="3" fill="var(--surface-2)"/>
+                  <g>
+                    <rect x="10" y="64" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="68" width="10" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="68" width="30" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="72" width="40" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="69" width="18" height="3" rx="0.5" fill="var(--down)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="82" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="86" width="10" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="86" width="36" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="90" width="50" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="87" width="18" height="3" rx="0.5" fill="var(--up)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="100" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="104" width="10" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="104" width="28" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="108" width="44" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="105" width="18" height="3" rx="0.5" fill="var(--down)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="118" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="122" width="10" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="122" width="32" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="28" y="126" width="48" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="123" width="18" height="3" rx="0.5" fill="var(--down)"/>
+                  </g>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                  <rect x="20" y="226" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="42" y="226" width="14" height="2" rx="1" fill="var(--accent)"/>
+                  <rect x="64" y="226" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="86" y="226" width="14" height="2" rx="1" fill="var(--muted)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">02 · DIRECTORY</div>
+            <div class="card-title">银行目录</div>
+            <div class="card-desc">1,240+ 全球上市行 · 司法辖区与资产规模筛选 · 关键指标内联 · 搜索/排序。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/banks/detail.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="40" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="20" width="60" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="30" width="50" height="6" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="40" width="100" height="22" rx="6" fill="var(--fg)"/>
+                  <rect x="16" y="46" width="40" height="2.5" rx="1" fill="var(--muted)"/>
+                  <rect x="16" y="52" width="30" height="5" rx="1" fill="var(--accent-on)"/>
+                  <rect x="10" y="68" width="100" height="10" rx="3" fill="var(--surface-2)"/>
+                  <rect x="14" y="72" width="14" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="32" y="72" width="14" height="3" rx="1" fill="var(--surface-2)"/>
+                  <rect x="50" y="72" width="14" height="3" rx="1" fill="var(--surface-2)"/>
+                  <rect x="68" y="72" width="14" height="3" rx="1" fill="var(--surface-2)"/>
+                  <rect x="10" y="84" width="100" height="50" rx="5" fill="var(--surface-2)"/>
+                  <path d="M18 124 L34 110 L48 118 L62 102 L78 112 L94 96 L108 100" stroke="var(--fg)" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+                  <circle cx="108" cy="100" r="2" fill="var(--accent)"/>
+                  <rect x="10" y="140" width="55" height="2.5" rx="1" fill="var(--fg)"/>
+                  <rect x="80" y="140" width="30" height="2" rx="1" fill="var(--fg)"/>
+                  <line x1="10" y1="152" x2="110" y2="152" stroke="var(--border)" stroke-width="0.5"/>
+                  <rect x="10" y="158" width="10" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="24" y="159" width="40" height="2" rx="0.5" fill="var(--fg)"/>
+                  <rect x="24" y="164" width="50" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="88" y="159" width="14" height="2" rx="0.5" fill="var(--fg)"/>
+                  <circle cx="106" cy="161" r="3.5" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.5"/>
+                  <line x1="10" y1="176" x2="110" y2="176" stroke="var(--border)" stroke-width="0.5"/>
+                  <rect x="10" y="182" width="10" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="24" y="183" width="46" height="2" rx="0.5" fill="var(--fg)"/>
+                  <rect x="24" y="188" width="40" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="88" y="183" width="14" height="2" rx="0.5" fill="var(--fg)"/>
+                  <circle cx="106" cy="185" r="3.5" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.5"/>
+                  <line x1="10" y1="200" x2="110" y2="200" stroke="var(--border)" stroke-width="0.5"/>
+                  <rect x="10" y="206" width="10" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="24" y="207" width="38" height="2" rx="0.5" fill="var(--fg)"/>
+                  <rect x="24" y="212" width="46" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="88" y="207" width="14" height="2" rx="0.5" fill="var(--fg)"/>
+                  <circle cx="106" cy="209" r="3.5" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.5"/>
+                  <rect x="10" y="226" width="50" height="2" rx="0.5" fill="var(--fg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">03 · DETAIL</div>
+            <div class="card-title">单家银行深度</div>
+            <div class="card-desc">数据维度：资负 / 重定价 / 流动性 / 资产质量 / 资本 / NIM · 6 tab 起，可扩 · 历年财报可下载。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/regulators/list.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="50" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="24" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                  <rect x="10" y="44" width="42" height="9" rx="3" fill="var(--fg)"/>
+                  <rect x="56" y="44" width="24" height="9" rx="3" fill="var(--surface-2)"/>
+                  <rect x="84" y="44" width="26" height="9" rx="3" fill="var(--surface-2)"/>
+                  <g>
+                    <rect x="10" y="60" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="64" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="64" width="30" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="68" width="40" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="66" width="18" height="3" rx="0.5" fill="var(--fg)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="78" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="82" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="82" width="36" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="86" width="50" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="84" width="18" height="3" rx="0.5" fill="var(--fg)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="96" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="100" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="100" width="28" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="104" width="44" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="102" width="18" height="3" rx="0.5" fill="var(--down)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="114" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="118" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="118" width="32" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="122" width="48" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="120" width="18" height="3" rx="0.5" fill="var(--fg)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="132" width="100" height="14" rx="4" fill="var(--surface-2)"/>
+                    <rect x="14" y="136" width="14" height="6" rx="1" fill="var(--accent)"/>
+                    <rect x="32" y="136" width="40" height="2.5" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="140" width="36" height="2" rx="1" fill="var(--muted)"/>
+                    <rect x="88" y="138" width="18" height="3" rx="0.5" fill="var(--down)"/>
+                  </g>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                  <rect x="20" y="226" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="42" y="226" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="64" y="226" width="14" height="2" rx="1" fill="var(--accent)"/>
+                  <rect x="86" y="226" width="14" height="2" rx="1" fill="var(--muted)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">04 · REGULATORS</div>
+            <div class="card-title">监管机构</div>
+            <div class="card-desc">11 家 · 央行 / 审慎 / 国际组织 · 按司法辖区与机构类型筛选。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/regulators/detail.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="40" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="22" width="22" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="30" width="14" height="14" rx="3" fill="var(--fg)"/>
+                  <rect x="28" y="32" width="50" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="28" y="40" width="40" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="50" width="100" height="20" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="54" width="22" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="14" y="61" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="44" y="54" width="22" height="4" rx="1" fill="var(--accent)"/>
+                  <rect x="44" y="61" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="74" y="54" width="22" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="74" y="61" width="14" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="76" width="100" height="14" rx="3" fill="var(--surface-2)"/>
+                  <rect x="14" y="80" width="12" height="6" rx="1" fill="var(--fg)"/>
+                  <rect x="14" y="87" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="30" y="80" width="12" height="6" rx="1" fill="var(--accent)"/>
+                  <rect x="30" y="87" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="46" y="80" width="12" height="6" rx="1" fill="var(--surface-2)"/>
+                  <rect x="46" y="87" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="62" y="80" width="12" height="6" rx="1" fill="var(--surface-2)"/>
+                  <rect x="62" y="87" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <g>
+                    <rect x="10" y="96" width="100" height="11" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="100" width="8" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="26" y="100" width="30" height="2.5" rx="0.5" fill="var(--fg)"/>
+                    <rect x="90" y="100" width="14" height="3" rx="0.5" fill="var(--muted)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="110" width="100" height="11" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="114" width="8" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="26" y="114" width="40" height="2.5" rx="0.5" fill="var(--fg)"/>
+                    <rect x="90" y="114" width="14" height="3" rx="0.5" fill="var(--muted)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="124" width="100" height="11" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="128" width="8" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="26" y="128" width="36" height="2.5" rx="0.5" fill="var(--fg)"/>
+                    <rect x="90" y="128" width="14" height="3" rx="0.5" fill="var(--down)"/>
+                  </g>
+                  <rect x="10" y="140" width="100" height="11" rx="3" fill="var(--surface-2)"/>
+                  <rect x="10" y="156" width="100" height="11" rx="3" fill="var(--surface-2)"/>
+                  <rect x="10" y="172" width="100" height="11" rx="3" fill="var(--surface-2)"/>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">05 · REGULATOR</div>
+            <div class="card-title">单家监管详情</div>
+            <div class="card-desc">数据口径 14+ · 最新发布 · 监管政策 · 覆盖机构。可扩数据维度。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/reports/list.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="50" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="24" width="60" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="32" width="42" height="9" rx="3" fill="var(--fg)"/>
+                  <rect x="56" y="32" width="24" height="9" rx="3" fill="var(--surface-2)"/>
+                  <rect x="84" y="32" width="26" height="9" rx="3" fill="var(--surface-2)"/>
+                  <rect x="10" y="48" width="100" height="50" rx="6" fill="var(--fg)"/>
+                  <rect x="16" y="56" width="40" height="2.5" rx="1" fill="var(--muted)"/>
+                  <rect x="16" y="62" width="60" height="4" rx="1" fill="var(--accent-on)"/>
+                  <rect x="16" y="70" width="70" height="4" rx="1" fill="var(--accent-on)"/>
+                  <rect x="16" y="80" width="50" height="2.5" rx="1" fill="var(--soft)"/>
+                  <rect x="16" y="86" width="40" height="2" rx="1" fill="var(--soft)"/>
+                  <g>
+                    <rect x="10" y="106" width="100" height="18" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="110" width="14" height="14" rx="2" fill="var(--accent)"/>
+                    <rect x="32" y="111" width="20" height="2.5" rx="0.5" fill="var(--muted)"/>
+                    <rect x="32" y="116" width="50" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="32" y="120" width="40" height="2" rx="0.5" fill="var(--muted)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="128" width="100" height="18" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="132" width="14" height="14" rx="2" fill="var(--down)"/>
+                    <rect x="32" y="133" width="20" height="2.5" rx="0.5" fill="var(--muted)"/>
+                    <rect x="32" y="138" width="50" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="32" y="142" width="40" height="2" rx="0.5" fill="var(--muted)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="150" width="100" height="18" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="154" width="14" height="14" rx="2" fill="var(--warning)"/>
+                    <rect x="32" y="155" width="20" height="2.5" rx="0.5" fill="var(--muted)"/>
+                    <rect x="32" y="160" width="50" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="32" y="164" width="40" height="2" rx="0.5" fill="var(--muted)"/>
+                  </g>
+                  <g>
+                    <rect x="10" y="172" width="100" height="18" rx="3" fill="var(--surface-2)"/>
+                    <rect x="14" y="176" width="14" height="14" rx="2" fill="var(--accent)"/>
+                    <rect x="32" y="177" width="20" height="2.5" rx="0.5" fill="var(--muted)"/>
+                    <rect x="32" y="182" width="50" height="3" rx="0.5" fill="var(--fg)"/>
+                    <rect x="32" y="186" width="40" height="2" rx="0.5" fill="var(--muted)"/>
+                  </g>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">06 · REPORTS</div>
+            <div class="card-title">专题报告</div>
+            <div class="card-desc">86 篇 · 12 专题领域 · 付费 + 免费混排 · 主题筛选。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/reports/detail.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="40" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="22" width="50" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="30" width="100" height="50" rx="6" fill="var(--fg)"/>
+                  <rect x="16" y="38" width="50" height="2.5" rx="1" fill="var(--muted)"/>
+                  <rect x="16" y="44" width="80" height="5" rx="1" fill="var(--accent-on)"/>
+                  <rect x="16" y="54" width="60" height="5" rx="1" fill="var(--accent-on)"/>
+                  <rect x="16" y="64" width="70" height="2" rx="1" fill="var(--soft)"/>
+                  <rect x="16" y="68" width="40" height="2" rx="1" fill="var(--soft)"/>
+                  <rect x="10" y="86" width="100" height="22" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="90" width="24" height="2" rx="0.5" fill="var(--accent)"/>
+                  <rect x="14" y="95" width="80" height="2.5" rx="0.5" fill="var(--fg)"/>
+                  <rect x="14" y="100" width="80" height="2.5" rx="0.5" fill="var(--fg)"/>
+                  <rect x="10" y="114" width="46" height="22" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="118" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="124" width="24" height="6" rx="0.5" fill="var(--fg)"/>
+                  <rect x="64" y="114" width="46" height="22" rx="4" fill="var(--surface-2)"/>
+                  <rect x="68" y="118" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="68" y="124" width="24" height="6" rx="0.5" fill="var(--fg)"/>
+                  <rect x="10" y="142" width="100" height="32" rx="4" fill="var(--surface-2)"/>
+                  <path d="M16 168 L30 158 L42 162 L56 152 L70 158 L84 148 L98 144" stroke="var(--fg)" stroke-width="1.2" fill="none"/>
+                  <path d="M16 170 L30 162 L42 166 L56 158 L70 164 L84 156 L98 152" stroke="var(--soft)" stroke-width="1.2" fill="none" stroke-dasharray="2 2"/>
+                  <rect x="10" y="180" width="100" height="36" rx="6" fill="var(--fg)"/>
+                  <rect x="16" y="188" width="40" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="16" y="194" width="60" height="4" rx="0.5" fill="var(--accent-on)"/>
+                  <rect x="16" y="202" width="70" height="2.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">07 · REPORT</div>
+            <div class="card-title">单篇报告详情</div>
+            <div class="card-desc">TL;DR + 关键数据 + 嵌入图表 + 研究方法 + 付费墙 + 相关报告。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/compare.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="40" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="22" width="14" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="30" width="14" height="6" rx="3" fill="var(--fg)"/>
+                  <rect x="26" y="31" width="14" height="4" rx="2" fill="var(--fg)"/>
+                  <rect x="42" y="31" width="14" height="4" rx="2" fill="var(--fg)"/>
+                  <rect x="58" y="31" width="14" height="4" rx="2" fill="var(--fg)"/>
+                  <rect x="74" y="31" width="14" height="4" rx="2" fill="var(--fg)"/>
+                  <rect x="90" y="30" width="18" height="6" rx="3" fill="none" stroke="var(--muted)" stroke-width="0.6" stroke-dasharray="1.2 1.2"/>
+                  <rect x="10" y="42" width="100" height="10" rx="2" fill="var(--surface-2)"/>
+                  <rect x="14" y="46" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="32" y="46" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="50" y="46" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="68" y="46" width="12" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="58" width="100" height="38" rx="4" fill="var(--surface-2)"/>
+                  <g>
+                    <rect x="14" y="64" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="32" y="64" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="50" y="64" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="68" y="64" width="14" height="6" rx="1" fill="var(--fg)"/>
+                    <rect x="86" y="64" width="14" height="6" rx="1" fill="var(--accent)"/>
+                    <rect x="14" y="78" width="14" height="6" rx="0.5" fill="var(--fg)"/>
+                    <rect x="32" y="78" width="14" height="6" rx="0.5" fill="var(--fg)"/>
+                    <rect x="50" y="78" width="14" height="6" rx="0.5" fill="var(--fg)"/>
+                    <rect x="68" y="78" width="14" height="6" rx="0.5" fill="var(--fg)"/>
+                    <rect x="86" y="78" width="14" height="6" rx="0.5" fill="var(--accent)"/>
+                  </g>
+                  <rect x="10" y="102" width="100" height="56" rx="4" fill="var(--surface-2)"/>
+                  <path d="M16 130 L34 124 L52 128 L70 132 L88 140 L106 144" stroke="var(--fg)" stroke-width="1.2" fill="none"/>
+                  <path d="M16 134 L34 130 L52 134 L70 138 L88 142 L106 146" stroke="var(--fg-2)" stroke-width="0.8" fill="none"/>
+                  <path d="M16 138 L34 136 L52 140 L70 144 L88 146 L106 148" stroke="var(--muted)" stroke-width="0.8" fill="none"/>
+                  <path d="M16 142 L34 144 L52 148 L70 150 L88 150 L106 150" stroke="var(--soft)" stroke-width="0.8" fill="none"/>
+                  <path d="M16 152 L34 150 L52 148 L70 150 L88 154 L106 156" stroke="#38bdf8" stroke-width="1.2" fill="none"/>
+                  <rect x="10" y="164" width="46" height="34" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="168" width="14" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="174" width="20" height="4" rx="0.5" fill="var(--fg)"/>
+                  <rect x="14" y="184" width="36" height="3" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="190" width="28" height="3" rx="0.5" fill="var(--fg)"/>
+                  <rect x="64" y="164" width="46" height="34" rx="4" fill="var(--surface-2)"/>
+                  <rect x="68" y="168" width="14" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="68" y="174" width="22" height="4" rx="0.5" fill="var(--fg)"/>
+                  <rect x="68" y="184" width="36" height="3" rx="0.5" fill="var(--soft)"/>
+                  <rect x="68" y="190" width="24" height="3" rx="0.5" fill="var(--fg)"/>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">08 · COMPARE</div>
+            <div class="card-title">同业对标 workbench</div>
+            <div class="card-desc">5 家 G-SIBs · 24 项对比维度 · 时间序列 + 排名 + p25-p75 分布带。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/subscription.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="40" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="20" width="60" height="2" rx="1" fill="var(--muted)"/>
+                  <rect x="10" y="28" width="50" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="10" y="34" width="100" height="38" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="38" width="20" height="2" rx="0.5" fill="var(--accent)"/>
+                  <rect x="14" y="44" width="50" height="5" rx="1" fill="var(--fg)"/>
+                  <rect x="14" y="52" width="30" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="58" width="80" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="62" width="40" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="10" y="78" width="100" height="34" rx="4" fill="var(--fg)"/>
+                  <rect x="14" y="82" width="14" height="2" rx="0.5" fill="var(--accent)"/>
+                  <rect x="14" y="88" width="60" height="5" rx="1" fill="var(--accent-on)"/>
+                  <rect x="14" y="96" width="50" height="2" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="100" width="40" height="2" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="104" width="80" height="3" rx="1" fill="var(--accent)"/>
+                  <rect x="10" y="118" width="100" height="34" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="122" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="128" width="50" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="14" y="136" width="70" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="140" width="50" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="144" width="80" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="158" width="46" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="0.4"/>
+                  <rect x="14" y="162" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="168" width="24" height="6" rx="0.5" fill="var(--fg)"/>
+                  <rect x="64" y="158" width="46" height="22" rx="4" fill="var(--surface-2)" stroke="var(--border-strong)" stroke-width="0.4"/>
+                  <rect x="68" y="162" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="68" y="168" width="24" height="6" rx="0.5" fill="var(--accent)"/>
+                  <rect x="10" y="186" width="100" height="30" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="190" width="30" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="196" width="80" height="2" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="200" width="60" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="208" width="80" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">09 · PRICING</div>
+            <div class="card-title">订阅方案</div>
+            <div class="card-desc">三档订阅（免费 / 专业版 ¥1,999 / 机构版 ¥3,999 席位起）+ 单篇报告 micro-payment + 5 席起阶梯折扣（10 席 9.5 折 / 20 席 9 折 / 30 席 8.5 折 / 50+ 议价）。</div>
+          </div>
+        </a>
+
+        <a class="card" href="../mobile/my.html">
+          <div class="card-frame">
+            <div class="phone">
+              <div class="phone-screen">
+                <svg viewBox="0 0 120 240" xmlns="http://www.w3.org/2000/svg">
+                  <rect width="120" height="240" fill="var(--bg)"/>
+                  <rect x="10" y="14" width="14" height="14" rx="3" fill="var(--fg)"/>
+                  <rect x="28" y="16" width="50" height="3" rx="1" fill="var(--fg)"/>
+                  <rect x="28" y="22" width="36" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="34" width="100" height="38" rx="4" fill="var(--fg)"/>
+                  <rect x="14" y="38" width="20" height="2" rx="0.5" fill="var(--accent)"/>
+                  <rect x="14" y="44" width="40" height="5" rx="1" fill="var(--accent-on)"/>
+                  <rect x="14" y="52" width="60" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="56" width="40" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="14" y="60" width="80" height="6" rx="1" fill="var(--accent)"/>
+                  <rect x="10" y="78" width="100" height="32" rx="4" fill="var(--surface-2)"/>
+                  <rect x="10" y="84" width="48" height="22" rx="3" fill="var(--surface-2)" stroke="var(--border)" stroke-width="0.4"/>
+                  <rect x="13" y="87" width="8" height="8" rx="2" fill="var(--fg)"/>
+                  <rect x="24" y="88" width="18" height="2" rx="0.5" fill="var(--fg)"/>
+                  <rect x="24" y="93" width="14" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <path d="M58 95 L65 92 L72 96 L82 88" stroke="#38bdf8" stroke-width="0.8" fill="none"/>
+                  <rect x="60" y="100" width="8" height="2" rx="0.5" fill="var(--fg)"/>
+                  <rect x="60" y="115" width="100" height="32" rx="4" fill="var(--surface-2)"/>
+                  <rect x="60" y="119" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="60" y="125" width="40" height="4" rx="1" fill="var(--fg)"/>
+                  <rect x="60" y="132" width="100" height="3" rx="1" fill="var(--accent)"/>
+                  <rect x="60" y="138" width="60" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="60" y="141" width="40" height="1.5" rx="0.5" fill="var(--soft)"/>
+                  <rect x="10" y="155" width="100" height="40" rx="4" fill="var(--surface-2)"/>
+                  <rect x="14" y="159" width="20" height="2" rx="0.5" fill="var(--muted)"/>
+                  <rect x="14" y="165" width="60" height="3" rx="0.5" fill="var(--fg)"/>
+                  <rect x="14" y="170" width="80" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <line x1="10" y1="180" x2="110" y2="180" stroke="var(--border)" stroke-width="0.5"/>
+                  <rect x="14" y="184" width="6" height="6" rx="1" fill="var(--accent)"/>
+                  <rect x="24" y="184" width="50" height="2" rx="0.5" fill="var(--fg)"/>
+                  <rect x="24" y="188" width="40" height="1.5" rx="0.5" fill="var(--muted)"/>
+                  <rect x="10" y="220" width="100" height="20" fill="var(--bg)"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-num">10 · WORKSPACE</div>
+            <div class="card-title">我的 · 研究员工作台</div>
+            <div class="card-desc">订阅状态卡（专业版 · 剩 23 天 / 机构版 · 8/10 席位）+ 自选 6 家银行 sparkline + 数据用量 + 提醒中心 + 收藏/笔记/设置。</div>
+          </div>
+        </a>
+
+      </div>
+    </section>
+
+    <footer>
+      <div>银图 ATLAS · 原型 v0.1</div>
+      <div>iOS · 393 × 852 · Trading Terminal</div>
+    </footer>
+  </div>
+  <script>
+    (function() {
+      var KEY = 'atlas-theme';
+      var root = document.documentElement;
+      function apply(theme) {
+        if (theme === 'light') root.setAttribute('data-theme', 'light');
+        else root.removeAttribute('data-theme');
+        var btns = document.querySelectorAll('[data-set-theme]');
+        for (var i = 0; i < btns.length; i++) {
+          var on = btns[i].getAttribute('data-set-theme') === theme;
+          if (on) btns[i].classList.add('active');
+          else btns[i].classList.remove('active');
+        }
+      }
+      var saved = null;
+      try { saved = localStorage.getItem(KEY); } catch (e) {}
+      apply(saved === 'light' ? 'light' : 'dark');
+      var btns = document.querySelectorAll('[data-set-theme]');
+      for (var i = 0; i < btns.length; i++) {
+        btns[i].addEventListener('click', function(e) {
+          var t = e.currentTarget.getAttribute('data-set-theme');
+          try { localStorage.setItem(KEY, t); } catch (e) {}
+          apply(t);
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
